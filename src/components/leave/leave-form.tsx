@@ -1,0 +1,97 @@
+"use client";
+
+import { useState } from "react";
+import { applyLeave } from "@/actions/leaves";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
+import { Plus } from "lucide-react";
+import { LEAVE_TYPE_LABELS } from "@/lib/constants";
+import type { LeaveType } from "@/types/database";
+
+export function LeaveForm() {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [leaveType, setLeaveType] = useState<LeaveType>("annual");
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLoading(true);
+    const formData = new FormData(e.currentTarget);
+    formData.set("leave_type", leaveType);
+    const result = await applyLeave(formData);
+    setLoading(false);
+
+    if (result.error) {
+      toast.error(result.error);
+    } else {
+      toast.success("Leave request submitted");
+      setOpen(false);
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger className={cn(buttonVariants())}>
+        <Plus className="mr-2 h-4 w-4" />
+        Apply for Leave
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Apply for Leave</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label>Leave Type</Label>
+            <Select value={leaveType} onValueChange={(v) => v && setLeaveType(v as LeaveType)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(LEAVE_TYPE_LABELS).map(([value, label]) => (
+                  <SelectItem key={value} value={value}>
+                    {label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="start_date">Start Date</Label>
+              <Input id="start_date" name="start_date" type="date" required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="end_date">End Date</Label>
+              <Input id="end_date" name="end_date" type="date" required />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="reason">Reason</Label>
+            <Textarea id="reason" name="reason" rows={3} required />
+          </div>
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? "Submitting..." : "Submit Request"}
+          </Button>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}

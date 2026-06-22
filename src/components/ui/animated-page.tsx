@@ -1,0 +1,34 @@
+"use client";
+
+import { motion } from "framer-motion";
+import type { ReactNode } from "react";
+
+export function AnimatedPage({ children }: { children: ReactNode }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export function AnimatedListItem({
+  children,
+  index = 0,
+}: {
+  children: ReactNode;
+  index?: number;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: index * 0.05, ease: "easeOut" }}
+    >
+      {children}
+    </motion.div>
+  );
+}
