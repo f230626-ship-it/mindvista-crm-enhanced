@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/auth";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmployeeForm } from "@/components/admin/employee-form";
+import { EditEmployeeDialog } from "@/components/admin/edit-employee-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -20,7 +21,7 @@ import {
 import { formatDate } from "@/lib/utils/date";
 
 export default async function AdminEmployeesPage() {
-  await requireRole("admin", "manager");
+  await requireRole("admin");
   const supabase = await createClient();
 
   const [{ data: employees }, { data: departments }, { data: managers }] = await Promise.all([
@@ -31,16 +32,16 @@ export default async function AdminEmployeesPage() {
     supabase.from("departments").select("*").order("name"),
     supabase
       .from("employees")
-      .select("id, full_name")
-      .in("role", ["admin", "manager"])
-      .eq("status", "active"),
+      .select("id, full_name, employee_code")
+      .eq("status", "active")
+      .order("full_name"),
   ]);
 
   return (
     <div>
       <PageHeader
         title="Employee Management"
-        description="Manage employee records and profiles"
+        description="Create and manage employee records"
         action={
           <EmployeeForm
             departments={departments ?? []}
@@ -57,6 +58,7 @@ export default async function AdminEmployeesPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>ID</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Designation</TableHead>
@@ -65,11 +67,13 @@ export default async function AdminEmployeesPage() {
                 <TableHead>Role</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Joined</TableHead>
+                <TableHead className="w-12" />
               </TableRow>
             </TableHeader>
             <TableBody>
               {employees?.map((emp) => (
                 <TableRow key={emp.id}>
+                  <TableCell className="font-mono text-xs">{emp.employee_code ?? "—"}</TableCell>
                   <TableCell className="font-medium">{emp.full_name}</TableCell>
                   <TableCell>{emp.email}</TableCell>
                   <TableCell>{emp.designation}</TableCell>
@@ -79,13 +83,18 @@ export default async function AdminEmployeesPage() {
                     <Badge variant="secondary">{ROLE_LABELS[emp.role]}</Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge
-                      variant={emp.status === "active" ? "default" : "outline"}
-                    >
+                    <Badge variant={emp.status === "active" ? "default" : "outline"}>
                       {EMPLOYEE_STATUS_LABELS[emp.status]}
                     </Badge>
                   </TableCell>
                   <TableCell>{formatDate(emp.joining_date)}</TableCell>
+                  <TableCell>
+                    <EditEmployeeDialog
+                      employee={emp}
+                      departments={departments ?? []}
+                      managers={managers ?? []}
+                    />
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

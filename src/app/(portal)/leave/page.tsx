@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireAuth } from "@/lib/auth";
 import { PageHeader } from "@/components/ui/page-header";
 import { LeaveForm } from "@/components/leave/leave-form";
+import { PendingLeaveApprovals } from "@/components/leave/pending-approvals";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -14,18 +15,20 @@ import {
 } from "@/components/ui/table";
 import { LEAVE_TYPE_LABELS, LEAVE_STATUS_LABELS, STATUS_COLORS } from "@/lib/constants";
 import { formatDate } from "@/lib/utils/date";
+import { getPendingLeavesForLead } from "@/actions/leaves";
 
 export default async function LeavePage() {
   const employee = await requireAuth();
   const supabase = await createClient();
 
-  const [{ data: leaves }, { data: balance }] = await Promise.all([
+  const [{ data: leaves }, { data: balance }, pendingForLead] = await Promise.all([
     supabase
       .from("leaves")
       .select("*")
       .eq("employee_id", employee.id)
       .order("created_at", { ascending: false }),
     supabase.from("leave_balances").select("*").eq("employee_id", employee.id).maybeSingle(),
+    getPendingLeavesForLead(),
   ]);
 
   return (
@@ -35,6 +38,17 @@ export default async function LeavePage() {
         description="Apply for leave and track your requests"
         action={<LeaveForm />}
       />
+
+      {pendingForLead.length > 0 && (
+        <Card className="mb-6 border-primary/20">
+          <CardHeader>
+            <CardTitle>Team Leave Approvals</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <PendingLeaveApprovals leaves={pendingForLead} />
+          </CardContent>
+        </Card>
+      )}
 
       <div className="mb-6 grid gap-4 md:grid-cols-3">
         {[

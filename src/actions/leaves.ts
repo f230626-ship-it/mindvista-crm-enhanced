@@ -10,6 +10,10 @@ export async function applyLeave(formData: FormData) {
   const employee = await getCurrentEmployee();
   if (!employee) return { error: "Not authenticated" };
 
+  if (!employee.lead_id) {
+    return { error: "No lead assigned. Contact admin to set your lead before applying for leave." };
+  }
+
   const leaveType = formData.get("leave_type") as LeaveType;
   const startDate = formData.get("start_date") as string;
   const endDate = formData.get("end_date") as string;
@@ -45,17 +49,32 @@ export async function reviewLeave(
   status: "approved" | "rejected",
   rejectionReason?: string
 ) {
-  await requireRole("admin", "manager");
-  const employee = await getCurrentEmployee();
-  if (!employee) return { error: "Not authenticated" };
+  const reviewer = await getCurrentEmployee();
+  if (!reviewer) return { error: "Not authenticated" };
 
   const supabase = await createClient();
+
+  const { data: leave } = await supabase
+    .from("leaves")
+    .select("*, employee:employees(id, full_name, lead_id, manager_id)")
+    .eq("id", leaveId)
+    .single();
+
+  if (!leave) return { error: "Leave request not found" };
+
+  const emp = leave.employee as { id: string; lead_id: string | null; manager_id: string | null };
+  const canApprove =
+    reviewer.role === "admin" ||
+    emp.lead_id === reviewer.id ||
+    emp.manager_id === reviewer.id;
+
+  if (!canApprove) return { error: "You are not authorized to approve this leave" };
 
   const { error } = await supabase
     .from("leaves")
     .update({
       status,
-      reviewed_by: employee.id,
+      reviewed_by: reviewer.id,
       reviewed_at: new Date().toISOString(),
       rejection_reason: rejectionReason ?? null,
     })
@@ -63,7 +82,43 @@ export async function reviewLeave(
 
   if (error) return { error: error.message };
 
+  if (leave.employee_id) {
+    await supabase.from("notifications").insert({
+      recipient_id: leave.employee_id,
+      type: "leave_review",
+      title: `Leave ${status}`,
+      message: `Your leave request has been ${status}`,
+      entity_type: "leave",
+      entity_id: leaveId,
+    });
+  }
+
   revalidatePath("/admin/leaves");
   revalidatePath("/leave");
+  revalidatePath("/dashboard");
   return { success: true };
+}
+
+export async function getPendingLeavesForLead() {
+  const employee = await getCurrentEmployee();
+  if (!employee) return [];
+
+  const supabase = await createClient();
+
+  const { data: team } = await supabase
+    .from("employees")
+    .select("id")
+    .or(`lead_id.eq.${employee.id},manager_id.eq.${employee.id}`);
+
+  const teamIds = team?.map((t) => t.id) ?? [];
+  if (teamIds.length === 0) return [];
+
+  const { data } = await supabase
+    .from("leaves")
+    .select("*, employee:employees(id, full_name, email, designation, employee_code)")
+    .in("employee_id", teamIds)
+    .eq("status", "pending")
+    .order("created_at", { ascending: false });
+
+  return data ?? [];
 }

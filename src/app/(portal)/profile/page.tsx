@@ -1,9 +1,9 @@
 import { requireAuth } from "@/lib/auth";
 import { PageHeader } from "@/components/ui/page-header";
 import { ProfileForm } from "@/components/profile/profile-form";
+import { ProfilePhotoUpload } from "@/components/profile/profile-photo-upload";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   EMPLOYMENT_TYPE_LABELS,
   WORK_LOCATION_LABELS,
@@ -15,12 +15,6 @@ import { isAdmin } from "@/lib/auth";
 
 export default async function ProfilePage() {
   const employee = await requireAuth();
-  const initials = employee.full_name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
 
   return (
     <div>
@@ -29,10 +23,11 @@ export default async function ProfilePage() {
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-1">
           <CardHeader className="text-center">
-            <Avatar className="mx-auto h-24 w-24">
-              <AvatarImage src={employee.profile_photo_url ?? undefined} />
-              <AvatarFallback className="text-2xl">{initials}</AvatarFallback>
-            </Avatar>
+            <ProfilePhotoUpload
+              employeeId={employee.id}
+              fullName={employee.full_name}
+              currentUrl={employee.profile_photo_url}
+            />
             <CardTitle className="mt-4">{employee.full_name}</CardTitle>
             <p className="text-sm text-muted-foreground">{employee.designation}</p>
             <div className="flex justify-center gap-2 pt-2">
@@ -41,6 +36,12 @@ export default async function ProfilePage() {
             </div>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
+            {employee.employee_code && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Employee ID</span>
+                <span className="font-medium">{employee.employee_code}</span>
+              </div>
+            )}
             <div className="flex justify-between">
               <span className="text-muted-foreground">Email</span>
               <span>{employee.email}</span>
@@ -53,6 +54,18 @@ export default async function ProfilePage() {
               <span className="text-muted-foreground">Joined</span>
               <span>{formatDate(employee.joining_date)}</span>
             </div>
+            {employee.date_of_birth && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Date of Birth</span>
+                <span>{formatDate(employee.date_of_birth)}</span>
+              </div>
+            )}
+            {employee.cnic_number && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">CNIC</span>
+                <span>{employee.cnic_number}</span>
+              </div>
+            )}
             <div className="flex justify-between">
               <span className="text-muted-foreground">Type</span>
               <span>{EMPLOYMENT_TYPE_LABELS[employee.employment_type]}</span>
@@ -67,6 +80,9 @@ export default async function ProfilePage() {
                 <span>PKR {employee.basic_salary.toLocaleString()}</span>
               </div>
             )}
+            <p className="border-t pt-3 text-xs text-muted-foreground">
+              Employee ID, DOB, joining date, and CNIC can only be updated by admin.
+            </p>
           </CardContent>
         </Card>
 

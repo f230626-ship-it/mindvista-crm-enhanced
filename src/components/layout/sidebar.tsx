@@ -9,12 +9,10 @@ import {
   LayoutDashboard,
   User,
   CalendarDays,
-  Clock,
   FileText,
   Package,
   Users,
   CheckSquare,
-  BarChart3,
   Star,
 } from "lucide-react";
 
@@ -29,16 +27,14 @@ const employeeNav: NavItem[] = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { title: "Profile", href: "/profile", icon: User },
   { title: "Leave", href: "/leave", icon: CalendarDays },
-  { title: "Attendance", href: "/attendance", icon: Clock },
   { title: "Policies", href: "/policies", icon: FileText },
   { title: "Assets", href: "/assets", icon: Package },
   { title: "Performance", href: "/performance", icon: Star },
 ];
 
 const adminNav: NavItem[] = [
-  { title: "Employees", href: "/admin/employees", icon: Users, roles: ["admin", "manager"] },
+  { title: "Employees", href: "/admin/employees", icon: Users, roles: ["admin"] },
   { title: "Leave Approvals", href: "/admin/leaves", icon: CheckSquare, roles: ["admin", "manager"] },
-  { title: "Attendance", href: "/admin/attendance", icon: BarChart3, roles: ["admin", "manager"] },
   { title: "Performance", href: "/admin/performance", icon: Star, roles: ["admin", "manager"] },
   { title: "Assets", href: "/admin/assets", icon: Package, roles: ["admin"] },
   { title: "Policies", href: "/admin/policies", icon: FileText, roles: ["admin"] },

@@ -4,13 +4,16 @@ import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CalendarDays, Clock, Package, Users } from "lucide-react";
+import { CalendarDays, Package, Users, Bell } from "lucide-react";
 import { formatDate } from "@/lib/utils/date";
 import { LEAVE_TYPE_LABELS, LEAVE_STATUS_LABELS, STATUS_COLORS } from "@/lib/constants";
-import { isManagerOrAdmin } from "@/lib/auth";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { buildHierarchyTree, getTeamHierarchy } from "@/lib/hierarchy";
+import { TeamHierarchy } from "@/components/dashboard/team-hierarchy";
+import { getPendingLeavesForLead } from "@/actions/leaves";
+import { PendingLeaveApprovals } from "@/components/leave/pending-approvals";
 
 export default async function DashboardPage() {
   const employee = await requireAuth();
@@ -19,10 +22,9 @@ export default async function DashboardPage() {
   const [
     { data: leaveBalance },
     { data: recentLeaves },
-    { data: todayAttendance },
     { data: assignedAssets },
-    { count: pendingLeaves },
-    { count: totalEmployees },
+    hierarchy,
+    pendingForLead,
   ] = await Promise.all([
     supabase.from("leave_balances").select("*").eq("employee_id", employee.id).maybeSingle(),
     supabase
@@ -32,23 +34,16 @@ export default async function DashboardPage() {
       .order("created_at", { ascending: false })
       .limit(5),
     supabase
-      .from("attendance")
-      .select("*")
-      .eq("employee_id", employee.id)
-      .eq("date", new Date().toISOString().split("T")[0])
-      .maybeSingle(),
-    supabase
       .from("asset_assignments")
       .select("*, asset:assets(*)")
       .eq("employee_id", employee.id)
       .is("return_date", null),
-    isManagerOrAdmin(employee.role)
-      ? supabase.from("leaves").select("*", { count: "exact", head: true }).eq("status", "pending")
-      : Promise.resolve({ count: 0 }),
-    isManagerOrAdmin(employee.role)
-      ? supabase.from("employees").select("*", { count: "exact", head: true }).eq("status", "active")
-      : Promise.resolve({ count: 0 }),
+    getTeamHierarchy(employee.id),
+    getPendingLeavesForLead(),
   ]);
+
+  const hierarchyTree = buildHierarchyTree(hierarchy.all, employee.id);
+  const teamSize = hierarchy.directReports.length + hierarchy.leadTeam.length;
 
   const annualRemaining = (leaveBalance?.annual_quota ?? 0) - (leaveBalance?.annual_used ?? 0);
   const sickRemaining = (leaveBalance?.sick_quota ?? 0) - (leaveBalance?.sick_used ?? 0);
@@ -58,7 +53,11 @@ export default async function DashboardPage() {
     <div>
       <PageHeader
         title="Dashboard"
-        description={`Overview for ${employee.full_name}`}
+        description={
+          employee.employee_code
+            ? `${employee.full_name} · ${employee.employee_code}`
+            : employee.full_name
+        }
       />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -77,50 +76,40 @@ export default async function DashboardPage() {
           delay={60}
         />
         <StatCard
-          title="Today's Status"
-          value={todayAttendance?.check_in ? (todayAttendance.check_out ? "Done" : "Working") : "Not In"}
-          description={
-            todayAttendance?.check_in
-              ? `Checked in at ${formatDate(todayAttendance.check_in, "h:mm a")}`
-              : "No check-in yet"
-          }
-          icon={Clock}
-          delay={120}
-        />
-        <StatCard
           title="Assigned Assets"
           value={assignedAssets?.length ?? 0}
           description="Company equipment"
           icon={Package}
+          delay={120}
+        />
+        <StatCard
+          title="My Team"
+          value={teamSize}
+          description="Direct reports & lead team"
+          icon={Users}
           delay={180}
         />
       </div>
 
-      {isManagerOrAdmin(employee.role) && (
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
-          <StatCard
-            title="Pending Leaves"
-            value={pendingLeaves ?? 0}
-            description="Awaiting approval"
-            icon={CalendarDays}
-          />
-          <StatCard
-            title="Active Employees"
-            value={totalEmployees ?? 0}
-            description="Across all departments"
-            icon={Users}
-          />
-        </div>
+      {pendingForLead.length > 0 && (
+        <Card className="mt-6 border-primary/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Bell className="h-4 w-4 text-primary" />
+              Leave Approvals Needed
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <PendingLeaveApprovals leaves={pendingForLead} />
+          </CardContent>
+        </Card>
       )}
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-base">Recent Leave Requests</CardTitle>
-            <Link
-              href="/leave"
-              className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
-            >
+            <Link href="/leave" className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
               View all
             </Link>
           </CardHeader>
@@ -149,32 +138,66 @@ export default async function DashboardPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Leave Balance Summary</CardTitle>
+            <CardTitle className="text-base">Assigned Assets</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {[
-              { label: "Annual", remaining: annualRemaining, total: leaveBalance?.annual_quota ?? 0 },
-              { label: "Sick", remaining: sickRemaining, total: leaveBalance?.sick_quota ?? 0 },
-              { label: "Casual", remaining: casualRemaining, total: leaveBalance?.casual_quota ?? 0 },
-            ].map((item) => (
-              <div key={item.label}>
-                <div className="mb-1 flex justify-between text-sm">
-                  <span>{item.label}</span>
-                  <span className="text-muted-foreground">
-                    {item.remaining} / {item.total} remaining
-                  </span>
-                </div>
-                <div className="h-2 rounded-full bg-muted">
-                  <div
-                    className="h-2 rounded-full bg-primary transition-all"
-                    style={{ width: `${item.total ? (item.remaining / item.total) * 100 : 0}%` }}
-                  />
-                </div>
+          <CardContent>
+            {assignedAssets && assignedAssets.length > 0 ? (
+              <div className="space-y-2">
+                {assignedAssets.map((a) => (
+                  <div key={a.id} className="flex items-center justify-between rounded-lg border p-3 text-sm">
+                    <span className="font-medium">{a.asset?.name}</span>
+                    <span className="text-muted-foreground">{a.asset?.serial_number ?? "—"}</span>
+                  </div>
+                ))}
+                <Link href="/assets" className={cn(buttonVariants({ variant: "outline", size: "sm" }), "mt-2 w-full")}>
+                  View all assets
+                </Link>
               </div>
-            ))}
+            ) : (
+              <p className="text-sm text-muted-foreground">No assets assigned</p>
+            )}
           </CardContent>
         </Card>
       </div>
+
+      {teamSize > 0 && (
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle className="text-base">Team Hierarchy</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <TeamHierarchy tree={hierarchyTree} />
+          </CardContent>
+        </Card>
+      )}
+
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle className="text-base">Leave Balance Summary</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {[
+            { label: "Annual", remaining: annualRemaining, total: leaveBalance?.annual_quota ?? 0 },
+            { label: "Sick", remaining: sickRemaining, total: leaveBalance?.sick_quota ?? 0 },
+            { label: "Casual", remaining: casualRemaining, total: leaveBalance?.casual_quota ?? 0 },
+          ].map((item) => (
+            <div key={item.label}>
+              <div className="mb-1 flex justify-between text-sm">
+                <span>{item.label}</span>
+                <span className="text-muted-foreground">
+                  {item.remaining} / {item.total} remaining
+                </span>
+              </div>
+              <div className="h-2 rounded-full bg-muted">
+                <div
+                  className="h-2 rounded-full bg-primary transition-all"
+                  style={{ width: `${item.total ? (item.remaining / item.total) * 100 : 0}%` }}
+                />
+              </div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
     </div>
   );
 }

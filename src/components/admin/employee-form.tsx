@@ -34,7 +34,7 @@ export function EmployeeForm({
   managers,
 }: {
   departments: Department[];
-  managers: Pick<Employee, "id" | "full_name">[];
+  managers: Pick<Employee, "id" | "full_name" | "employee_code">[];
 }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -43,6 +43,7 @@ export function EmployeeForm({
   const [workLocation, setWorkLocation] = useState<WorkLocation>("onsite");
   const [departmentId, setDepartmentId] = useState("");
   const [managerId, setManagerId] = useState("");
+  const [leadId, setLeadId] = useState("");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -53,6 +54,7 @@ export function EmployeeForm({
     formData.set("work_location", workLocation);
     if (departmentId) formData.set("department_id", departmentId);
     if (managerId) formData.set("manager_id", managerId);
+    if (leadId) formData.set("lead_id", leadId);
     const result = await createEmployee(formData);
     setLoading(false);
 
@@ -62,6 +64,9 @@ export function EmployeeForm({
       setOpen(false);
     }
   }
+
+  const personLabel = (p: Pick<Employee, "id" | "full_name" | "employee_code">) =>
+    p.employee_code ? `${p.full_name} (${p.employee_code})` : p.full_name;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -75,6 +80,14 @@ export function EmployeeForm({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="employee_code">Employee ID</Label>
+              <Input id="employee_code" name="employee_code" placeholder="MV-001" required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="joining_date">Joining Date</Label>
+              <Input id="joining_date" name="joining_date" type="date" required />
+            </div>
             <div className="col-span-2 space-y-2">
               <Label htmlFor="full_name">Full Name</Label>
               <Input id="full_name" name="full_name" required />
@@ -86,6 +99,14 @@ export function EmployeeForm({
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input id="password" name="password" type="password" minLength={8} required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="date_of_birth">Date of Birth</Label>
+              <Input id="date_of_birth" name="date_of_birth" type="date" required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="cnic_number">CNIC</Label>
+              <Input id="cnic_number" name="cnic_number" placeholder="12345-1234567-1" required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="phone">Phone</Label>
@@ -111,7 +132,7 @@ export function EmployeeForm({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Manager</Label>
+              <Label>Reporting To</Label>
               <Select value={managerId} onValueChange={(v) => setManagerId(v ?? "")}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select manager" />
@@ -119,14 +140,29 @@ export function EmployeeForm({
                 <SelectContent>
                   {managers.map((m) => (
                     <SelectItem key={m.id} value={m.id}>
-                      {m.full_name}
+                      {personLabel(m)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Role</Label>
+              <Label>Lead (Leave Approver)</Label>
+              <Select value={leadId} onValueChange={(v) => setLeadId(v ?? "")}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select lead" />
+                </SelectTrigger>
+                <SelectContent>
+                  {managers.map((m) => (
+                    <SelectItem key={m.id} value={m.id}>
+                      {personLabel(m)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>System Role</Label>
               <Select value={role} onValueChange={(v) => v && setRole(v as UserRole)}>
                 <SelectTrigger>
                   <SelectValue />
@@ -169,10 +205,6 @@ export function EmployeeForm({
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="joining_date">Joining Date</Label>
-              <Input id="joining_date" name="joining_date" type="date" required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="basic_salary">Basic Salary (PKR)</Label>

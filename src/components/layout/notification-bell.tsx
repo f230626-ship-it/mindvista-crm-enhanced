@@ -1,0 +1,90 @@
+"use client";
+
+import { useState } from "react";
+import { markAllNotificationsRead, markNotificationRead } from "@/actions/notifications";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import { Bell } from "lucide-react";
+import { useRouter } from "next/navigation";
+import type { Notification } from "@/types/database";
+import { formatDate } from "@/lib/utils/date";
+
+export function NotificationBell({
+  notifications,
+  unreadCount,
+}: {
+  notifications: Notification[];
+  unreadCount: number;
+}) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+
+  async function handleRead(id: string, entityType?: string | null) {
+    await markNotificationRead(id);
+    setOpen(false);
+    if (entityType === "leave") router.push("/leave");
+    router.refresh();
+  }
+
+  async function handleReadAll() {
+    await markAllNotificationsRead();
+    router.refresh();
+  }
+
+  return (
+    <DropdownMenu open={open} onOpenChange={setOpen}>
+      <DropdownMenuTrigger className="relative inline-flex rounded-lg p-2 outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring">
+        <Bell className="h-5 w-5" />
+        {unreadCount > 0 && (
+          <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+            {unreadCount > 9 ? "9+" : unreadCount}
+          </span>
+        )}
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-80" align="end">
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="flex items-center justify-between">
+            Notifications
+            {unreadCount > 0 && (
+              <Button variant="ghost" size="sm" className="h-auto p-0 text-xs" onClick={handleReadAll}>
+                Mark all read
+              </Button>
+            )}
+          </DropdownMenuLabel>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        {notifications.length === 0 ? (
+          <p className="px-3 py-4 text-center text-sm text-muted-foreground">No notifications</p>
+        ) : (
+          notifications.map((n) => (
+            <DropdownMenuItem
+              key={n.id}
+              className="flex flex-col items-start gap-1 p-3 cursor-pointer"
+              onClick={() => handleRead(n.id, n.entity_type)}
+            >
+              <div className="flex w-full items-center justify-between gap-2">
+                <span className="font-medium text-sm">{n.title}</span>
+                {!n.read_at && <Badge className="text-[10px]">New</Badge>}
+              </div>
+              {n.message && (
+                <span className="text-xs text-muted-foreground line-clamp-2">{n.message}</span>
+              )}
+              <span className="text-[10px] text-muted-foreground">
+                {formatDate(n.created_at, "MMM d, h:mm a")}
+              </span>
+            </DropdownMenuItem>
+          ))
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}

@@ -21,18 +21,21 @@ export interface Department {
 export interface Employee {
   id: string;
   user_id: string | null;
+  employee_code: string | null;
   full_name: string;
   email: string;
   phone: string | null;
   address: string | null;
   profile_photo_url: string | null;
   cnic_number: string | null;
+  date_of_birth: string | null;
   emergency_contact_name: string | null;
   emergency_contact_phone: string | null;
   joining_date: string;
   designation: string;
   department_id: string | null;
   manager_id: string | null;
+  lead_id: string | null;
   employment_type: EmploymentType;
   work_location: WorkLocation;
   status: EmployeeStatus;
@@ -46,6 +49,19 @@ export interface Employee {
   updated_at: string;
   department?: Department;
   manager?: Pick<Employee, "id" | "full_name" | "email">;
+  lead?: Pick<Employee, "id" | "full_name" | "email">;
+}
+
+export interface Notification {
+  id: string;
+  recipient_id: string;
+  type: string;
+  title: string;
+  message: string | null;
+  entity_type: string | null;
+  entity_id: string | null;
+  read_at: string | null;
+  created_at: string;
 }
 
 export interface LeaveBalance {

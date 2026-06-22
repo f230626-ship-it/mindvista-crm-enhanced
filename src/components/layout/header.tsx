@@ -13,14 +13,23 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/client";
 import { ROLE_LABELS } from "@/lib/constants";
-import type { Employee } from "@/types/database";
+import type { Employee, Notification } from "@/types/database";
 import { LogOut, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
+import { NotificationBell } from "@/components/layout/notification-bell";
 
-export function Header({ employee }: { employee: Employee }) {
+export function Header({
+  employee,
+  notifications,
+  unreadCount,
+}: {
+  employee: Employee;
+  notifications: Notification[];
+  unreadCount: number;
+}) {
   const router = useRouter();
   const [signingOut, setSigningOut] = useState(false);
   const initials = employee.full_name
@@ -53,6 +62,8 @@ export function Header({ employee }: { employee: Employee }) {
         <p className="text-sm text-muted-foreground">{employee.designation}</p>
       </div>
 
+      <div className="flex items-center gap-2">
+        <NotificationBell notifications={notifications} unreadCount={unreadCount} />
       <DropdownMenu>
         <DropdownMenuTrigger className="relative inline-flex rounded-full outline-none ring-primary/30 transition-all hover:ring-2 focus-visible:ring-2">
           <Avatar className="h-10 w-10 border-2 border-primary/30">
@@ -93,6 +104,7 @@ export function Header({ employee }: { employee: Employee }) {
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
+      </div>
     </header>
   );
 }
