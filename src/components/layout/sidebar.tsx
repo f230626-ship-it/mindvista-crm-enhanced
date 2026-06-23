@@ -14,6 +14,7 @@ import {
   Users,
   CheckSquare,
   Star,
+  Briefcase,
 } from "lucide-react";
 
 interface NavItem {
@@ -25,6 +26,7 @@ interface NavItem {
 
 const employeeNav: NavItem[] = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { title: "Projects", href: "/projects", icon: Briefcase },
   { title: "Profile", href: "/profile", icon: User },
   { title: "Leave", href: "/leave", icon: CalendarDays },
   { title: "Policies", href: "/policies", icon: FileText },

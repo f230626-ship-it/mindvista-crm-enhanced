@@ -26,6 +26,7 @@ import {
   EMPLOYMENT_TYPE_LABELS,
   WORK_LOCATION_LABELS,
   ROLE_LABELS,
+  PM_ROLE_LABELS,
   EMPLOYEE_STATUS_LABELS,
 } from "@/lib/constants";
 import type {
@@ -33,6 +34,7 @@ import type {
   Employee,
   EmploymentType,
   UserRole,
+  PMRole,
   WorkLocation,
   EmployeeStatus,
 } from "@/types/database";
@@ -49,6 +51,7 @@ export function EditEmployeeDialog({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [role, setRole] = useState<UserRole>(employee.role);
+  const [pmRole, setPmRole] = useState<PMRole>(employee.pm_role || "developer");
   const [status, setStatus] = useState<EmployeeStatus>(employee.status);
   const [employmentType, setEmploymentType] = useState<EmploymentType>(employee.employment_type);
   const [workLocation, setWorkLocation] = useState<WorkLocation>(employee.work_location);
@@ -64,6 +67,7 @@ export function EditEmployeeDialog({
     setLoading(true);
     const formData = new FormData(e.currentTarget);
     formData.set("role", role);
+    formData.set("pm_role", pmRole);
     formData.set("status", status);
     formData.set("employment_type", employmentType);
     formData.set("work_location", workLocation);
@@ -218,6 +222,21 @@ export function EditEmployeeDialog({
                 </SelectTrigger>
                 <SelectContent>
                   {Object.entries(ROLE_LABELS).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Project Management Role</Label>
+              <Select value={pmRole} onValueChange={(v) => v && setPmRole(v as PMRole)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(PM_ROLE_LABELS).map(([value, label]) => (
                     <SelectItem key={value} value={value}>
                       {label}
                     </SelectItem>

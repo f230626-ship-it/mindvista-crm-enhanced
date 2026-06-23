@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Employee } from "@/types/database";
+import type { Employee, PMRole } from "@/types/database";
 import { redirect } from "next/navigation";
 import { cache } from "react";
 
@@ -51,3 +51,18 @@ export function isAdmin(role: Employee["role"]) {
 export function isManagerOrAdmin(role: Employee["role"]) {
   return role === "admin" || role === "manager";
 }
+
+export async function requirePmRole(...roles: PMRole[]) {
+  const employee = await requireAuth();
+  if (!roles.includes(employee.pm_role)) redirect("/dashboard");
+  return employee;
+}
+
+export function isPmAdmin(role: PMRole) {
+  return role === "admin";
+}
+
+export function isPmAdminOrCoordinator(role: PMRole) {
+  return role === "admin" || role === "coordinator";
+}
+

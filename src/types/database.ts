@@ -11,6 +11,8 @@ export type PolicyCategory = "handbook" | "leave_policy" | "remote_work" | "sops
 export type DocumentType = "cnic" | "offer_letter" | "employment_contract" | "certificate" | "other";
 export type PaymentCycle = "monthly" | "bi_weekly" | "weekly";
 
+export type PMRole = "admin" | "coordinator" | "bd" | "developer";
+
 export interface Department {
   id: string;
   name: string;
@@ -40,6 +42,7 @@ export interface Employee {
   work_location: WorkLocation;
   status: EmployeeStatus;
   role: UserRole;
+  pm_role: PMRole;
   basic_salary: number | null;
   allowances: number | null;
   payment_cycle: PaymentCycle | null;
@@ -203,3 +206,58 @@ export interface AuditLog {
   details: Record<string, unknown> | null;
   created_at: string;
 }
+
+export interface Project {
+  id: string;
+  name: string;
+  client_name: string;
+  company_name: string | null;
+  client_email: string;
+  client_contact_number: string | null;
+  description: string | null;
+  industry: "Real Estate" | "Healthcare" | "Restaurant" | "Hotel" | "E-commerce" | "Other";
+  bd_id: string | null;
+  lead_source: "Fiverr" | "Upwork" | "LinkedIn" | "Website" | "Referral" | "Cold Email" | "Other";
+  closing_developer_id: string | null;
+  manager_id: string | null;
+  value: number;
+  currency: string;
+  is_monthly_retainer: boolean;
+  retainer_amount: number | null;
+  expected_profit: number | null;
+  payment_status: "Pending" | "Partial" | "Paid" | "Overdue";
+  start_date: string;
+  expected_delivery_date: string;
+  actual_delivery_date: string | null;
+  status: "Lead Won" | "Onboarding" | "In Progress" | "On Hold" | "Completed" | "Maintenance" | "Paused" | "Cancelled" | "Archived";
+  created_at: string;
+  updated_at: string;
+  created_by: string | null;
+  updated_by: string | null;
+  bd?: Pick<Employee, "id" | "full_name" | "email">;
+  manager?: Pick<Employee, "id" | "full_name" | "email">;
+  closing_developer?: Pick<Employee, "id" | "full_name" | "email">;
+}
+
+export interface ProjectResource {
+  id: string;
+  project_id: string;
+  employee_id: string;
+  role: "Frontend Developer" | "Backend Developer" | "Full Stack Developer" | "Designer" | "QA" | "AI Engineer" | "DevOps" | "Project Manager";
+  allocation_percentage: number;
+  start_date: string;
+  end_date: string;
+  created_at: string;
+  employee?: Pick<Employee, "id" | "full_name" | "email">;
+}
+
+export interface ProjectAuditLog {
+  id: string;
+  project_id: string;
+  actor_id: string | null;
+  action: string;
+  details: Record<string, unknown> | null;
+  created_at: string;
+  actor?: Pick<Employee, "id" | "full_name" | "email">;
+}
+

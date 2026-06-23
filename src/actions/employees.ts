@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireRole, getCurrentEmployee } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
-import type { EmploymentType, UserRole, WorkLocation, EmployeeStatus } from "@/types/database";
+import type { EmploymentType, UserRole, WorkLocation, EmployeeStatus, PMRole } from "@/types/database";
 
 export async function createEmployee(formData: FormData) {
   await requireRole("admin");
@@ -39,6 +39,7 @@ export async function createEmployee(formData: FormData) {
     employment_type: (formData.get("employment_type") as EmploymentType) || "full_time",
     work_location: (formData.get("work_location") as WorkLocation) || "onsite",
     role: (formData.get("role") as UserRole) || "employee",
+    pm_role: (formData.get("pm_role") as PMRole) || "developer",
     joining_date: (formData.get("joining_date") as string) || new Date().toISOString().split("T")[0],
     basic_salary: formData.get("basic_salary")
       ? parseFloat(formData.get("basic_salary") as string)
@@ -74,6 +75,7 @@ export async function updateEmployee(employeeId: string, formData: FormData) {
       work_location: formData.get("work_location") as WorkLocation,
       status: formData.get("status") as EmployeeStatus,
       role: formData.get("role") as UserRole,
+      pm_role: formData.get("pm_role") as PMRole,
       cnic_number: (formData.get("cnic_number") as string) || null,
       date_of_birth: (formData.get("date_of_birth") as string) || null,
       joining_date: (formData.get("joining_date") as string) || undefined,

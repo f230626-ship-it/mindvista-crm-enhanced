@@ -42,6 +42,13 @@ export const ROLE_LABELS: Record<string, string> = {
   employee: "Employee",
 };
 
+export const PM_ROLE_LABELS: Record<string, string> = {
+  admin: "PM Admin",
+  coordinator: "PM Coordinator",
+  bd: "Business Development",
+  developer: "Developer/Resource",
+};
+
 export const ASSET_TYPE_LABELS: Record<string, string> = {
   laptop: "Laptop",
   monitor: "Monitor",
