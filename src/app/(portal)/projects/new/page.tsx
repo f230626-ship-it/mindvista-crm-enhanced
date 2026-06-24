@@ -4,7 +4,7 @@ import { ProjectForm } from "../project-form";
 import { PageHeader } from "@/components/ui/page-header";
 
 export default async function NewProjectPage() {
-  const employee = await requirePmRole("admin", "coordinator");
+  const employee = await requirePmRole("admin");
   const supabase = await createClient();
 
   // Load all employees for ownership assignment dropdowns

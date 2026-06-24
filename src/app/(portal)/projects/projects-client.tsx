@@ -34,6 +34,8 @@ import {
   SlidersHorizontal,
   ChevronLeft,
   ChevronRight,
+  Lock,
+  FolderOpen,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -93,6 +95,9 @@ export default function ProjectsClient({
 }: ProjectsClientProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"dashboard" | "list">("dashboard");
+  // Only pm_role='admin' can create projects (coordinators can edit but not create)
+  const isAdmin = currentEmployee.pm_role === "admin";
+  // Both admin and coordinator can edit/delete
   const isWritable = currentEmployee.pm_role === "admin" || currentEmployee.pm_role === "coordinator";
 
   // --- Filtering & Search State ---
@@ -382,14 +387,22 @@ export default function ProjectsClient({
             </button>
           </div>
 
-          {/* Create Button */}
-          {isWritable && (
+          {/* Create Button – admin only */}
+          {isAdmin ? (
             <Link href="/projects/new">
               <Button className="font-semibold shadow-md">
                 <Plus className="mr-2 h-4 w-4" /> Add Project
               </Button>
             </Link>
-          )}
+          ) : isWritable ? (
+            <Button
+              disabled
+              title="Only Admins can create new projects"
+              className="font-semibold shadow-md opacity-50 cursor-not-allowed"
+            >
+              <Lock className="mr-2 h-3.5 w-3.5" /> Add Project
+            </Button>
+          ) : null}
         </div>
       </div>
 
@@ -910,8 +923,25 @@ export default function ProjectsClient({
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={8} className="h-32 text-center text-sm text-muted-foreground">
-                        No projects found matching the criteria.
+                      <TableCell colSpan={8} className="h-40 text-center">
+                        <div className="flex flex-col items-center justify-center gap-2 py-6">
+                          <FolderOpen className="h-10 w-10 text-muted-foreground/40" />
+                          <p className="text-sm font-medium text-muted-foreground">No projects found</p>
+                          <p className="text-xs text-muted-foreground/70">
+                            {search || statusFilter !== "ALL" || clientFilter !== "ALL"
+                              ? "Try clearing your filters to see all projects."
+                              : isAdmin
+                              ? "Get started by adding your first project."
+                              : "No projects have been assigned to you yet."}
+                          </p>
+                          {isAdmin && !search && statusFilter === "ALL" && clientFilter === "ALL" && (
+                            <Link href="/projects/new" className="mt-1">
+                              <Button size="sm" className="font-semibold">
+                                <Plus className="mr-1.5 h-3.5 w-3.5" /> Add Project
+                              </Button>
+                            </Link>
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   )}

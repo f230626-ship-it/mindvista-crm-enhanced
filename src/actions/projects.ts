@@ -15,7 +15,7 @@ export async function checkApproachingDeliveries() {
 }
 
 export async function createProject(formData: FormData) {
-  const employee = await requirePmRole("admin", "coordinator");
+  const employee = await requirePmRole("admin");
   const supabase = await createClient();
 
   const isMonthlyRetainer = formData.get("is_monthly_retainer") === "true" || formData.get("is_monthly_retainer") === "on";
