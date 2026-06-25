@@ -20,6 +20,7 @@ import { useState } from "react";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 import { NotificationBell } from "@/components/layout/notification-bell";
+import { ThemeSwitcher } from "@/components/layout/theme-switcher";
 
 export function Header({
   employee,
@@ -59,10 +60,11 @@ export function Header({
           Welcome,{" "}
           <span className="text-gradient-brand">{employee.full_name.split(" ")[0]}</span>
         </h1>
-        <p className="text-sm text-muted-foreground">{employee.designation}</p>
+          <p className="text-sm text-muted-foreground">{employee.designation}</p>
       </div>
 
       <div className="flex items-center gap-2">
+        <ThemeSwitcher />
         <NotificationBell notifications={notifications} unreadCount={unreadCount} />
       <DropdownMenu>
         <DropdownMenuTrigger className="relative inline-flex rounded-full outline-none ring-primary/30 transition-all hover:ring-2 focus-visible:ring-2">

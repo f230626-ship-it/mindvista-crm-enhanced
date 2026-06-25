@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { NavigationProgress } from "@/components/ui/navigation-progress";
+import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
   title: "MindVista HRMS",
@@ -17,7 +18,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className="dark h-full"
+      className="h-full"
       suppressHydrationWarning
     >
       <head>
@@ -29,17 +30,24 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col">
-        <NavigationProgress />
-        {children}
-        <Toaster
-          richColors
-          position="top-right"
-          toastOptions={{
-            classNames: {
-              toast: "border-border bg-card text-card-foreground shadow-lg",
-            },
-          }}
-        />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <NavigationProgress />
+          {children}
+          <Toaster
+            richColors
+            position="top-right"
+            toastOptions={{
+              classNames: {
+                toast: "border-border bg-card text-card-foreground shadow-lg",
+              },
+            }}
+          />
+        </ThemeProvider>
       </body>
     </html>
   );

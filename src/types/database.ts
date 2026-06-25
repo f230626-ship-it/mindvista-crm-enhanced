@@ -230,6 +230,8 @@ export interface Project {
   expected_delivery_date: string;
   actual_delivery_date: string | null;
   status: "Lead Won" | "Onboarding" | "In Progress" | "On Hold" | "Completed" | "Maintenance" | "Paused" | "Cancelled" | "Archived";
+  priority?: "Low" | "Medium" | "High";
+  progress_percentage?: number;
   created_at: string;
   updated_at: string;
   created_by: string | null;

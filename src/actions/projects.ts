@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { requirePmRole } from "@/lib/auth";
+import { requirePmRole, getCurrentEmployee } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import type { Project } from "@/types/database";
 
@@ -158,3 +158,121 @@ export async function removeResource(projectId: string, assignmentId: string) {
   revalidatePath("/projects");
   return { success: true };
 }
+
+export async function bulkImportProjects(projects: any[], fileName: string) {
+  const employee = await getCurrentEmployee();
+  if (!employee || (employee.role !== "admin" && employee.pm_role !== "admin")) {
+    return { error: "Unauthorized: Admin privileges required." };
+  }
+
+  const supabase = await createClient();
+  let successCount = 0;
+  let failedCount = 0;
+  const errors: string[] = [];
+
+  for (const proj of projects) {
+    try {
+      const { data: createdProj, error: projErr } = await supabase
+        .from("projects")
+        .insert({
+          name: proj.name,
+          client_name: proj.client_name,
+          client_email: proj.client_email,
+          description: proj.description,
+          start_date: proj.start_date,
+          expected_delivery_date: proj.expected_delivery_date,
+          manager_id: proj.manager_id,
+          status: proj.status,
+          priority: proj.priority,
+          value: proj.value,
+          progress_percentage: proj.progress_percentage,
+          industry: "Other",
+          lead_source: "Other",
+          currency: "USD",
+          is_monthly_retainer: false,
+          retainer_amount: 0,
+          payment_status: "Pending",
+          created_by: employee.id,
+          updated_by: employee.id,
+        })
+        .select("id")
+        .single();
+
+      if (projErr) {
+        failedCount++;
+        errors.push(`Failed to insert project "${proj.name}": ${projErr.message}`);
+        continue;
+      }
+
+      successCount++;
+
+      // Insert resources/team members
+      if (proj.team_employee_ids && proj.team_employee_ids.length > 0) {
+        const resourceRows = proj.team_employee_ids.map((empId: string) => ({
+          project_id: createdProj.id,
+          employee_id: empId,
+          role: "Full Stack Developer",
+          allocation_percentage: 100,
+          start_date: proj.start_date,
+          end_date: proj.expected_delivery_date,
+        }));
+
+        const { error: resErr } = await supabase.from("project_resources").insert(resourceRows);
+        if (resErr) {
+          console.error(`Failed to assign resources for project ${proj.name}:`, resErr.message);
+        }
+      }
+    } catch (err: any) {
+      failedCount++;
+      errors.push(`System error on project "${proj.name}": ${err.message}`);
+    }
+  }
+
+  // Create Audit Log
+  const { error: auditErr } = await supabase.from("audit_logs").insert({
+    actor_id: employee.id,
+    action: "Bulk Project Import",
+    entity_type: "Project",
+    entity_id: null,
+    details: {
+      fileName,
+      totalCount: projects.length,
+      successCount,
+      failedCount,
+      errors: errors.slice(0, 10),
+    },
+  });
+
+  if (auditErr) {
+    console.error("Failed to insert bulk import audit log:", auditErr.message);
+  }
+
+  // Notify Admins
+  if (successCount > 0) {
+    const { data: admins } = await supabase
+      .from("employees")
+      .select("id")
+      .or("role.eq.admin,pm_role.eq.admin")
+      .eq("status", "active");
+
+    if (admins && admins.length > 0) {
+      const notificationRows = admins.map((admin) => ({
+        recipient_id: admin.id,
+        type: "bulk_import_completed",
+        title: "Bulk Import Completed",
+        message: `${employee.full_name} successfully imported ${successCount} projects from "${fileName}".`,
+        entity_type: "project",
+        entity_id: null,
+      }));
+
+      const { error: notifErr } = await supabase.from("notifications").insert(notificationRows);
+      if (notifErr) {
+        console.error("Failed to insert notifications for admins:", notifErr.message);
+      }
+    }
+  }
+
+  revalidatePath("/projects");
+  return { success: true, successCount, failedCount };
+}
+

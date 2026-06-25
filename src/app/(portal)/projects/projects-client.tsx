@@ -36,7 +36,9 @@ import {
   ChevronRight,
   Lock,
   FolderOpen,
+  Upload,
 } from "lucide-react";
+import { ImportDialog } from "@/components/projects/import-dialog";
 import {
   ResponsiveContainer,
   PieChart,
@@ -95,6 +97,7 @@ export default function ProjectsClient({
 }: ProjectsClientProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"dashboard" | "list">("dashboard");
+  const [isImportOpen, setIsImportOpen] = useState(false);
   // Only pm_role='admin' can create projects (coordinators can edit but not create)
   const isAdmin = currentEmployee.pm_role === "admin";
   // Both admin and coordinator can edit/delete
@@ -387,6 +390,17 @@ export default function ProjectsClient({
             </button>
           </div>
 
+          {/* Import Projects Button – admin only */}
+          {isAdmin && (
+            <Button
+              variant="outline"
+              onClick={() => setIsImportOpen(true)}
+              className="font-semibold shadow-md border-primary/20 text-primary hover:bg-primary/5"
+            >
+              <Upload className="mr-2 h-4 w-4" /> Import Projects
+            </Button>
+          )}
+
           {/* Create Button – admin only */}
           {isAdmin ? (
             <Link href="/projects/new">
@@ -507,7 +521,10 @@ export default function ProjectsClient({
                           <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                         ))}
                       </Pie>
-                      <Tooltip formatter={(value) => [`${value} projects`, 'Count']} />
+                      <Tooltip
+                        contentStyle={{ backgroundColor: "var(--card)", borderColor: "var(--border)", color: "var(--foreground)" }}
+                        formatter={(value) => [`${value} projects`, 'Count']}
+                      />
                       <Legend verticalAlign="bottom" height={36} />
                     </PieChart>
                   </ResponsiveContainer>
@@ -536,7 +553,10 @@ export default function ProjectsClient({
                       <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.2} />
                       <XAxis dataKey="name" stroke="#94a3b8" fontSize={11} tickLine={false} />
                       <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(val) => `$${val}`} />
-                      <Tooltip formatter={(value) => [`$${Number(value).toLocaleString()}`, 'Revenue']} />
+                      <Tooltip
+                        contentStyle={{ backgroundColor: "var(--card)", borderColor: "var(--border)", color: "var(--foreground)" }}
+                        formatter={(value) => [`$${Number(value).toLocaleString()}`, 'Revenue']}
+                      />
                       <Area type="monotone" dataKey="value" stroke="#e5a158" fillOpacity={1} fill="url(#colorVal)" />
                     </AreaChart>
                   </ResponsiveContainer>
@@ -561,7 +581,10 @@ export default function ProjectsClient({
                       <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.2} />
                       <XAxis dataKey="name" stroke="#94a3b8" fontSize={11} tickLine={false} />
                       <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(val) => `$${val}`} />
-                      <Tooltip formatter={(value) => [`$${Number(value).toLocaleString()}`, 'Total Revenue']} />
+                      <Tooltip
+                        contentStyle={{ backgroundColor: "var(--card)", borderColor: "var(--border)", color: "var(--foreground)" }}
+                        formatter={(value) => [`$${Number(value).toLocaleString()}`, 'Total Revenue']}
+                      />
                       <Bar dataKey="value" fill="#e5a158" radius={[4, 4, 0, 0]}>
                         {revenueMetrics.sourceData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={CHART_COLORS[(index + 1) % CHART_COLORS.length]} />
@@ -981,6 +1004,14 @@ export default function ProjectsClient({
           )}
         </div>
       )}
+
+      <ImportDialog
+        open={isImportOpen}
+        onOpenChange={setIsImportOpen}
+        allEmployees={allEmployees}
+        existingProjects={initialProjects}
+        onImportSuccess={() => router.refresh()}
+      />
     </div>
   );
 }
