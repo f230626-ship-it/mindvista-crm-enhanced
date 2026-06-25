@@ -377,15 +377,15 @@ export function ImportDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto flex flex-col p-6 border-border/60 bg-card/95 backdrop-blur-md">
-        <DialogHeader className="pb-3 border-b">
+      <DialogContent className="pm-glass-dialog sm:max-w-4xl max-h-[90vh] overflow-y-auto flex flex-col p-6">
+        <DialogHeader className="pb-4 border-b border-border/40">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-xl font-bold">Bulk Project Import</DialogTitle>
             <Button
               variant="outline"
               size="sm"
               onClick={handleDownloadTemplate}
-              className="flex items-center gap-1.5 text-xs font-semibold"
+              className="pm-btn-outline flex items-center gap-1.5 text-xs"
             >
               <Download className="h-3.5 w-3.5" /> Download Sample Template
             </Button>
@@ -397,8 +397,8 @@ export function ImportDialog({
 
         {/* Upload Zone */}
         {!file && (
-          <div className="flex flex-col items-center justify-center border-2 border-dashed border-muted-foreground/30 rounded-xl p-8 bg-muted/20 hover:bg-muted/40 transition duration-200 mt-4">
-            <UploadCloud className="h-10 w-10 text-muted-foreground mb-3 animate-bounce" />
+          <div className="pm-upload-zone mt-4">
+            <UploadCloud className="h-10 w-10 text-primary/60 mb-3" />
             <p className="text-sm font-semibold mb-1">Drag and drop your Excel file here</p>
             <p className="text-xs text-muted-foreground mb-4">Or search from directory (.xlsx, .xls up to 5MB)</p>
             <input
@@ -411,7 +411,7 @@ export function ImportDialog({
             <Button
               size="sm"
               onClick={() => fileInputRef.current?.click()}
-              className="font-semibold"
+              className="pm-btn-primary text-primary-foreground"
             >
               Select File
             </Button>
@@ -445,27 +445,27 @@ export function ImportDialog({
 
             {/* Stats Dashboard */}
             <div className="grid grid-cols-3 gap-3">
-              <div className="border rounded-lg p-3 text-center bg-card/50">
+              <div className="pm-kpi pm-stagger-1 border-l-4 border-l-slate-400 p-3 text-center">
                 <p className="text-[10px] uppercase font-semibold text-muted-foreground">Total Rows</p>
-                <p className="text-lg font-bold">{stats.total}</p>
+                <p className="text-lg font-black">{stats.total}</p>
               </div>
-              <div className="border border-green-500/20 rounded-lg p-3 text-center bg-green-500/5">
+              <div className="pm-kpi pm-stagger-2 border-l-4 border-l-green-500 p-3 text-center">
                 <p className="text-[10px] uppercase font-semibold text-green-600 dark:text-green-400">Ready to Import</p>
-                <p className="text-lg font-bold text-green-600 dark:text-green-400">{stats.valid}</p>
+                <p className="text-lg font-black text-green-600 dark:text-green-400">{stats.valid}</p>
               </div>
-              <div className="border border-red-500/20 rounded-lg p-3 text-center bg-red-500/5">
+              <div className="pm-kpi pm-stagger-3 border-l-4 border-l-red-500 p-3 text-center">
                 <p className="text-[10px] uppercase font-semibold text-red-600 dark:text-red-400">Skipped (Errors)</p>
-                <p className="text-lg font-bold text-red-600 dark:text-red-400">{stats.invalid}</p>
+                <p className="text-lg font-black text-red-600 dark:text-red-400">{stats.invalid}</p>
               </div>
             </div>
 
             {/* Preview Table */}
             <div>
               <p className="text-xs font-semibold mb-2 uppercase tracking-wide text-muted-foreground">Data Import Preview</p>
-              <div className="border rounded-lg overflow-hidden max-h-[300px] overflow-y-auto">
-                <Table>
-                  <TableHeader className="bg-muted/40 sticky top-0 z-10">
-                    <TableRow>
+              <div className="pm-table-card max-h-[300px] overflow-y-auto">
+                <Table className="pm-table">
+                  <TableHeader>
+                    <TableRow className="hover:bg-transparent">
                       <TableHead className="w-16 text-center">Row</TableHead>
                       <TableHead>Status / Validation</TableHead>
                       <TableHead>Project Name</TableHead>
@@ -522,15 +522,15 @@ export function ImportDialog({
           </div>
         )}
 
-        <DialogFooter className="mt-4 border-t pt-3 flex items-center justify-between gap-3 bg-muted/30 -mx-6 -mb-6 p-4 rounded-b-xl">
-          <Button variant="outline" size="sm" onClick={() => handleClose(false)} disabled={importing}>
+        <DialogFooter className="mt-4 border-t border-border/40 pt-4 flex items-center justify-between gap-3">
+          <Button variant="outline" size="sm" onClick={() => handleClose(false)} disabled={importing} className="pm-btn-outline">
             Cancel
           </Button>
           {file && !parsing && (
             <Button
               onClick={handleImportSubmit}
               disabled={importing || stats.valid === 0}
-              className="font-semibold flex items-center gap-1.5"
+              className="pm-btn-primary text-primary-foreground flex items-center gap-1.5"
               size="sm"
             >
               {importing ? (

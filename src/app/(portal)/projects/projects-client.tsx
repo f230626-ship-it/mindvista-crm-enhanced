@@ -37,8 +37,15 @@ import {
   Lock,
   FolderOpen,
   Upload,
+  Play,
+  Pause,
+  Check,
+  X,
+  Activity,
+  HelpCircle,
 } from "lucide-react";
 import { ImportDialog } from "@/components/projects/import-dialog";
+import { AnimatedNumber, KpiCard } from "@/components/projects/premium-ui";
 import {
   ResponsiveContainer,
   PieChart,
@@ -66,6 +73,46 @@ const STATUS_COLORS: Record<string, string> = {
   "Paused": "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
   "Cancelled": "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
   "Archived": "bg-slate-100 text-slate-800 dark:bg-slate-900/30 dark:text-slate-400",
+};
+
+const getStatusBadge = (status: string) => {
+  const baseClass = "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold border transition-all duration-200";
+  switch (status) {
+    case "Lead Won":
+      return <span className={`${baseClass} bg-blue-500/10 text-blue-600 border-blue-500/20 dark:text-blue-400 dark:bg-blue-500/5`}><TrendingUp className="h-3 w-3" /> Lead Won</span>;
+    case "Onboarding":
+      return <span className={`${baseClass} bg-indigo-500/10 text-indigo-600 border-indigo-500/20 dark:text-indigo-400 dark:bg-indigo-500/5`}><FolderOpen className="h-3 w-3" /> Onboarding</span>;
+    case "In Progress":
+      return <span className={`${baseClass} bg-amber-500/10 text-amber-600 border-amber-500/20 dark:text-amber-400 dark:bg-amber-500/5`}><Play className="h-3 w-3 fill-current" /> In Progress</span>;
+    case "On Hold":
+      return <span className={`${baseClass} bg-orange-500/10 text-orange-600 border-orange-500/20 dark:text-orange-400 dark:bg-orange-500/5`}><Pause className="h-3 w-3 fill-current" /> On Hold</span>;
+    case "Completed":
+      return <span className={`${baseClass} bg-green-500/10 text-green-600 border-green-500/20 dark:text-green-400 dark:bg-green-500/5`}><Check className="h-3 w-3" /> Completed</span>;
+    case "Maintenance":
+      return <span className={`${baseClass} bg-teal-500/10 text-teal-600 border-teal-500/20 dark:text-teal-400 dark:bg-teal-500/5`}><Activity className="h-3 w-3" /> Maintenance</span>;
+    case "Paused":
+      return <span className={`${baseClass} bg-purple-500/10 text-purple-600 border-purple-500/20 dark:text-purple-400 dark:bg-purple-500/5`}><Pause className="h-3 w-3" /> Paused</span>;
+    case "Cancelled":
+      return <span className={`${baseClass} bg-red-500/10 text-red-600 border-red-500/20 dark:text-red-400 dark:bg-red-500/5`}><X className="h-3 w-3" /> Cancelled</span>;
+    case "Archived":
+      return <span className={`${baseClass} bg-slate-500/10 text-slate-600 border-slate-500/20 dark:text-slate-400 dark:bg-slate-500/5`}><Lock className="h-3 w-3" /> Archived</span>;
+    default:
+      return <span className={`${baseClass} bg-slate-500/10 text-slate-600 border-slate-500/20`}><HelpCircle className="h-3 w-3" /> {status}</span>;
+  }
+};
+
+const getPriorityBadge = (priority?: string) => {
+  const baseClass = "inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border transition-all duration-200";
+  switch (priority) {
+    case "High":
+      return <span className={`${baseClass} bg-red-500/10 text-red-600 border-red-500/20 dark:text-red-400 dark:bg-red-500/5`}>High</span>;
+    case "Medium":
+      return <span className={`${baseClass} bg-amber-500/10 text-amber-600 border-amber-500/20 dark:text-amber-400 dark:bg-amber-500/5`}>Medium</span>;
+    case "Low":
+      return <span className={`${baseClass} bg-slate-500/10 text-slate-600 border-slate-500/20 dark:text-slate-400 dark:bg-slate-500/5`}>Low</span>;
+    default:
+      return <span className={`${baseClass} bg-slate-500/10 text-slate-600 border-slate-500/20 dark:text-slate-400 dark:bg-slate-500/5`}>Medium</span>;
+  }
 };
 
 const CHART_COLORS = [
@@ -357,34 +404,26 @@ export default function ProjectsClient({
   }, [initialProjects]);
 
   return (
-    <div className="space-y-6">
+    <div className="projects-module space-y-6">
       {/* Header and Controls */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+      <div className="pm-hero flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-1.5">
           <h1 className="text-3xl font-extrabold tracking-tight text-gradient-brand">Project Management</h1>
-          <p className="text-sm text-muted-foreground">Manage client projects, resource allocations, and view performance.</p>
+          <p className="text-sm text-muted-foreground max-w-lg">Manage client projects, resource allocations, and view performance insights.</p>
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           {/* Tabs */}
-          <div className="flex rounded-lg bg-muted p-1 text-sm font-medium">
+          <div className="pm-tabs">
             <button
               onClick={() => setActiveTab("dashboard")}
-              className={`rounded-md px-3 py-1.5 transition-all duration-200 ${
-                activeTab === "dashboard"
-                  ? "bg-card text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
+              className={`pm-tab ${activeTab === "dashboard" ? "pm-tab-active" : ""}`}
             >
               Dashboard
             </button>
             <button
               onClick={() => setActiveTab("list")}
-              className={`rounded-md px-3 py-1.5 transition-all duration-200 ${
-                activeTab === "list"
-                  ? "bg-card text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
+              className={`pm-tab ${activeTab === "list" ? "pm-tab-active" : ""}`}
             >
               Projects List ({filteredProjects.length})
             </button>
@@ -395,7 +434,7 @@ export default function ProjectsClient({
             <Button
               variant="outline"
               onClick={() => setIsImportOpen(true)}
-              className="font-semibold shadow-md border-primary/20 text-primary hover:bg-primary/5"
+              className="pm-btn-outline text-primary border-primary/20"
             >
               <Upload className="mr-2 h-4 w-4" /> Import Projects
             </Button>
@@ -404,7 +443,7 @@ export default function ProjectsClient({
           {/* Create Button – admin only */}
           {isAdmin ? (
             <Link href="/projects/new">
-              <Button className="font-semibold shadow-md">
+              <Button className="pm-btn-primary text-primary-foreground">
                 <Plus className="mr-2 h-4 w-4" /> Add Project
               </Button>
             </Link>
@@ -412,7 +451,7 @@ export default function ProjectsClient({
             <Button
               disabled
               title="Only Admins can create new projects"
-              className="font-semibold shadow-md opacity-50 cursor-not-allowed"
+              className="pm-btn-primary opacity-50 cursor-not-allowed"
             >
               <Lock className="mr-2 h-3.5 w-3.5" /> Add Project
             </Button>
@@ -427,81 +466,79 @@ export default function ProjectsClient({
         <div className="space-y-6">
           {/* 1. Summary Cards */}
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7">
-            <Card className="card-hover border-border/60 bg-card/80 backdrop-blur-sm">
-              <CardHeader className="flex flex-row items-center justify-between pb-1 space-y-0">
-                <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Total Projects</CardTitle>
-                <Briefcase className="h-4 w-4 text-primary" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{metrics.total}</div>
-                <p className="text-[10px] text-muted-foreground">All logged leads & projects</p>
-              </CardContent>
-            </Card>
-
-            <Card className="card-hover border-border/60 bg-card/80 backdrop-blur-sm">
-              <CardHeader className="flex flex-row items-center justify-between pb-1 space-y-0">
-                <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Active Projects</CardTitle>
-                <Clock className="h-4 w-4 text-blue-500" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{metrics.active}</div>
-                <p className="text-[10px] text-muted-foreground">In development/onboarding</p>
-              </CardContent>
-            </Card>
-
-            <Card className="card-hover border-border/60 bg-card/80 backdrop-blur-sm">
-              <CardHeader className="flex flex-row items-center justify-between pb-1 space-y-0">
-                <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">On Hold</CardTitle>
-                <Clock className="h-4 w-4 text-orange-500" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{metrics.onHold}</div>
-                <p className="text-[10px] text-muted-foreground">Blocked or paused projects</p>
-              </CardContent>
-            </Card>
-
-            <Card className="card-hover border-border/60 bg-card/80 backdrop-blur-sm">
-              <CardHeader className="flex flex-row items-center justify-between pb-1 space-y-0">
-                <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Completed</CardTitle>
-                <CheckCircle className="h-4 w-4 text-green-500" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-green-600 dark:text-green-400">{metrics.completed}</div>
-                <p className="text-[10px] text-muted-foreground">Successfully delivered</p>
-              </CardContent>
-            </Card>
-
-            <Card className="card-hover border-border/60 bg-card/80 backdrop-blur-sm">
-              <CardHeader className="flex flex-row items-center justify-between pb-1 space-y-0">
-                <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Monthly Retainers</CardTitle>
-                <TrendingUp className="h-4 w-4 text-purple-500" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{metrics.monthlyRecurring}</div>
-                <p className="text-[10px] text-muted-foreground">Active recurring billing</p>
-              </CardContent>
-            </Card>
-
-            <Card className="card-hover border-border/60 bg-card/80 backdrop-blur-sm col-span-1 sm:col-span-2">
-              <CardHeader className="flex flex-row items-center justify-between pb-1 space-y-0">
-                <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Total Value</CardTitle>
-                <DollarSign className="h-4 w-4 text-primary" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-black text-primary">
-                  ${metrics.totalValue.toLocaleString(undefined, { minimumFractionDigits: 0 })}
-                </div>
-                <p className="text-[10px] text-muted-foreground">Combined projects valuation</p>
-              </CardContent>
-            </Card>
+            <KpiCard
+              label="Total Projects"
+              value={<AnimatedNumber value={metrics.total} />}
+              description="All logged leads & projects"
+              icon={<Briefcase className="h-4 w-4" />}
+              borderClass="border-l-primary/80"
+              accentClass="bg-primary/10 text-primary"
+              staggerClass="pm-stagger-1"
+            />
+            <KpiCard
+              label="Active Projects"
+              value={<AnimatedNumber value={metrics.active} />}
+              description="In dev or onboarding"
+              icon={<Clock className="h-4 w-4" />}
+              borderClass="border-l-blue-500"
+              accentClass="bg-blue-500/10 text-blue-500"
+              valueClassName="text-blue-600 dark:text-blue-400"
+              staggerClass="pm-stagger-2"
+            />
+            <KpiCard
+              label="On Hold"
+              value={<AnimatedNumber value={metrics.onHold} />}
+              description="Blocked or paused"
+              icon={<Pause className="h-4 w-4" />}
+              borderClass="border-l-orange-500"
+              accentClass="bg-orange-500/10 text-orange-500"
+              valueClassName="text-orange-600 dark:text-orange-400"
+              staggerClass="pm-stagger-3"
+            />
+            <KpiCard
+              label="Completed"
+              value={<AnimatedNumber value={metrics.completed} />}
+              description="Delivered projects"
+              icon={<CheckCircle className="h-4 w-4" />}
+              borderClass="border-l-green-500"
+              accentClass="bg-green-500/10 text-green-500"
+              valueClassName="text-green-600 dark:text-green-400"
+              staggerClass="pm-stagger-4"
+            />
+            <KpiCard
+              label="Monthly Retainers"
+              value={<AnimatedNumber value={metrics.monthlyRecurring} />}
+              description="Active recurring billing"
+              icon={<TrendingUp className="h-4 w-4" />}
+              borderClass="border-l-purple-500"
+              accentClass="bg-purple-500/10 text-purple-500"
+              valueClassName="text-purple-600 dark:text-purple-400"
+              staggerClass="pm-stagger-5"
+            />
+            <KpiCard
+              label="Total Value"
+              value={
+                <AnimatedNumber
+                  value={metrics.totalValue}
+                  prefix="$"
+                  formatter={(n) => n.toLocaleString(undefined, { minimumFractionDigits: 0 })}
+                />
+              }
+              description="Combined valuation"
+              icon={<DollarSign className="h-4 w-4" />}
+              borderClass="border-l-amber-500"
+              accentClass="bg-primary/10 text-primary"
+              valueClassName="text-primary"
+              staggerClass="pm-stagger-6 col-span-1 sm:col-span-2"
+            />
           </div>
 
           {/* Charts grid */}
           <div className="grid gap-6 md:grid-cols-2">
             {/* Project Status breakdown chart */}
-            <Card className="border-border/60 bg-card/80 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-base font-semibold">Project Status Breakdown</CardTitle>
+            <Card className="pm-chart-card">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base font-bold">Project Status Breakdown</CardTitle>
                 <CardDescription>Status share of all projects</CardDescription>
               </CardHeader>
               <CardContent className="h-80">
@@ -535,9 +572,9 @@ export default function ProjectsClient({
             </Card>
 
             {/* Revenue by month */}
-            <Card className="border-border/60 bg-card/80 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-base font-semibold">Monthly Revenue Timeline</CardTitle>
+            <Card className="pm-chart-card">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base font-bold">Monthly Revenue Timeline</CardTitle>
                 <CardDescription>Revenue incoming grouped by project start date</CardDescription>
               </CardHeader>
               <CardContent className="h-80">
@@ -569,9 +606,9 @@ export default function ProjectsClient({
 
           <div className="grid gap-6 md:grid-cols-2">
             {/* Revenue by Lead Source */}
-            <Card className="border-border/60 bg-card/80 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-base font-semibold">Revenue by Lead Source</CardTitle>
+            <Card className="pm-chart-card">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base font-bold">Revenue by Lead Source</CardTitle>
                 <CardDescription>Financial volume generated by origin source</CardDescription>
               </CardHeader>
               <CardContent className="h-80">
@@ -599,11 +636,11 @@ export default function ProjectsClient({
             </Card>
 
             {/* Resource Utilization */}
-            <Card className="border-border/60 bg-card/80 backdrop-blur-sm">
-              <CardHeader>
+            <Card className="pm-chart-card">
+              <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-base font-semibold">Resource Allocation</CardTitle>
+                    <CardTitle className="text-base font-bold">Resource Allocation</CardTitle>
                     <CardDescription>Assigned workload vs remaining capacity</CardDescription>
                   </div>
                   <div className="text-right">
@@ -632,9 +669,9 @@ export default function ProjectsClient({
                               {item.workload}% ({item.projectsCount} {item.projectsCount === 1 ? 'proj' : 'projs'})
                             </span>
                           </div>
-                          <div className="h-2 w-full rounded-full bg-muted">
+                          <div className="pm-progress-track">
                             <div
-                              className={`h-2 rounded-full transition-all duration-300 ${barColor}`}
+                              className={`h-full rounded-full transition-all duration-700 ease-out ${barColor}`}
                               style={{ width: `${Math.min(item.workload, 100)}%` }}
                             />
                           </div>
@@ -649,13 +686,13 @@ export default function ProjectsClient({
 
           {/* BD Performance Dashboard Table */}
           {bdPerformanceData.length > 0 && (
-            <Card className="border-border/60 bg-card/80 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-base font-semibold">Business Development Performance</CardTitle>
+            <Card className="pm-chart-card">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base font-bold">Business Development Performance</CardTitle>
                 <CardDescription>Metrics on deals closed, revenue generated, and active pipelines</CardDescription>
               </CardHeader>
-              <CardContent>
-                <Table>
+              <CardContent className="p-0">
+                <Table className="pm-table">
                   <TableHeader>
                     <TableRow>
                       <TableHead>BD Representative</TableHead>
@@ -699,11 +736,11 @@ export default function ProjectsClient({
       {activeTab === "list" && (
         <div className="space-y-4">
           {/* Filters Bar */}
-          <Card className="border-border/60 bg-card/60 backdrop-blur-sm">
+          <Card className="pm-filter-card">
             <CardContent className="pt-4 space-y-4">
               <div className="flex flex-col gap-3 md:flex-row">
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                   <Input
                     placeholder="Search by Project Name or Client..."
                     value={search}
@@ -711,14 +748,14 @@ export default function ProjectsClient({
                       setSearch(e.target.value);
                       setCurrentPage(1);
                     }}
-                    className="pl-9"
+                    className="pm-search"
                   />
                 </div>
                 
                 <Button
                   variant="outline"
                   onClick={() => setShowFilters(!showFilters)}
-                  className="flex items-center gap-2 font-medium"
+                  className="pm-btn-outline flex items-center gap-2"
                 >
                   <SlidersHorizontal className="h-4 w-4" /> Filters
                   {showFilters ? "Hide" : "Show"}
@@ -727,7 +764,7 @@ export default function ProjectsClient({
 
               {/* Extended filters */}
               {showFilters && (
-                <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 animate-fade-in">
+                <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 pm-filter-panel">
                   {/* Status Filter */}
                   <div className="space-y-1">
                     <Label className="text-xs">Status</Label>
@@ -876,19 +913,19 @@ export default function ProjectsClient({
           </Card>
 
           {/* Table Card */}
-          <Card className="border-border/60 bg-card/80 backdrop-blur-sm">
+          <Card className="pm-table-card">
             <CardContent className="p-0">
-              <Table>
+              <Table className="pm-table">
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Project Name</TableHead>
-                    <TableHead>Client</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>BD Rep</TableHead>
-                    <TableHead>Assigned Resources</TableHead>
-                    <TableHead className="text-right">Project Value</TableHead>
-                    <TableHead>Start Date</TableHead>
-                    <TableHead>Delivery Date</TableHead>
+                  <TableRow className="hover:bg-transparent border-b border-border/50">
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-3">Project Name</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-3">Client & BD</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-3">Status</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-3">Priority</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-3">Progress</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-3">Assigned Team</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-3 text-right">Value</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-3">Delivery Date</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -897,23 +934,37 @@ export default function ProjectsClient({
                       <TableRow
                         key={p.id}
                         onClick={() => router.push(`/projects/${p.id}`)}
-                        className="cursor-pointer hover:bg-muted/40 transition-colors"
+                        className="cursor-pointer group"
                       >
-                        <TableCell>
-                          <div className="font-semibold text-foreground">{p.name}</div>
+                        <TableCell className="py-3.5">
+                          <div className="font-bold text-foreground group-hover:text-primary transition-colors">{p.name}</div>
                           {p.company_name && (
-                            <div className="text-xs text-muted-foreground">{p.company_name}</div>
+                            <div className="text-[11px] text-muted-foreground mt-0.5">{p.company_name}</div>
                           )}
                         </TableCell>
-                        <TableCell>{p.client_name}</TableCell>
-                        <TableCell>
-                          <Badge className={STATUS_COLORS[p.status] || "bg-slate-100 text-slate-800"}>
-                            {p.status}
-                          </Badge>
+                        <TableCell className="py-3.5">
+                          <div className="font-medium text-xs text-foreground">{p.client_name}</div>
+                          <div className="text-[10px] text-muted-foreground font-light mt-0.5">BD: {p.bd?.full_name || "—"}</div>
                         </TableCell>
-                        <TableCell className="text-sm font-medium">{p.bd?.full_name || "—"}</TableCell>
-                        <TableCell>
-                          <div className="flex -space-x-2 overflow-hidden py-1">
+                        <TableCell className="py-3.5">
+                          {getStatusBadge(p.status)}
+                        </TableCell>
+                        <TableCell className="py-3.5">
+                          {getPriorityBadge(p.priority)}
+                        </TableCell>
+                        <TableCell className="py-3.5">
+                          <div className="flex items-center gap-2">
+                            <div className="pm-progress-track-sm w-16">
+                              <div
+                                className="pm-progress-fill-sm"
+                                style={{ width: `${p.progress_percentage || 0}%` }}
+                              />
+                            </div>
+                            <span className="text-[11px] font-mono font-bold text-muted-foreground">{p.progress_percentage || 0}%</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="py-3.5">
+                          <div className="flex -space-x-1.5 overflow-hidden py-1">
                             {p.resources.length > 0 ? (
                               p.resources.map((res) => {
                                 const initials = res.employee.full_name
@@ -926,29 +977,28 @@ export default function ProjectsClient({
                                   <div
                                     key={res.id}
                                     title={`${res.employee.full_name} (${res.role} · ${res.allocation_percentage}%)`}
-                                    className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-card bg-primary text-[10px] font-black text-primary-foreground shadow-sm"
+                                    className="pm-avatar-stack bg-secondary text-secondary-foreground"
                                   >
                                     {initials}
                                   </div>
                                 );
                               })
                             ) : (
-                              <span className="text-xs text-muted-foreground font-light">None assigned</span>
+                              <span className="text-xs text-muted-foreground/60 font-light">None assigned</span>
                             )}
                           </div>
                         </TableCell>
-                        <TableCell className="text-right font-black font-mono text-primary">
+                        <TableCell className="text-right font-black font-mono text-primary py-3.5">
                           ${Number(p.value).toLocaleString()}
                         </TableCell>
-                        <TableCell className="text-sm">{p.start_date}</TableCell>
-                        <TableCell className="text-sm">{p.expected_delivery_date}</TableCell>
+                        <TableCell className="text-sm font-medium text-muted-foreground py-3.5">{p.expected_delivery_date}</TableCell>
                       </TableRow>
                     ))
                   ) : (
                     <TableRow>
                       <TableCell colSpan={8} className="h-40 text-center">
-                        <div className="flex flex-col items-center justify-center gap-2 py-6">
-                          <FolderOpen className="h-10 w-10 text-muted-foreground/40" />
+                        <div className="pm-empty-state">
+                          <FolderOpen className="pm-empty-icon" />
                           <p className="text-sm font-medium text-muted-foreground">No projects found</p>
                           <p className="text-xs text-muted-foreground/70">
                             {search || statusFilter !== "ALL" || clientFilter !== "ALL"
@@ -959,7 +1009,7 @@ export default function ProjectsClient({
                           </p>
                           {isAdmin && !search && statusFilter === "ALL" && clientFilter === "ALL" && (
                             <Link href="/projects/new" className="mt-1">
-                              <Button size="sm" className="font-semibold">
+                              <Button size="sm" className="pm-btn-primary text-primary-foreground">
                                 <Plus className="mr-1.5 h-3.5 w-3.5" /> Add Project
                               </Button>
                             </Link>
@@ -975,27 +1025,27 @@ export default function ProjectsClient({
 
           {/* Pagination Controls */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between py-2">
+            <div className="flex items-center justify-between py-3 px-1">
               <span className="text-xs text-muted-foreground">
                 Showing page {currentPage} of {totalPages} ({filteredProjects.length} total projects)
               </span>
-              <div className="flex items-center gap-2">
+              <div className="pm-pagination">
                 <Button
                   variant="outline"
                   size="icon"
                   onClick={() => setCurrentPage((c) => Math.max(c - 1, 1))}
                   disabled={currentPage === 1}
-                  className="h-8 w-8"
+                  className="pm-pagination-btn"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                <span className="text-xs font-semibold px-2">{currentPage}</span>
+                <span className="pm-pagination-current">{currentPage}</span>
                 <Button
                   variant="outline"
                   size="icon"
                   onClick={() => setCurrentPage((c) => Math.min(c + 1, totalPages))}
                   disabled={currentPage === totalPages}
-                  className="h-8 w-8"
+                  className="pm-pagination-btn"
                 >
                   <ChevronRight className="h-4 w-4" />
                 </Button>

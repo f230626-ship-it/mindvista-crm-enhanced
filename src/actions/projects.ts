@@ -42,6 +42,8 @@ export async function createProject(formData: FormData) {
     expected_delivery_date: formData.get("expected_delivery_date") as string,
     actual_delivery_date: (formData.get("actual_delivery_date") as string) || null,
     status: (formData.get("status") as Project["status"]) || "Lead Won",
+    priority: (formData.get("priority") as Project["priority"]) || "Medium",
+    progress_percentage: parseInt(formData.get("progress_percentage") as string) || 0,
     created_by: employee.id,
     updated_by: employee.id,
   }).select().single();
@@ -90,6 +92,8 @@ export async function updateProject(projectId: string, formData: FormData) {
       expected_delivery_date: formData.get("expected_delivery_date") as string,
       actual_delivery_date: (formData.get("actual_delivery_date") as string) || null,
       status: status as Project["status"],
+      priority: (formData.get("priority") as Project["priority"]) || "Medium",
+      progress_percentage: parseInt(formData.get("progress_percentage") as string) || 0,
       updated_by: employee.id,
     })
     .eq("id", projectId);

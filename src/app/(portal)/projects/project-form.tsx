@@ -17,6 +17,17 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
+import { 
+  Briefcase, 
+  User, 
+  DollarSign, 
+  Calendar, 
+  Percent, 
+  Activity, 
+  ArrowLeft,
+  X,
+  Check
+} from "lucide-react";
 import type { Project, Employee } from "@/types/database";
 
 interface ProjectFormProps {
@@ -34,6 +45,7 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
   const [leadSource, setLeadSource] = useState(project?.lead_source || "Other");
   const [paymentStatus, setPaymentStatus] = useState(project?.payment_status || "Pending");
   const [status, setStatus] = useState(project?.status || "Lead Won");
+  const [priority, setPriority] = useState<Project["priority"]>(project?.priority || "Medium");
   
   const [bdId, setBdId] = useState(project?.bd_id || "");
   const [managerId, setManagerId] = useState(project?.manager_id || "");
@@ -54,6 +66,7 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
     formData.set("lead_source", leadSource);
     formData.set("payment_status", paymentStatus);
     formData.set("status", status);
+    formData.set("priority", priority || "Medium");
     formData.set("is_monthly_retainer", String(isMonthlyRetainer));
     formData.set("currency", currency);
     
@@ -87,47 +100,56 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid gap-6 md:grid-cols-2">
         {/* Section 1: General Details */}
-        <Card className="border-border/60 bg-card/60 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="text-base font-semibold">General Information</CardTitle>
+        <Card className="pm-section-card">
+          <CardHeader className="pm-section-header">
+            <div className="pm-section-icon">
+              <Briefcase className="h-5 w-5" />
+            </div>
+            <div>
+              <CardTitle className="text-base font-bold">General Information</CardTitle>
+              <p className="text-[11px] text-muted-foreground mt-0.5">Core project identification, client details, and description</p>
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-1">
-              <Label htmlFor="name">Project Name</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="name" className="text-xs font-semibold text-muted-foreground">Project Name</Label>
               <Input
                 id="name"
                 name="name"
                 defaultValue={project?.name || ""}
                 placeholder="E.g. Real Estate Portal Design"
                 required
+                className="pm-input"
               />
             </div>
 
             <div className="grid gap-4 grid-cols-2">
-              <div className="space-y-1">
-                <Label htmlFor="client_name">Client Name</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="client_name" className="text-xs font-semibold text-muted-foreground">Client Name</Label>
                 <Input
                   id="client_name"
                   name="client_name"
                   defaultValue={project?.client_name || ""}
                   placeholder="John Doe"
                   required
+                  className="pm-input"
                 />
               </div>
-              <div className="space-y-1">
-                <Label htmlFor="company_name">Company Name</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="company_name" className="text-xs font-semibold text-muted-foreground">Company Name</Label>
                 <Input
                   id="company_name"
                   name="company_name"
                   defaultValue={project?.company_name || ""}
                   placeholder="E.g. Acme Corp"
+                  className="pm-input"
                 />
               </div>
             </div>
 
             <div className="grid gap-4 grid-cols-2">
-              <div className="space-y-1">
-                <Label htmlFor="client_email">Client Email</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="client_email" className="text-xs font-semibold text-muted-foreground">Client Email</Label>
                 <Input
                   id="client_email"
                   name="client_email"
@@ -135,23 +157,25 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
                   defaultValue={project?.client_email || ""}
                   placeholder="client@example.com"
                   required
+                  className="pm-input"
                 />
               </div>
-              <div className="space-y-1">
-                <Label htmlFor="client_contact_number">Client Phone</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="client_contact_number" className="text-xs font-semibold text-muted-foreground">Client Phone</Label>
                 <Input
                   id="client_contact_number"
                   name="client_contact_number"
                   defaultValue={project?.client_contact_number || ""}
                   placeholder="+1 (234) 567-890"
+                  className="pm-input"
                 />
               </div>
             </div>
 
-            <div className="space-y-1">
-              <Label>Industry</Label>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-muted-foreground">Industry</Label>
               <Select value={industry} onValueChange={(val) => setIndustry(val as Project["industry"])}>
-                <SelectTrigger>
+                <SelectTrigger className="pm-select-trigger">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -165,14 +189,15 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
               </Select>
             </div>
 
-            <div className="space-y-1">
-              <Label htmlFor="description">Project Description</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="description" className="text-xs font-semibold text-muted-foreground">Project Description</Label>
               <Textarea
                 id="description"
                 name="description"
                 defaultValue={project?.description || ""}
                 placeholder="Provide a detailed overview of project milestones, scope, and parameters..."
-                rows={4}
+                rows={5}
+                className="pm-textarea"
               />
             </div>
           </CardContent>
@@ -180,16 +205,22 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
 
         {/* Section 2: Ownership & Status */}
         <div className="space-y-6">
-          <Card className="border-border/60 bg-card/60 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-base font-semibold">Ownership & Pipeline Status</CardTitle>
+          <Card className="pm-section-card">
+            <CardHeader className="pm-section-header">
+              <div className="pm-section-icon">
+                <User className="h-5 w-5" />
+              </div>
+              <div>
+                <CardTitle className="text-base font-bold">Ownership & Pipeline Settings</CardTitle>
+                <p className="text-[11px] text-muted-foreground mt-0.5">Define key stakeholders, project urgency, and status</p>
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 grid-cols-2">
-                <div className="space-y-1">
-                  <Label>BD Representative</Label>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-muted-foreground">BD Representative</Label>
                   <Select value={bdId} onValueChange={(val) => setBdId(val || "")}>
-                    <SelectTrigger>
+                    <SelectTrigger className="pm-select-trigger">
                       <SelectValue placeholder="Select BD" />
                     </SelectTrigger>
                     <SelectContent>
@@ -204,10 +235,10 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
                   </Select>
                 </div>
 
-                <div className="space-y-1">
-                  <Label>Lead Source</Label>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-muted-foreground">Lead Source</Label>
                   <Select value={leadSource} onValueChange={(val) => setLeadSource(val as Project["lead_source"])}>
-                    <SelectTrigger>
+                    <SelectTrigger className="pm-select-trigger">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -224,10 +255,10 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
               </div>
 
               <div className="grid gap-4 grid-cols-2">
-                <div className="space-y-1">
-                  <Label>Project Manager / PM</Label>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-muted-foreground">Project Manager / PM</Label>
                   <Select value={managerId} onValueChange={(val) => setManagerId(val || "")}>
-                    <SelectTrigger>
+                    <SelectTrigger className="pm-select-trigger">
                       <SelectValue placeholder="Select PM" />
                     </SelectTrigger>
                     <SelectContent>
@@ -242,10 +273,10 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
                   </Select>
                 </div>
 
-                <div className="space-y-1">
-                  <Label>Closing Developer (Optional)</Label>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-muted-foreground">Closing Developer (Optional)</Label>
                   <Select value={closingDevId} onValueChange={(val) => setClosingDevId(val || "")}>
-                    <SelectTrigger>
+                    <SelectTrigger className="pm-select-trigger">
                       <SelectValue placeholder="Select Developer" />
                     </SelectTrigger>
                     <SelectContent>
@@ -260,10 +291,10 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
               </div>
 
               <div className="grid gap-4 grid-cols-2">
-                <div className="space-y-1">
-                  <Label>Project Status</Label>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-muted-foreground">Project Status</Label>
                   <Select value={status} onValueChange={(val) => setStatus(val as Project["status"])}>
-                    <SelectTrigger>
+                    <SelectTrigger className="pm-select-trigger">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -275,7 +306,6 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
                       <SelectItem value="Maintenance">Maintenance</SelectItem>
                       <SelectItem value="Paused">Paused</SelectItem>
                       <SelectItem value="Cancelled">Cancelled</SelectItem>
-                      {/* Coordinator cannot change to/from Archived status unless they are Admin */}
                       {(isAdmin || project?.status === "Archived") && (
                         <SelectItem value="Archived">Archived</SelectItem>
                       )}
@@ -283,10 +313,10 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
                   </Select>
                 </div>
 
-                <div className="space-y-1">
-                  <Label>Payment Status</Label>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-muted-foreground">Payment Status</Label>
                   <Select value={paymentStatus} onValueChange={(val) => setPaymentStatus(val as Project["payment_status"])}>
-                    <SelectTrigger>
+                    <SelectTrigger className="pm-select-trigger">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -298,18 +328,59 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
                   </Select>
                 </div>
               </div>
+
+              <div className="grid gap-4 grid-cols-2 pt-1 border-t border-border/40">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-muted-foreground">Project Priority</Label>
+                  <Select value={priority} onValueChange={(val) => setPriority(val as Project["priority"])}>
+                    <SelectTrigger className="pm-select-trigger">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Low">Low</SelectItem>
+                      <SelectItem value="Medium">Medium</SelectItem>
+                      <SelectItem value="High">High</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="progress_percentage" className="text-xs font-semibold text-muted-foreground">Progress Percentage</Label>
+                  <div className="relative">
+                    <Input
+                      id="progress_percentage"
+                      name="progress_percentage"
+                      type="number"
+                      min={0}
+                      max={100}
+                      defaultValue={project?.progress_percentage || 0}
+                      placeholder="0"
+                      className="pm-input pl-3.5 pr-8 font-mono"
+                    />
+                    <div className="absolute right-3 top-3 text-muted-foreground pointer-events-none">
+                      <Percent className="h-4 w-4" />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
           {/* Section 3: Financials */}
-          <Card className="border-border/60 bg-card/60 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-base font-semibold">Financial Settings</CardTitle>
+          <Card className="pm-section-card">
+            <CardHeader className="pm-section-header">
+              <div className="pm-section-icon">
+                <DollarSign className="h-5 w-5" />
+              </div>
+              <div>
+                <CardTitle className="text-base font-bold">Financial Settings</CardTitle>
+                <p className="text-[11px] text-muted-foreground mt-0.5">Budget value, billing model, and profit projections</p>
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 grid-cols-3">
-                <div className="space-y-1 col-span-2">
-                  <Label htmlFor="value">Project Value</Label>
+                <div className="space-y-1.5 col-span-2">
+                  <Label htmlFor="value" className="text-xs font-semibold text-muted-foreground">Project Value</Label>
                   <Input
                     id="value"
                     name="value"
@@ -318,12 +389,13 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
                     defaultValue={project?.value || ""}
                     placeholder="E.g. 5000"
                     required
+                    className="pm-input font-mono font-bold"
                   />
                 </div>
-                <div className="space-y-1">
-                  <Label>Currency</Label>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-muted-foreground">Currency</Label>
                   <Select value={currency} onValueChange={(val) => setCurrency(val || "USD")}>
-                    <SelectTrigger>
+                    <SelectTrigger className="pm-select-trigger">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -336,24 +408,25 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
                 </div>
               </div>
 
-              <div className="flex items-center space-x-2 pt-2 pb-1">
+              <div className="flex items-center space-x-2.5 py-1 px-2.5 rounded-lg border border-border/40 bg-muted/20 hover:bg-muted/40 transition-colors">
                 <Checkbox
                   id="is_monthly_retainer"
                   checked={isMonthlyRetainer}
                   onCheckedChange={(checked) => setIsMonthlyRetainer(!!checked)}
+                  className="rounded border-border/60 text-primary focus:ring-primary/20"
                 />
                 <Label
                   htmlFor="is_monthly_retainer"
-                  className="text-sm font-medium leading-none cursor-pointer"
+                  className="text-xs font-semibold leading-none cursor-pointer text-foreground select-none"
                 >
-                  Monthly Retainer Project
+                  This is a Monthly Retainer Project
                 </Label>
               </div>
 
               {isMonthlyRetainer && (
                 <div className="grid gap-4 grid-cols-2 animate-fade-in">
-                  <div className="space-y-1">
-                    <Label htmlFor="retainer_amount">Monthly Retainer Amount</Label>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="retainer_amount" className="text-xs font-semibold text-muted-foreground">Monthly Retainer Amount</Label>
                     <Input
                       id="retainer_amount"
                       name="retainer_amount"
@@ -362,10 +435,11 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
                       defaultValue={project?.retainer_amount || ""}
                       placeholder="E.g. 1500"
                       required={isMonthlyRetainer}
+                      className="pm-input font-mono"
                     />
                   </div>
-                  <div className="space-y-1">
-                    <Label htmlFor="expected_profit">Expected Profit Margin (Val)</Label>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="expected_profit" className="text-xs font-semibold text-muted-foreground">Expected Profit Margin</Label>
                     <Input
                       id="expected_profit"
                       name="expected_profit"
@@ -373,14 +447,15 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
                       step="0.01"
                       defaultValue={project?.expected_profit || ""}
                       placeholder="E.g. 2000"
+                      className="pm-input font-mono text-green-600 dark:text-green-400"
                     />
                   </div>
                 </div>
               )}
 
               {!isMonthlyRetainer && (
-                <div className="space-y-1 animate-fade-in">
-                  <Label htmlFor="expected_profit">Expected Profit Margin (Val)</Label>
+                <div className="space-y-1.5 animate-fade-in">
+                  <Label htmlFor="expected_profit" className="text-xs font-semibold text-muted-foreground">Expected Profit Margin</Label>
                   <Input
                     id="expected_profit"
                     name="expected_profit"
@@ -388,6 +463,7 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
                     step="0.01"
                     defaultValue={project?.expected_profit || ""}
                     placeholder="E.g. 2000"
+                    className="pm-input font-mono text-green-600 dark:text-green-400"
                   />
                 </div>
               )}
@@ -395,38 +471,47 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
           </Card>
 
           {/* Section 4: Timeline */}
-          <Card className="border-border/60 bg-card/60 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-base font-semibold">Timeline & Milestones</CardTitle>
+          <Card className="pm-section-card">
+            <CardHeader className="pm-section-header">
+              <div className="pm-section-icon">
+                <Calendar className="h-5 w-5" />
+              </div>
+              <div>
+                <CardTitle className="text-base font-bold">Timeline & Milestones</CardTitle>
+                <p className="text-[11px] text-muted-foreground mt-0.5">Crucial dates, deadlines, and delivery milestones</p>
+              </div>
             </CardHeader>
             <CardContent className="grid gap-4 grid-cols-3">
-              <div className="space-y-1">
-                <Label htmlFor="start_date">Start Date</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="start_date" className="text-xs font-semibold text-muted-foreground">Start Date</Label>
                 <Input
                   id="start_date"
                   name="start_date"
                   type="date"
                   defaultValue={project?.start_date || ""}
                   required
+                  className="pm-input text-xs font-mono"
                 />
               </div>
-              <div className="space-y-1">
-                <Label htmlFor="expected_delivery_date">Expected Delivery</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="expected_delivery_date" className="text-xs font-semibold text-muted-foreground">Expected Delivery</Label>
                 <Input
                   id="expected_delivery_date"
                   name="expected_delivery_date"
                   type="date"
                   defaultValue={project?.expected_delivery_date || ""}
                   required
+                  className="pm-input text-xs font-mono"
                 />
               </div>
-              <div className="space-y-1">
-                <Label htmlFor="actual_delivery_date">Actual Delivery</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="actual_delivery_date" className="text-xs font-semibold text-muted-foreground">Actual Delivery</Label>
                 <Input
                   id="actual_delivery_date"
                   name="actual_delivery_date"
                   type="date"
                   defaultValue={project?.actual_delivery_date || ""}
+                  className="pm-input text-xs font-mono"
                 />
               </div>
             </CardContent>
@@ -435,19 +520,35 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
       </div>
 
       {/* Action buttons */}
-      <div className="flex justify-end gap-3 pt-4">
+      <div className="flex justify-end gap-3 pt-6 border-t border-border/40">
         <Button
           type="button"
           variant="outline"
           onClick={() => router.push(isEditing ? `/projects/${project?.id}` : "/projects")}
           disabled={loading}
+          className="pm-btn-outline h-10 px-5"
         >
           Cancel
         </Button>
-        <Button type="submit" disabled={loading} className="font-semibold shadow-md px-6">
-          {loading ? "Saving..." : isEditing ? "Save Changes" : "Create Project"}
+        <Button 
+          type="submit" 
+          disabled={loading} 
+          className="pm-btn-primary text-primary-foreground px-6 h-10"
+        >
+          {loading ? (
+            "Saving..."
+          ) : isEditing ? (
+            <>
+              <Check className="h-4 w-4 mr-1.5" /> Save Changes
+            </>
+          ) : (
+            <>
+              <Briefcase className="h-4 w-4 mr-1.5" /> Create Project
+            </>
+          )}
         </Button>
       </div>
     </form>
   );
 }
+

@@ -99,7 +99,7 @@ export function ResourceAssignmentDialog({
         className={
           isEditing
             ? "flex h-8 w-8 items-center justify-center rounded-md hover:bg-muted cursor-pointer transition-colors"
-            : cn(buttonVariants({ size: "sm" }), "font-semibold shadow-sm cursor-pointer")
+            : cn(buttonVariants({ size: "sm" }), "pm-btn-primary text-primary-foreground cursor-pointer")
         }
       >
         {isEditing ? (
@@ -110,22 +110,23 @@ export function ResourceAssignmentDialog({
           </>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit Assignment" : "Assign Resource"}</DialogTitle>
+      <DialogContent className="pm-glass-dialog sm:max-w-md">
+        <DialogHeader className="pb-2 border-b border-border/40">
+          <DialogTitle className="text-lg font-bold">{isEditing ? "Edit Assignment" : "Assign Resource"}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+        <form onSubmit={handleSubmit} className="space-y-4 pt-4">
           {/* Employee selection (disabled if editing) */}
-          <div className="space-y-1">
-            <Label>Employee</Label>
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold text-muted-foreground">Employee</Label>
             {isEditing ? (
               <Input
                 value={employees.find((e) => e.id === employeeId)?.full_name || ""}
                 disabled
+                className="pm-input"
               />
             ) : (
               <Select value={employeeId} onValueChange={(val) => setEmployeeId(val || "")}>
-                <SelectTrigger>
+                <SelectTrigger className="pm-select-trigger">
                   <SelectValue placeholder="Select Employee" />
                 </SelectTrigger>
                 <SelectContent>
@@ -142,10 +143,10 @@ export function ResourceAssignmentDialog({
           </div>
 
           {/* Allocation Role */}
-          <div className="space-y-1">
-            <Label>Role</Label>
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold text-muted-foreground">Role</Label>
             <Select value={role} onValueChange={(val) => setRole(val || RESOURCE_ROLES[0])}>
-              <SelectTrigger>
+              <SelectTrigger className="pm-select-trigger">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -159,8 +160,8 @@ export function ResourceAssignmentDialog({
           </div>
 
           {/* Allocation Percentage */}
-          <div className="space-y-1">
-            <Label htmlFor="allocation">Allocation Percentage (%)</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="allocation" className="text-xs font-semibold text-muted-foreground">Allocation Percentage (%)</Label>
             <Input
               id="allocation"
               type="number"
@@ -169,38 +170,41 @@ export function ResourceAssignmentDialog({
               value={allocation}
               onChange={(e) => setAllocation(Number(e.target.value))}
               required
+              className="pm-input font-mono"
             />
           </div>
 
           {/* Timeline */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <Label htmlFor="start_date">Start Date</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="start_date" className="text-xs font-semibold text-muted-foreground">Start Date</Label>
               <Input
                 id="start_date"
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
                 required
+                className="pm-input text-xs font-mono"
               />
             </div>
-            <div className="space-y-1">
-              <Label htmlFor="end_date">End Date</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="end_date" className="text-xs font-semibold text-muted-foreground">End Date</Label>
               <Input
                 id="end_date"
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
                 required
+                className="pm-input text-xs font-mono"
               />
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-3">
-            <Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={loading}>
+          <div className="flex justify-end gap-3 pt-4 border-t border-border/40">
+            <Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={loading} className="pm-btn-outline">
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading} className="pm-btn-primary text-primary-foreground">
               {loading ? "Saving..." : isEditing ? "Save Changes" : "Assign Resource"}
             </Button>
           </div>
