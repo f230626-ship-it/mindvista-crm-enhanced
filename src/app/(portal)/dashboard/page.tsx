@@ -1,19 +1,18 @@
 import { createClient } from "@/lib/supabase/server";
 import { requireAuth } from "@/lib/auth";
 import { PageHeader } from "@/components/ui/page-header";
-import { StatCard } from "@/components/ui/stat-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CalendarDays, Package, Users, Bell } from "lucide-react";
+import { Bell } from "lucide-react";
 import { formatDate } from "@/lib/utils/date";
 import { LEAVE_TYPE_LABELS, LEAVE_STATUS_LABELS, STATUS_COLORS } from "@/lib/constants";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { buildHierarchyTree, getTeamHierarchy } from "@/lib/hierarchy";
-import { TeamHierarchy } from "@/components/dashboard/team-hierarchy";
 import { getPendingLeavesForLead } from "@/actions/leaves";
 import { PendingLeaveApprovals } from "@/components/leave/pending-approvals";
+import { DashboardClient } from "@/components/dashboard/dashboard-client";
 
 export default async function DashboardPage() {
   const employee = await requireAuth();
@@ -32,7 +31,7 @@ export default async function DashboardPage() {
       .select("*")
       .eq("employee_id", employee.id)
       .order("created_at", { ascending: false })
-      .limit(5),
+      .limit(20),
     supabase
       .from("asset_assignments")
       .select("*, asset:assets(*)")
@@ -60,36 +59,16 @@ export default async function DashboardPage() {
         }
       />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title="Annual Leave"
-          value={annualRemaining}
-          description={`${leaveBalance?.annual_used ?? 0} used of ${leaveBalance?.annual_quota ?? 0}`}
-          icon={CalendarDays}
-          delay={0}
-        />
-        <StatCard
-          title="Sick Leave"
-          value={sickRemaining}
-          description={`${leaveBalance?.sick_used ?? 0} used of ${leaveBalance?.sick_quota ?? 0}`}
-          icon={CalendarDays}
-          delay={60}
-        />
-        <StatCard
-          title="Assigned Assets"
-          value={assignedAssets?.length ?? 0}
-          description="Company equipment"
-          icon={Package}
-          delay={120}
-        />
-        <StatCard
-          title="My Team"
-          value={teamSize}
-          description="Direct reports & lead team"
-          icon={Users}
-          delay={180}
-        />
-      </div>
+      {/* Clickable Stat Cards — handled by client component */}
+      <DashboardClient
+        leaveBalance={leaveBalance}
+        recentLeaves={recentLeaves}
+        assignedAssets={assignedAssets}
+        hierarchyTree={hierarchyTree}
+        teamSize={teamSize}
+        annualRemaining={annualRemaining}
+        sickRemaining={sickRemaining}
+      />
 
       {pendingForLead.length > 0 && (
         <Card className="mt-6 border-primary/20">
@@ -116,7 +95,7 @@ export default async function DashboardPage() {
           <CardContent>
             {recentLeaves && recentLeaves.length > 0 ? (
               <div className="space-y-3">
-                {recentLeaves.map((leave) => (
+                {recentLeaves.slice(0, 5).map((leave) => (
                   <div key={leave.id} className="flex items-center justify-between rounded-lg border p-3">
                     <div>
                       <p className="text-sm font-medium">{LEAVE_TYPE_LABELS[leave.leave_type]}</p>
@@ -159,17 +138,6 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       </div>
-
-      {teamSize > 0 && (
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle className="text-base">Team Hierarchy</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <TeamHierarchy tree={hierarchyTree} />
-          </CardContent>
-        </Card>
-      )}
 
       <Card className="mt-6">
         <CardHeader>

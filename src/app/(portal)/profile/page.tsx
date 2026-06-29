@@ -1,94 +1,218 @@
 import { requireAuth } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/ui/page-header";
-import { ProfileForm } from "@/components/profile/profile-form";
 import { ProfilePhotoUpload } from "@/components/profile/profile-photo-upload";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ProfileForm } from "@/components/profile/profile-form";
 import { Badge } from "@/components/ui/badge";
 import {
   EMPLOYMENT_TYPE_LABELS,
-  WORK_LOCATION_LABELS,
   EMPLOYEE_STATUS_LABELS,
   ROLE_LABELS,
 } from "@/lib/constants";
 import { formatDate } from "@/lib/utils/date";
-import { isAdmin } from "@/lib/auth";
+import {
+  Building2,
+  Briefcase,
+  CalendarDays,
+  Hash,
+  Users,
+  UserCheck,
+  Shield,
+  Activity,
+} from "lucide-react";
 
 export default async function ProfilePage() {
   const employee = await requireAuth();
+  const supabase = await createClient();
+
+  // Fetch manager name if present
+  let managerName: string | null = null;
+  if (employee.manager_id) {
+    const { data: mgr } = await supabase
+      .from("employees")
+      .select("full_name")
+      .eq("id", employee.manager_id)
+      .maybeSingle();
+    managerName = mgr?.full_name ?? null;
+  }
+
+  // Fetch lead name if present and different from manager
+  let leadName: string | null = null;
+  if (employee.lead_id && employee.lead_id !== employee.manager_id) {
+    const { data: ld } = await supabase
+      .from("employees")
+      .select("full_name")
+      .eq("id", employee.lead_id)
+      .maybeSingle();
+    leadName = ld?.full_name ?? null;
+  }
+
+  // Fetch direct report count (team size)
+  const { count: teamCount } = await supabase
+    .from("employees")
+    .select("id", { count: "exact", head: true })
+    .eq("manager_id", employee.id)
+    .eq("status", "active");
+
+  const initials = employee.full_name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+
+  const statusColors: Record<string, string> = {
+    active: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400",
+    inactive: "bg-slate-100 text-slate-700 dark:bg-slate-800/40 dark:text-slate-400",
+    suspended: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
+  };
 
   return (
     <div>
-      <PageHeader title="My Profile" description="View and update your personal information" />
+      <PageHeader title="My Profile" description="Your organizational profile" />
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-1">
-          <CardHeader className="text-center">
-            <ProfilePhotoUpload
-              employeeId={employee.id}
-              fullName={employee.full_name}
-              currentUrl={employee.profile_photo_url}
-            />
-            <CardTitle className="mt-4">{employee.full_name}</CardTitle>
-            <p className="text-sm text-muted-foreground">{employee.designation}</p>
-            <div className="flex justify-center gap-2 pt-2">
-              <Badge>{ROLE_LABELS[employee.role]}</Badge>
-              <Badge variant="outline">{EMPLOYEE_STATUS_LABELS[employee.status]}</Badge>
+      {/* ── Hero: Avatar + Name + Title ── */}
+      <div className="mb-6 rounded-2xl border border-border/60 bg-card shadow-sm overflow-hidden">
+        <div className="h-24 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent" />
+        <div className="px-6 pb-6 -mt-12 flex flex-col sm:flex-row sm:items-end gap-4">
+          <div className="relative shrink-0">
+            <div className="rounded-2xl border-4 border-card shadow-lg overflow-hidden">
+              <ProfilePhotoUpload
+                employeeId={employee.id}
+                fullName={employee.full_name}
+                currentUrl={employee.profile_photo_url}
+              />
             </div>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm">
-            {employee.employee_code && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Employee ID</span>
-                <span className="font-medium">{employee.employee_code}</span>
-              </div>
-            )}
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Email</span>
-              <span>{employee.email}</span>
+          </div>
+          <div className="flex-1 min-w-0 pb-1">
+            <h2 className="text-2xl font-bold tracking-tight truncate">{employee.full_name}</h2>
+            <p className="text-base text-muted-foreground truncate">{employee.designation}</p>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <Badge className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/15">
+                {ROLE_LABELS[employee.role]}
+              </Badge>
+              <Badge className={statusColors[employee.status]}>
+                {EMPLOYEE_STATUS_LABELS[employee.status]}
+              </Badge>
+              <Badge variant="outline" className="font-mono">
+                {EMPLOYMENT_TYPE_LABELS[employee.employment_type]}
+              </Badge>
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Department</span>
-              <span>{employee.department?.name ?? "—"}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Joined</span>
-              <span>{formatDate(employee.joining_date)}</span>
-            </div>
-            {employee.date_of_birth && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Date of Birth</span>
-                <span>{formatDate(employee.date_of_birth)}</span>
-              </div>
-            )}
-            {employee.cnic_number && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">CNIC</span>
-                <span>{employee.cnic_number}</span>
-              </div>
-            )}
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Type</span>
-              <span>{EMPLOYMENT_TYPE_LABELS[employee.employment_type]}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Location</span>
-              <span>{WORK_LOCATION_LABELS[employee.work_location]}</span>
-            </div>
-            {isAdmin(employee.role) && employee.basic_salary && (
-              <div className="flex justify-between border-t pt-3">
-                <span className="text-muted-foreground">Salary</span>
-                <span>PKR {employee.basic_salary.toLocaleString()}</span>
-              </div>
-            )}
-            <p className="border-t pt-3 text-xs text-muted-foreground">
-              Employee ID, DOB, joining date, and CNIC can only be updated by admin.
-            </p>
-          </CardContent>
-        </Card>
-
-        <div className="lg:col-span-2">
-          <ProfileForm employee={employee} />
+          </div>
         </div>
+      </div>
+
+      {/* ── Org Info Card Grid ── */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mb-6">
+
+        {/* Employee ID */}
+        <div className="rounded-xl border border-border/60 bg-card p-4 shadow-sm flex items-start gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 shrink-0">
+            <Hash className="h-4 w-4 text-primary" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Employee ID</p>
+            <p className="text-base font-bold font-mono tracking-wide">
+              {employee.employee_code ?? "—"}
+            </p>
+          </div>
+        </div>
+
+        {/* Department */}
+        <div className="rounded-xl border border-border/60 bg-card p-4 shadow-sm flex items-start gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/20 shrink-0">
+            <Building2 className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Department</p>
+            <p className="text-sm font-semibold truncate">{employee.department?.name ?? "—"}</p>
+          </div>
+        </div>
+
+        {/* Role / Position */}
+        <div className="rounded-xl border border-border/60 bg-card p-4 shadow-sm flex items-start gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-100 dark:bg-violet-900/20 shrink-0">
+            <Briefcase className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Position</p>
+            <p className="text-sm font-semibold truncate">{employee.designation}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{ROLE_LABELS[employee.role]}</p>
+          </div>
+        </div>
+
+        {/* Employment Status */}
+        <div className="rounded-xl border border-border/60 bg-card p-4 shadow-sm flex items-start gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/20 shrink-0">
+            <Activity className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Status</p>
+            <Badge className={statusColors[employee.status] + " text-xs"}>
+              {EMPLOYEE_STATUS_LABELS[employee.status]}
+            </Badge>
+          </div>
+        </div>
+
+        {/* Join Date */}
+        <div className="rounded-xl border border-border/60 bg-card p-4 shadow-sm flex items-start gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/20 shrink-0">
+            <CalendarDays className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Join Date</p>
+            <p className="text-sm font-semibold">{formatDate(employee.joining_date)}</p>
+          </div>
+        </div>
+
+        {/* Manager */}
+        {managerName && (
+          <div className="rounded-xl border border-border/60 bg-card p-4 shadow-sm flex items-start gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-rose-100 dark:bg-rose-900/20 shrink-0">
+              <UserCheck className="h-4 w-4 text-rose-600 dark:text-rose-400" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Manager</p>
+              <p className="text-sm font-semibold truncate">{managerName}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Lead */}
+        {leadName && (
+          <div className="rounded-xl border border-border/60 bg-card p-4 shadow-sm flex items-start gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-cyan-100 dark:bg-cyan-900/20 shrink-0">
+              <Shield className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Team Lead</p>
+              <p className="text-sm font-semibold truncate">{leadName}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Team Size (if manager) */}
+        {(teamCount ?? 0) > 0 && (
+          <div className="rounded-xl border border-border/60 bg-card p-4 shadow-sm flex items-start gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-100 dark:bg-indigo-900/20 shrink-0">
+              <Users className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Team</p>
+              <p className="text-base font-bold">{teamCount}</p>
+              <p className="text-xs text-muted-foreground">direct report{(teamCount ?? 0) !== 1 ? "s" : ""}</p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── Personal Info Editing (below org section) ── */}
+      <div className="rounded-xl border border-border/40 bg-card/60 p-1">
+        <div className="px-5 pt-4 pb-2">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Personal Contact Info</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">Update your contact details and emergency information</p>
+        </div>
+        <ProfileForm employee={employee} />
       </div>
     </div>
   );
