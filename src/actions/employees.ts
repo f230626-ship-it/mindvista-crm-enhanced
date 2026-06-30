@@ -26,7 +26,7 @@ export async function createEmployee(formData: FormData) {
 
   const { error } = await supabase.from("employees").insert({
     user_id: authData.user.id,
-    // employee_code is auto-assigned by DB trigger (numeric sequence)
+    // employee_code is auto-assigned by DB trigger (5-digit unique-digit code)
     full_name: fullName,
     email,
     phone: (formData.get("phone") as string) || null,

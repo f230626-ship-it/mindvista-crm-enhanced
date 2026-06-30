@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { updateEmployee } from "@/actions/employees";
 import { adminSaveEmployeePhotoUrl } from "@/actions/profile";
 import { createClient } from "@/lib/supabase/client";
@@ -33,6 +33,15 @@ import {
   PM_ROLE_LABELS,
   EMPLOYEE_STATUS_LABELS,
 } from "@/lib/constants";
+import {
+  NONE_VALUE,
+  departmentLabel,
+  formGridClass,
+  formSelectTriggerClass,
+  mergePersonOptions,
+  personLabel,
+  type PersonOption,
+} from "@/components/admin/employee-select-utils";
 import type {
   Department,
   Employee,
@@ -48,9 +57,13 @@ export function EditEmployeeDialog({
   departments,
   managers,
 }: {
-  employee: Employee & { department?: Department };
+  employee: Employee & {
+    department?: Department;
+    manager?: Pick<Employee, "id" | "full_name" | "employee_code">;
+    lead?: Pick<Employee, "id" | "full_name" | "employee_code">;
+  };
   departments: Department[];
-  managers: Pick<Employee, "id" | "full_name" | "employee_code">[];
+  managers: PersonOption[];
 }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -66,15 +79,52 @@ export function EditEmployeeDialog({
   const [managerId, setManagerId] = useState(employee.manager_id ?? "");
   const [leadId, setLeadId] = useState(employee.lead_id ?? "");
 
+  useEffect(() => {
+    if (open) {
+      setRole(employee.role);
+      setPmRole(employee.pm_role || "developer");
+      setStatus(employee.status);
+      setEmploymentType(employee.employment_type);
+      setWorkLocation(employee.work_location);
+      setDepartmentId(employee.department_id ?? "");
+      setManagerId(employee.manager_id ?? "");
+      setLeadId(employee.lead_id ?? "");
+      setPhotoPreview(employee.profile_photo_url);
+    }
+  }, [open, employee]);
+
+  const managerOptions = useMemo(
+    () =>
+      mergePersonOptions(
+        managers,
+        employee.manager
+          ? {
+              id: employee.manager.id,
+              full_name: employee.manager.full_name,
+              employee_code: employee.manager.employee_code ?? null,
+            }
+          : null,
+        employee.lead
+          ? {
+              id: employee.lead.id,
+              full_name: employee.lead.full_name,
+              employee_code: employee.lead.employee_code ?? null,
+            }
+          : null
+      ).filter((m) => m.id !== employee.id),
+    [managers, employee]
+  );
+
+  const selectedDepartment = departmentLabel(departments, departmentId);
+  const selectedManager = managerOptions.find((m) => m.id === managerId);
+  const selectedLead = managerOptions.find((m) => m.id === leadId);
+
   const initials = employee.full_name
     .split(" ")
     .map((n: string) => n[0])
     .join("")
     .toUpperCase()
     .slice(0, 2);
-
-  const personLabel = (p: Pick<Employee, "id" | "full_name" | "employee_code">) =>
-    p.employee_code ? `${p.full_name} (${p.employee_code})` : p.full_name;
 
   async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -91,7 +141,6 @@ export function EditEmployeeDialog({
 
     setPhotoLoading(true);
     try {
-      // Upload directly from browser to Supabase Storage (bypasses Next.js body limits)
       const supabase = createClient();
       const ext = file.name.split(".").pop() ?? "jpg";
       const path = `${employee.id}/avatar.${ext}`;
@@ -110,7 +159,6 @@ export function EditEmployeeDialog({
         .getPublicUrl(path);
       const photoUrl = `${urlData.publicUrl}?t=${Date.now()}`;
 
-      // Save the URL server-side
       const result = await adminSaveEmployeePhotoUrl(employee.id, photoUrl);
       if (result.error) {
         toast.error(result.error);
@@ -157,12 +205,11 @@ export function EditEmployeeDialog({
           <DialogTitle>Edit {employee.full_name}</DialogTitle>
         </DialogHeader>
 
-        {/* ── Profile Photo Upload ── */}
-        <div className="flex items-center gap-4 pb-4 border-b border-border/40">
-          <div className="relative group">
+        <div className="flex items-center gap-4 border-b border-border/40 pb-4">
+          <div className="group relative">
             <Avatar className="h-20 w-20 border-2 border-primary/20">
               <AvatarImage src={photoPreview ?? undefined} />
-              <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xl">
+              <AvatarFallback className="bg-primary/10 text-xl font-semibold text-primary">
                 {initials}
               </AvatarFallback>
             </Avatar>
@@ -175,7 +222,7 @@ export function EditEmployeeDialog({
               type="button"
               disabled={photoLoading}
               onClick={() => photoInputRef.current?.click()}
-              className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+              className="absolute inset-0 flex cursor-pointer items-center justify-center rounded-full bg-black/50 opacity-0 transition-opacity group-hover:opacity-100"
             >
               <Camera className="h-5 w-5 text-white" />
             </button>
@@ -187,17 +234,17 @@ export function EditEmployeeDialog({
               onChange={handlePhotoUpload}
             />
           </div>
-          <div className="flex-1 min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="text-sm font-medium">Profile Photo</p>
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <p className="mt-0.5 text-xs text-muted-foreground">
               Click the avatar to upload · Max 5MB · JPG, PNG, WebP
             </p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
+          <div className={formGridClass}>
+            <div className="min-w-0 space-y-2">
               <Label htmlFor="edit_employee_code">Employee ID</Label>
               <Input
                 id="edit_employee_code"
@@ -207,7 +254,7 @@ export function EditEmployeeDialog({
                 className="bg-muted"
               />
             </div>
-            <div className="space-y-2">
+            <div className="min-w-0 space-y-2">
               <Label htmlFor="edit_joining_date">Joining Date</Label>
               <Input
                 id="edit_joining_date"
@@ -217,11 +264,11 @@ export function EditEmployeeDialog({
                 required
               />
             </div>
-            <div className="col-span-2 space-y-2">
+            <div className="min-w-0 space-y-2 sm:col-span-2">
               <Label htmlFor="edit_full_name">Full Name</Label>
               <Input id="edit_full_name" name="full_name" defaultValue={employee.full_name} required />
             </div>
-            <div className="space-y-2">
+            <div className="min-w-0 space-y-2">
               <Label htmlFor="edit_dob">Date of Birth</Label>
               <Input
                 id="edit_dob"
@@ -231,7 +278,7 @@ export function EditEmployeeDialog({
                 required
               />
             </div>
-            <div className="space-y-2">
+            <div className="min-w-0 space-y-2">
               <Label htmlFor="edit_cnic">CNIC</Label>
               <Input
                 id="edit_cnic"
@@ -240,11 +287,11 @@ export function EditEmployeeDialog({
                 required
               />
             </div>
-            <div className="space-y-2">
+            <div className="min-w-0 space-y-2">
               <Label htmlFor="edit_phone">Phone</Label>
               <Input id="edit_phone" name="phone" defaultValue={employee.phone ?? ""} />
             </div>
-            <div className="space-y-2">
+            <div className="min-w-0 space-y-2">
               <Label htmlFor="edit_designation">Designation</Label>
               <Input
                 id="edit_designation"
@@ -253,13 +300,19 @@ export function EditEmployeeDialog({
                 required
               />
             </div>
-            <div className="space-y-2">
+            <div className="min-w-0 space-y-2">
               <Label>Department</Label>
-              <Select value={departmentId} onValueChange={(v) => setDepartmentId(v ?? "")}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Department" />
+              <Select
+                value={departmentId || NONE_VALUE}
+                onValueChange={(v) => setDepartmentId(v === NONE_VALUE ? "" : (v ?? ""))}
+              >
+                <SelectTrigger className={formSelectTriggerClass}>
+                  <SelectValue placeholder="Select department">
+                    {selectedDepartment ?? "Select department"}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value={NONE_VALUE}>None</SelectItem>
                   {departments.map((d) => (
                     <SelectItem key={d.id} value={d.id}>
                       {d.name}
@@ -268,44 +321,52 @@ export function EditEmployeeDialog({
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
+            <div className="min-w-0 space-y-2">
               <Label>Reporting To</Label>
-              <Select value={managerId} onValueChange={(v) => setManagerId(v ?? "")}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Reporting to" />
+              <Select
+                value={managerId || NONE_VALUE}
+                onValueChange={(v) => setManagerId(v === NONE_VALUE ? "" : (v ?? ""))}
+              >
+                <SelectTrigger className={formSelectTriggerClass}>
+                  <SelectValue placeholder="Select manager">
+                    {selectedManager ? personLabel(selectedManager) : "Select manager"}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {managers
-                    .filter((m) => m.id !== employee.id)
-                    .map((m) => (
-                      <SelectItem key={m.id} value={m.id}>
-                        {personLabel(m)}
-                      </SelectItem>
-                    ))}
+                  <SelectItem value={NONE_VALUE}>None</SelectItem>
+                  {managerOptions.map((m) => (
+                    <SelectItem key={m.id} value={m.id}>
+                      {personLabel(m)}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
+            <div className="min-w-0 space-y-2">
               <Label>Lead</Label>
-              <Select value={leadId} onValueChange={(v) => setLeadId(v ?? "")}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Lead" />
+              <Select
+                value={leadId || NONE_VALUE}
+                onValueChange={(v) => setLeadId(v === NONE_VALUE ? "" : (v ?? ""))}
+              >
+                <SelectTrigger className={formSelectTriggerClass}>
+                  <SelectValue placeholder="Select lead">
+                    {selectedLead ? personLabel(selectedLead) : "Select lead"}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {managers
-                    .filter((m) => m.id !== employee.id)
-                    .map((m) => (
-                      <SelectItem key={m.id} value={m.id}>
-                        {personLabel(m)}
-                      </SelectItem>
-                    ))}
+                  <SelectItem value={NONE_VALUE}>None</SelectItem>
+                  {managerOptions.map((m) => (
+                    <SelectItem key={m.id} value={m.id}>
+                      {personLabel(m)}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
+            <div className="min-w-0 space-y-2">
               <Label>Status</Label>
               <Select value={status} onValueChange={(v) => v && setStatus(v as EmployeeStatus)}>
-                <SelectTrigger>
+                <SelectTrigger className={formSelectTriggerClass}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -317,10 +378,10 @@ export function EditEmployeeDialog({
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
+            <div className="min-w-0 space-y-2">
               <Label>Role</Label>
               <Select value={role} onValueChange={(v) => v && setRole(v as UserRole)}>
-                <SelectTrigger>
+                <SelectTrigger className={formSelectTriggerClass}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -332,10 +393,10 @@ export function EditEmployeeDialog({
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
+            <div className="min-w-0 space-y-2">
               <Label>Project Management Role</Label>
               <Select value={pmRole} onValueChange={(v) => v && setPmRole(v as PMRole)}>
-                <SelectTrigger>
+                <SelectTrigger className={formSelectTriggerClass}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -347,13 +408,13 @@ export function EditEmployeeDialog({
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
+            <div className="min-w-0 space-y-2">
               <Label>Employment Type</Label>
               <Select
                 value={employmentType}
                 onValueChange={(v) => v && setEmploymentType(v as EmploymentType)}
               >
-                <SelectTrigger>
+                <SelectTrigger className={formSelectTriggerClass}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -365,13 +426,13 @@ export function EditEmployeeDialog({
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
+            <div className="min-w-0 space-y-2">
               <Label>Work Location</Label>
               <Select
                 value={workLocation}
                 onValueChange={(v) => v && setWorkLocation(v as WorkLocation)}
               >
-                <SelectTrigger>
+                <SelectTrigger className={formSelectTriggerClass}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -383,7 +444,7 @@ export function EditEmployeeDialog({
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
+            <div className="min-w-0 space-y-2">
               <Label htmlFor="edit_salary">Basic Salary</Label>
               <Input
                 id="edit_salary"
@@ -401,4 +462,3 @@ export function EditEmployeeDialog({
     </Dialog>
   );
 }
-
