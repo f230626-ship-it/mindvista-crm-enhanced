@@ -130,11 +130,11 @@ export async function bulkImportProjects(payload: any[], filename: string) {
 
   if (error) {
     console.error("Error in bulk import:", error);
-    return { error: error.message };
+    return { error: error.message, successCount: 0 };
   }
 
   revalidatePath("/projects");
-  return { success: true };
+  return { success: true, successCount: payload.length };
 }
 
 export async function checkApproachingDeliveries() {
