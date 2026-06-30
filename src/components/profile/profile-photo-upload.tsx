@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { uploadProfilePhoto } from "@/actions/profile";
+import { createClient } from "@/lib/supabase/client";
+import { saveProfilePhotoUrl } from "@/actions/profile";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -32,17 +33,48 @@ export function ProfilePhotoUpload({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setLoading(true);
-    const formData = new FormData();
-    formData.set("photo", file);
-    const result = await uploadProfilePhoto(formData);
-    setLoading(false);
+    if (!file.type.startsWith("image/")) {
+      toast.error("File must be an image");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be under 5MB");
+      return;
+    }
 
-    if (result.error) {
-      toast.error(result.error);
-    } else {
+    setLoading(true);
+    try {
+      // Upload directly from browser to Supabase Storage (bypasses Next.js body limits)
+      const supabase = createClient();
+      const ext = file.name.split(".").pop() ?? "jpg";
+      const path = `${employeeId}/avatar.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("profile-photos")
+        .upload(path, file, { upsert: true, contentType: file.type });
+
+      if (uploadError) {
+        toast.error(uploadError.message);
+        return;
+      }
+
+      const { data: urlData } = supabase.storage
+        .from("profile-photos")
+        .getPublicUrl(path);
+      const photoUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+
+      // Save the URL server-side
+      const result = await saveProfilePhotoUrl(photoUrl);
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+
+      setPreview(photoUrl);
       toast.success("Profile photo updated");
-      if (result.url) setPreview(result.url);
+    } finally {
+      setLoading(false);
+      if (inputRef.current) inputRef.current.value = "";
     }
   }
 
@@ -62,7 +94,7 @@ export function ProfilePhotoUpload({
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept="image/jpeg,image/png,image/webp"
         className="hidden"
         onChange={handleFile}
       />

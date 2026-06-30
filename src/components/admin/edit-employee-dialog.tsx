@@ -2,7 +2,8 @@
 
 import { useRef, useState } from "react";
 import { updateEmployee } from "@/actions/employees";
-import { adminUploadEmployeePhoto } from "@/actions/profile";
+import { adminSaveEmployeePhotoUrl } from "@/actions/profile";
+import { createClient } from "@/lib/supabase/client";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -89,20 +90,39 @@ export function EditEmployeeDialog({
     }
 
     setPhotoLoading(true);
-    const formData = new FormData();
-    formData.set("photo", file);
-    const result = await adminUploadEmployeePhoto(employee.id, formData);
-    setPhotoLoading(false);
+    try {
+      // Upload directly from browser to Supabase Storage (bypasses Next.js body limits)
+      const supabase = createClient();
+      const ext = file.name.split(".").pop() ?? "jpg";
+      const path = `${employee.id}/avatar.${ext}`;
 
-    if (result.error) {
-      toast.error(result.error);
-    } else {
+      const { error: uploadError } = await supabase.storage
+        .from("profile-photos")
+        .upload(path, file, { upsert: true, contentType: file.type });
+
+      if (uploadError) {
+        toast.error(uploadError.message);
+        return;
+      }
+
+      const { data: urlData } = supabase.storage
+        .from("profile-photos")
+        .getPublicUrl(path);
+      const photoUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+
+      // Save the URL server-side
+      const result = await adminSaveEmployeePhotoUrl(employee.id, photoUrl);
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+
+      setPhotoPreview(photoUrl);
       toast.success("Profile photo updated");
-      if (result.url) setPhotoPreview(result.url);
+    } finally {
+      setPhotoLoading(false);
+      if (photoInputRef.current) photoInputRef.current.value = "";
     }
-
-    // Reset input so the same file can be re-selected
-    if (photoInputRef.current) photoInputRef.current.value = "";
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
