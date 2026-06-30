@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { updateEmployee } from "@/actions/employees";
+import { adminUploadEmployeePhoto } from "@/actions/profile";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -20,8 +21,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
-import { Pencil } from "lucide-react";
+import { Pencil, Camera } from "lucide-react";
 import {
   EMPLOYMENT_TYPE_LABELS,
   WORK_LOCATION_LABELS,
@@ -50,6 +53,9 @@ export function EditEmployeeDialog({
 }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [photoLoading, setPhotoLoading] = useState(false);
+  const [photoPreview, setPhotoPreview] = useState(employee.profile_photo_url);
+  const photoInputRef = useRef<HTMLInputElement>(null);
   const [role, setRole] = useState<UserRole>(employee.role);
   const [pmRole, setPmRole] = useState<PMRole>(employee.pm_role || "developer");
   const [status, setStatus] = useState<EmployeeStatus>(employee.status);
@@ -59,8 +65,45 @@ export function EditEmployeeDialog({
   const [managerId, setManagerId] = useState(employee.manager_id ?? "");
   const [leadId, setLeadId] = useState(employee.lead_id ?? "");
 
+  const initials = employee.full_name
+    .split(" ")
+    .map((n: string) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+
   const personLabel = (p: Pick<Employee, "id" | "full_name" | "employee_code">) =>
     p.employee_code ? `${p.full_name} (${p.employee_code})` : p.full_name;
+
+  async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("File must be an image");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be under 5MB");
+      return;
+    }
+
+    setPhotoLoading(true);
+    const formData = new FormData();
+    formData.set("photo", file);
+    const result = await adminUploadEmployeePhoto(employee.id, formData);
+    setPhotoLoading(false);
+
+    if (result.error) {
+      toast.error(result.error);
+    } else {
+      toast.success("Profile photo updated");
+      if (result.url) setPhotoPreview(result.url);
+    }
+
+    // Reset input so the same file can be re-selected
+    if (photoInputRef.current) photoInputRef.current.value = "";
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -93,6 +136,45 @@ export function EditEmployeeDialog({
         <DialogHeader>
           <DialogTitle>Edit {employee.full_name}</DialogTitle>
         </DialogHeader>
+
+        {/* ── Profile Photo Upload ── */}
+        <div className="flex items-center gap-4 pb-4 border-b border-border/40">
+          <div className="relative group">
+            <Avatar className="h-20 w-20 border-2 border-primary/20">
+              <AvatarImage src={photoPreview ?? undefined} />
+              <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xl">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+            {photoLoading && (
+              <div className="absolute inset-0 flex items-center justify-center rounded-full bg-background/60">
+                <Spinner size="sm" />
+              </div>
+            )}
+            <button
+              type="button"
+              disabled={photoLoading}
+              onClick={() => photoInputRef.current?.click()}
+              className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+            >
+              <Camera className="h-5 w-5 text-white" />
+            </button>
+            <input
+              ref={photoInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+              onChange={handlePhotoUpload}
+            />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium">Profile Photo</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Click the avatar to upload · Max 5MB · JPG, PNG, WebP
+            </p>
+          </div>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -298,3 +380,4 @@ export function EditEmployeeDialog({
     </Dialog>
   );
 }
+
