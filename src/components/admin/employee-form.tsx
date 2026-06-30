@@ -83,10 +83,7 @@ export function EmployeeForm({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="employee_code">Employee ID</Label>
-              <Input id="employee_code" name="employee_code" placeholder="MV-001" required />
-            </div>
+
             <div className="space-y-2">
               <Label htmlFor="joining_date">Joining Date</Label>
               <Input id="joining_date" name="joining_date" type="date" required />

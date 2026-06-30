@@ -203,7 +203,8 @@ export function EditEmployeeDialog({
                 id="edit_employee_code"
                 name="employee_code"
                 defaultValue={employee.employee_code ?? ""}
-                required
+                readOnly
+                className="bg-muted"
               />
             </div>
             <div className="space-y-2">
