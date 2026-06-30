@@ -86,15 +86,17 @@ export function Sidebar({ role }: { role: UserRole }) {
 
   return (
     <aside className="flex h-full w-64 flex-col border-r border-sidebar-border bg-sidebar">
-      <div className="flex h-16 items-center gap-3 border-b border-sidebar-border px-5">
-        <Image
-          src="/images/logo.png"
-          alt="MindVista"
-          width={130}
-          height={36}
-          className="h-8 w-auto object-contain"
-          priority
-        />
+      <div className="flex h-16 items-center justify-center gap-3 border-b border-sidebar-border px-5">
+        <Link href="/dashboard" className="flex items-center justify-center">
+          <Image
+            src="/images/logo.png"
+            alt="MindVista"
+            width={130}
+            height={36}
+            className="h-8 w-auto object-contain"
+            priority
+          />
+        </Link>
       </div>
 
       <nav className="flex-1 space-y-1 overflow-y-auto p-3">

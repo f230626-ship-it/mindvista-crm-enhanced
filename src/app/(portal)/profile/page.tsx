@@ -76,7 +76,7 @@ export default async function ProfilePage() {
         <div className="h-24 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent" />
         <div className="px-6 pb-6 -mt-12 flex flex-col sm:flex-row sm:items-end gap-4">
           <div className="relative shrink-0">
-            <div className="rounded-2xl border-4 border-card shadow-lg overflow-hidden">
+            <div className="rounded-2xl border-4 border-card bg-card p-4 shadow-lg overflow-hidden">
               <ProfilePhotoUpload
                 employeeId={employee.id}
                 fullName={employee.full_name}
@@ -107,8 +107,8 @@ export default async function ProfilePage() {
 
         {/* Employee ID */}
         <div className="rounded-xl border border-border/60 bg-card p-4 shadow-sm flex items-start gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 shrink-0">
-            <Hash className="h-4 w-4 text-primary" />
+          <div className="flex items-center justify-center shrink-0">
+            <Hash className="h-5 w-5 text-primary" />
           </div>
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Employee ID</p>
@@ -120,8 +120,8 @@ export default async function ProfilePage() {
 
         {/* Department */}
         <div className="rounded-xl border border-border/60 bg-card p-4 shadow-sm flex items-start gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/20 shrink-0">
-            <Building2 className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+          <div className="flex items-center justify-center shrink-0">
+            <Building2 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
           </div>
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Department</p>
@@ -131,8 +131,8 @@ export default async function ProfilePage() {
 
         {/* Role / Position */}
         <div className="rounded-xl border border-border/60 bg-card p-4 shadow-sm flex items-start gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-100 dark:bg-violet-900/20 shrink-0">
-            <Briefcase className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+          <div className="flex items-center justify-center shrink-0">
+            <Briefcase className="h-5 w-5 text-violet-600 dark:text-violet-400" />
           </div>
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Position</p>
@@ -143,8 +143,8 @@ export default async function ProfilePage() {
 
         {/* Employment Status */}
         <div className="rounded-xl border border-border/60 bg-card p-4 shadow-sm flex items-start gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/20 shrink-0">
-            <Activity className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+          <div className="flex items-center justify-center shrink-0">
+            <Activity className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
           </div>
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Status</p>
@@ -156,8 +156,8 @@ export default async function ProfilePage() {
 
         {/* Join Date */}
         <div className="rounded-xl border border-border/60 bg-card p-4 shadow-sm flex items-start gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/20 shrink-0">
-            <CalendarDays className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+          <div className="flex items-center justify-center shrink-0">
+            <CalendarDays className="h-5 w-5 text-amber-600 dark:text-amber-400" />
           </div>
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Join Date</p>
@@ -168,8 +168,8 @@ export default async function ProfilePage() {
         {/* Manager */}
         {managerName && (
           <div className="rounded-xl border border-border/60 bg-card p-4 shadow-sm flex items-start gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-rose-100 dark:bg-rose-900/20 shrink-0">
-              <UserCheck className="h-4 w-4 text-rose-600 dark:text-rose-400" />
+            <div className="flex items-center justify-center shrink-0">
+              <UserCheck className="h-5 w-5 text-rose-600 dark:text-rose-400" />
             </div>
             <div className="min-w-0">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Manager</p>
@@ -181,8 +181,8 @@ export default async function ProfilePage() {
         {/* Lead */}
         {leadName && (
           <div className="rounded-xl border border-border/60 bg-card p-4 shadow-sm flex items-start gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-cyan-100 dark:bg-cyan-900/20 shrink-0">
-              <Shield className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
+            <div className="flex items-center justify-center shrink-0">
+              <Shield className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
             </div>
             <div className="min-w-0">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Team Lead</p>
@@ -194,8 +194,8 @@ export default async function ProfilePage() {
         {/* Team Size (if manager) */}
         {(teamCount ?? 0) > 0 && (
           <div className="rounded-xl border border-border/60 bg-card p-4 shadow-sm flex items-start gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-100 dark:bg-indigo-900/20 shrink-0">
-              <Users className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+            <div className="flex items-center justify-center shrink-0">
+              <Users className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
             </div>
             <div className="min-w-0">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Team</p>

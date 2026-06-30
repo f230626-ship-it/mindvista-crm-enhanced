@@ -68,9 +68,9 @@ export function Header({
         <NotificationBell notifications={notifications} unreadCount={unreadCount} />
       <DropdownMenu>
         <DropdownMenuTrigger className="relative inline-flex rounded-full outline-none ring-primary/30 transition-all hover:ring-2 focus-visible:ring-2">
-          <Avatar className="h-10 w-10 border-2 border-primary/30">
+          <Avatar className="h-10 w-10 border-2 border-primary/30 p-1 bg-background">
             <AvatarImage src={employee.profile_photo_url ?? undefined} />
-            <AvatarFallback className="bg-primary/10 text-primary">{initials}</AvatarFallback>
+            <AvatarFallback className="bg-primary/10 text-primary rounded-full">{initials}</AvatarFallback>
           </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="end">

@@ -407,12 +407,12 @@ export default function ProjectsClient({
     <div className="projects-module space-y-6">
       {/* Header and Controls */}
       <div className="pm-hero flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="space-y-1.5">
+        <div className="space-y-1.5 min-w-0">
           <h1 className="text-3xl font-extrabold tracking-tight text-gradient-brand">Project Management</h1>
-          <p className="text-sm text-muted-foreground max-w-lg">Manage client projects, resource allocations, and view performance insights.</p>
+          <p className="text-sm text-muted-foreground max-w-lg truncate">Manage client projects, resource allocations, and view performance insights.</p>
         </div>
         
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap sm:flex-nowrap items-center justify-end gap-3 shrink-0">
           {/* Tabs */}
           <div className="pm-tabs">
             <button
@@ -442,7 +442,7 @@ export default function ProjectsClient({
 
           {/* Create Button – admin only */}
           {isAdmin ? (
-            <Link href="/projects/new">
+            <Link href="/projects/new" className="flex items-center">
               <Button className="pm-btn-primary text-primary-foreground">
                 <Plus className="mr-2 h-4 w-4" /> Add Project
               </Button>

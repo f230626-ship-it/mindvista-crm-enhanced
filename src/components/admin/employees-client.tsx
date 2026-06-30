@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { EMPLOYEE_STATUS_LABELS } from "@/lib/constants";
 import type { Department, Employee } from "@/types/database";
 
-const ITEMS_PER_PAGE = 6;
+const ITEMS_PER_PAGE = 8;
 
 export type EmployeeWithRelations = Employee & {
   department?: Pick<Department, "name"> | null;
@@ -56,7 +56,7 @@ export function EmployeesClient({
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {paginatedEmployees.map((emp) => {
           const initials = emp.full_name
             .split(" ")
