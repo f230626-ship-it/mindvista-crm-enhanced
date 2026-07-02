@@ -126,7 +126,7 @@ export function KpiCard({
   value,
   description,
   icon,
-  accentClass = "bg-primary/10 text-primary",
+  accentClass = "text-primary",
   borderClass = "border-l-primary/80",
   staggerClass = "",
   valueClassName = "",

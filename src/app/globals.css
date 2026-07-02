@@ -478,7 +478,7 @@
 }
 
 .pm-section-icon {
-  @apply p-2.5 rounded-xl bg-primary/10 text-primary transition-transform duration-300;
+  @apply p-2.5 rounded-xl text-primary transition-transform duration-300 bg-transparent;
 }
 .pm-section-card:hover .pm-section-icon { transform: scale(1.05); }
 

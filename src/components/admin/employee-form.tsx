@@ -95,12 +95,12 @@ export function EmployeeForm({
         <Plus className="mr-2 h-4 w-4" />
         Add Employee
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg flex flex-col max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>Add New Employee</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className={formGridClass}>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 overflow-hidden flex-1">
+          <div className={cn(formGridClass, "overflow-y-auto p-1 flex-1")}>
             <div className="min-w-0 space-y-2">
               <Label htmlFor="joining_date">Joining Date</Label>
               <Input id="joining_date" name="joining_date" type="date" required />
@@ -115,7 +115,7 @@ export function EmployeeForm({
             </div>
             <div className="min-w-0 space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" name="password" type="password" minLength={8} required />
+              <Input id="password" name="password" type="password" required />
             </div>
             <div className="min-w-0 space-y-2">
               <Label htmlFor="date_of_birth">Date of Birth</Label>
@@ -123,11 +123,11 @@ export function EmployeeForm({
             </div>
             <div className="min-w-0 space-y-2">
               <Label htmlFor="cnic_number">CNIC</Label>
-              <Input id="cnic_number" name="cnic_number" placeholder="12345-1234567-1" required />
+              <Input id="cnic_number" name="cnic_number" placeholder="12345-1234567-1" required pattern="^\d{5}-\d{7}-\d{1}$" title="Format: 12345-1234567-1" />
             </div>
             <div className="min-w-0 space-y-2">
               <Label htmlFor="phone">Phone</Label>
-              <Input id="phone" name="phone" />
+              <Input id="phone" name="phone" pattern="^[\d\s\-\+\(\)]+$" title="Please enter a valid phone number" />
             </div>
             <div className="min-w-0 space-y-2">
               <Label htmlFor="designation">Designation</Label>

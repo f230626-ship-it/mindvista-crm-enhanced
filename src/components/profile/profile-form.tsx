@@ -37,7 +37,14 @@ export function ProfileForm({ employee }: { employee: Employee }) {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="phone">Phone</Label>
-              <Input id="phone" name="phone" defaultValue={employee.phone ?? ""} />
+              <Input
+                id="phone"
+                name="phone"
+                defaultValue={employee.phone ?? ""}
+                placeholder="03XX-XXXXXXX or +92-XXX-XXXXXXX"
+                pattern="^[\d\s\-\+\(\)]+$"
+                title="Please enter a valid phone number (digits, spaces, +, -, () only)"
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="cnic">CNIC (read-only)</Label>
@@ -63,6 +70,9 @@ export function ProfileForm({ employee }: { employee: Employee }) {
                 id="emergency_contact_phone"
                 name="emergency_contact_phone"
                 defaultValue={employee.emergency_contact_phone ?? ""}
+                placeholder="03XX-XXXXXXX or +92-XXX-XXXXXXX"
+                pattern="^[\d\s\-\+\(\)]+$"
+                title="Please enter a valid phone number (digits, spaces, +, -, () only)"
               />
             </div>
           </div>

@@ -209,7 +209,7 @@ export function EditEmployeeDialog({
           <div className="group relative">
             <Avatar className="h-20 w-20 border-2 border-primary/20">
               <AvatarImage src={photoPreview ?? undefined} />
-              <AvatarFallback className="bg-primary/10 text-xl font-semibold text-primary">
+              <AvatarFallback className="text-xl font-semibold text-primary bg-transparent border border-primary/20">
                 {initials}
               </AvatarFallback>
             </Avatar>
@@ -285,11 +285,14 @@ export function EditEmployeeDialog({
                 name="cnic_number"
                 defaultValue={employee.cnic_number ?? ""}
                 required
+                pattern="^\d{5}-\d{7}-\d{1}$"
+                title="Format: 12345-1234567-1"
+                placeholder="12345-1234567-1"
               />
             </div>
             <div className="min-w-0 space-y-2">
               <Label htmlFor="edit_phone">Phone</Label>
-              <Input id="edit_phone" name="phone" defaultValue={employee.phone ?? ""} />
+              <Input id="edit_phone" name="phone" defaultValue={employee.phone ?? ""} pattern="^[\d\s\-\+\(\)]+$" title="Please enter a valid phone number" />
             </div>
             <div className="min-w-0 space-y-2">
               <Label htmlFor="edit_designation">Designation</Label>

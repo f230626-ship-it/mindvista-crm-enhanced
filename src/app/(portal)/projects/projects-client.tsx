@@ -472,7 +472,7 @@ export default function ProjectsClient({
               description="All logged leads & projects"
               icon={<Briefcase className="h-4 w-4" />}
               borderClass="border-l-primary/80"
-              accentClass="bg-primary/10 text-primary"
+              accentClass="text-primary"
               staggerClass="pm-stagger-1"
             />
             <KpiCard
@@ -481,7 +481,7 @@ export default function ProjectsClient({
               description="In dev or onboarding"
               icon={<Clock className="h-4 w-4" />}
               borderClass="border-l-blue-500"
-              accentClass="bg-blue-500/10 text-blue-500"
+              accentClass="text-blue-500"
               valueClassName="text-blue-600 dark:text-blue-400"
               staggerClass="pm-stagger-2"
             />
@@ -491,7 +491,7 @@ export default function ProjectsClient({
               description="Blocked or paused"
               icon={<Pause className="h-4 w-4" />}
               borderClass="border-l-orange-500"
-              accentClass="bg-orange-500/10 text-orange-500"
+              accentClass="text-orange-500"
               valueClassName="text-orange-600 dark:text-orange-400"
               staggerClass="pm-stagger-3"
             />
@@ -501,7 +501,7 @@ export default function ProjectsClient({
               description="Delivered projects"
               icon={<CheckCircle className="h-4 w-4" />}
               borderClass="border-l-green-500"
-              accentClass="bg-green-500/10 text-green-500"
+              accentClass="text-green-500"
               valueClassName="text-green-600 dark:text-green-400"
               staggerClass="pm-stagger-4"
             />
@@ -511,7 +511,7 @@ export default function ProjectsClient({
               description="Active recurring billing"
               icon={<TrendingUp className="h-4 w-4" />}
               borderClass="border-l-purple-500"
-              accentClass="bg-purple-500/10 text-purple-500"
+              accentClass="text-purple-500"
               valueClassName="text-purple-600 dark:text-purple-400"
               staggerClass="pm-stagger-5"
             />
@@ -527,7 +527,7 @@ export default function ProjectsClient({
               description="Combined valuation"
               icon={<DollarSign className="h-4 w-4" />}
               borderClass="border-l-amber-500"
-              accentClass="bg-primary/10 text-primary"
+              accentClass="text-primary"
               valueClassName="text-primary"
               staggerClass="pm-stagger-6 col-span-1 sm:col-span-2"
             />

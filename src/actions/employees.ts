@@ -22,7 +22,10 @@ export async function createEmployee(formData: FormData) {
     user_metadata: { full_name: fullName },
   });
 
-  if (authError) return { error: authError.message };
+  if (authError) {
+    console.error("Auth Error in createEmployee:", authError);
+    return { error: authError.message };
+  }
 
   const { error } = await supabase.from("employees").insert({
     user_id: authData.user.id,
