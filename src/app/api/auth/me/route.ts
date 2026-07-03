@@ -5,17 +5,11 @@ import { cookies } from "next/headers";
 
 /**
  * GET /api/auth/me
- *
  * Debug endpoint — shows what the server sees from your JWT.
- * Demonstrates:
- *  1. Supabase-verified user identity (getUser network call)
- *  2. Locally verified JWT claims (signature, exp, iss, aud)
- *  3. Custom claims injected by the access token hook (app_role, employee_id)
- *
- * Remove or protect this route in production once done demonstrating.
+ * Remove or protect this route once done demonstrating.
  */
 export async function GET() {
-  // ─── 1. Supabase server-side verification ────────────────────────────────
+  // 1. Supabase server-side verification
   const supabase = await createClient();
   const { data: { user }, error } = await supabase.auth.getUser();
 
@@ -26,7 +20,7 @@ export async function GET() {
     );
   }
 
-  // ─── 2. Local JWT verification (signature + claims) ───────────────────
+  // 2. Local JWT verification (signature + claims)
   const cookieStore = await cookies();
   const cookieHeader = cookieStore
     .getAll()
@@ -36,13 +30,35 @@ export async function GET() {
   const token = extractTokenFromCookieHeader(cookieHeader);
   const localVerification = token
     ? await verifySupabaseJwt(token)
-    : { ok: false, reason: "NO_TOKEN" };
+    : null;
 
-  // ─── 3. Build response ────────────────────────────────────────────────
+  // Build local verification section with proper type narrowing
+  let jwtVerificationResult: Record<string, unknown>;
+  if (!localVerification) {
+    jwtVerificationResult = { status: "NO TOKEN IN COOKIE" };
+  } else if (localVerification.ok) {
+    const c = localVerification.claims;
+    jwtVerificationResult = {
+      status: "VALID ✓",
+      algorithm: "ES256 (P-256)",
+      issuer: c.iss,
+      audience: c.aud,
+      expires_at: new Date(c.exp * 1000).toISOString(),
+      not_before: c.nbf
+        ? new Date(c.nbf * 1000).toISOString()
+        : "not set",
+    };
+  } else {
+    jwtVerificationResult = {
+      status: "FAILED ✗",
+      reason: localVerification.reason,
+      detail: localVerification.detail,
+    };
+  }
+
   return NextResponse.json({
     authenticated: true,
 
-    // What Supabase confirmed server-side
     supabase_verified: {
       user_id: user.id,
       email: user.email,
@@ -50,30 +66,13 @@ export async function GET() {
       last_sign_in: user.last_sign_in_at,
     },
 
-    // Custom claims injected by custom_access_token_hook
     jwt_custom_claims: {
       app_role: user.app_metadata?.app_role ?? "NOT SET — hook may not be enabled",
       employee_id: user.app_metadata?.employee_id ?? "NOT SET",
     },
 
-    // Local cryptographic verification result
-    local_jwt_verification: localVerification.ok
-      ? {
-          status: "VALID ✓",
-          algorithm: "ES256 (P-256)",
-          issuer: localVerification.claims.iss,
-          audience: localVerification.claims.aud,
-          expires_at: new Date(localVerification.claims.exp * 1000).toISOString(),
-          not_before: localVerification.claims.nbf
-            ? new Date(localVerification.claims.nbf * 1000).toISOString()
-            : "not set",
-        }
-      : {
-          status: "FAILED ✗",
-          reason: (localVerification as { ok: false; reason: string }).reason,
-        },
+    local_jwt_verification: jwtVerificationResult,
 
-    // Token presence (never log the actual token value)
     token_present_in_cookie: token !== null,
   });
 }
