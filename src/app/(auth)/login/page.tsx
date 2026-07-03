@@ -1,13 +1,20 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useTransition, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { createClient } from "@/lib/supabase/client";
+import Link from "next/link";
+import { login } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Spinner } from "@/components/ui/spinner";
 import { motion } from "framer-motion";
@@ -15,40 +22,43 @@ import { motion } from "framer-motion";
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [notice, setNotice] = useState("");
 
   useEffect(() => {
-    if (searchParams.get("error") === "no_employee_profile") {
+    const errParam = searchParams.get("error");
+    const verifiedParam = searchParams.get("verified");
+
+    if (errParam === "no_employee_profile") {
       setError(
-        "Your account exists but has no employee profile. Ask an admin to link your account."
+        "Your account exists but has no employee profile. Ask an administrator to link your account."
       );
+    }
+    if (verifiedParam === "true") {
+      setNotice("Email verified. You can now sign in.");
     }
   }, [searchParams]);
 
-  async function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setLoading(true);
     setError("");
+    setNotice("");
 
-    try {
-      const supabase = createClient();
-      const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+    const formData = new FormData(e.currentTarget);
 
-      if (authError) {
-        setError(authError.message);
-        setLoading(false);
+    startTransition(async () => {
+      const result = await login(formData);
+
+      if (result?.error) {
+        setError(result.error.message);
         return;
       }
 
-      router.push("/dashboard");
+      const redirectTo = searchParams.get("redirectTo") ?? "/dashboard";
+      router.push(redirectTo);
       router.refresh();
-    } catch {
-      setError("Connection failed. Please check your network and try again.");
-      setLoading(false);
-    }
+    });
   }
 
   return (
@@ -82,47 +92,71 @@ function LoginForm() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
+              {notice && (
+                <Alert className="animate-scale-in border-green-500/50 bg-green-500/10">
+                  <AlertDescription className="text-green-700 dark:text-green-400">
+                    {notice}
+                  </AlertDescription>
+                </Alert>
+              )}
               {error && (
                 <Alert variant="destructive" className="animate-scale-in">
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
+
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
+                  name="email"
                   type="email"
                   placeholder="you@mindvista.io"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled={loading}
+                  disabled={isPending}
                   required
+                  autoComplete="email"
                   className="bg-background/50"
                 />
               </div>
+
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">Password</Label>
+                  <Link
+                    href="/forgot-password"
+                    className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    tabIndex={isPending ? -1 : undefined}
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
                 <Input
                   id="password"
+                  name="password"
                   type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={loading}
+                  disabled={isPending}
                   required
+                  autoComplete="current-password"
                   className="bg-background/50"
                 />
               </div>
-              <Button type="submit" className="w-full glow-brand" disabled={loading}>
-                {loading ? (
+
+              <Button
+                type="submit"
+                className="w-full glow-brand"
+                disabled={isPending}
+              >
+                {isPending ? (
                   <span className="flex items-center gap-2">
                     <Spinner size="sm" />
-                    Signing in...
+                    Signing in…
                   </span>
                 ) : (
                   "Sign in"
                 )}
               </Button>
             </form>
+
             <p className="mt-4 text-center text-xs text-muted-foreground">
               Contact your administrator for account access
             </p>

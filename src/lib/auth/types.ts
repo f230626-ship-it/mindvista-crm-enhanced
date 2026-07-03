@@ -1,4 +1,4 @@
-export type AppRole = "admin" | "manager" | "employee";
+export type AppRole = "admin" | "hr" | "manager" | "employee";
 
 export interface JwtClaims {
   sub: string; // user_id
@@ -6,17 +6,25 @@ export interface JwtClaims {
   exp: number;
   iat: number;
   iss?: string;
-  aud?: string;
+  aud?: string | string[];
   nbf?: number;
   app_metadata?: {
     app_role?: AppRole;
     employee_id?: string;
-    [key: string]: any;
+    provider?: string;
+    providers?: string[];
   };
   user_metadata?: {
     full_name?: string;
-    [key: string]: any;
+    avatar_url?: string;
+    email?: string;
+    email_verified?: boolean;
+    phone_verified?: boolean;
   };
+  role?: string;        // Supabase sets this to "authenticated"
+  aal?: string;         // Authentication Assurance Level
+  session_id?: string;
+  is_anonymous?: boolean;
 }
 
 export interface AuthError {

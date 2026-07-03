@@ -1,13 +1,44 @@
 import { createClient } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
 import type { Employee, PMRole } from "@/types/database";
 import type { AppRole } from "@/lib/auth/types";
+import {
+  verifySupabaseJwt,
+  extractTokenFromCookieHeader,
+} from "@/lib/auth/jwt";
 import { redirect } from "next/navigation";
 import { NextResponse } from "next/server";
 import { cache } from "react";
 
+// ─── Local JWT pre-check (runs before getUser network call) ───────────────
+// Returns false only when a token is *present and invalid*.
+// Returns true when no token exists (unauthenticated) or token is valid.
+async function localJwtValid(): Promise<boolean> {
+  const cookieStore = await cookies();
+  const cookieHeader = cookieStore
+    .getAll()
+    .map((c) => `${c.name}=${encodeURIComponent(c.value)}`)
+    .join("; ");
+
+  const token = extractTokenFromCookieHeader(cookieHeader);
+  if (!token) return true; // no token — unauthenticated, not invalid
+
+  const result = await verifySupabaseJwt(token);
+  if (!result.ok) {
+    console.warn("[jwt] Server action local verify failed:", result.reason);
+    return false;
+  }
+  return true;
+}
+
 // ─── Current User (server-verified via getUser()) ──────────────────────────
+// Uses React cache() so multiple calls in the same request share one result.
 
 export const getCurrentUser = cache(async () => {
+  // Fast local JWT check — rejects tampered tokens before the network call
+  const locallyValid = await localJwtValid();
+  if (!locallyValid) return null;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -67,6 +98,10 @@ export function isAdmin(role: Employee["role"]) {
 
 export function isManagerOrAdmin(role: Employee["role"]) {
   return role === "admin" || role === "manager";
+}
+
+export function isHrOrAdmin(role: Employee["role"]) {
+  return role === "admin" || role === "hr";
 }
 
 export async function requirePmRole(...roles: PMRole[]) {

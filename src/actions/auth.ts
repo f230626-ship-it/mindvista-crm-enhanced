@@ -13,6 +13,11 @@ import {
   resetPasswordSchema,
 } from "@/lib/auth/schemas";
 import type { AuthError, AuthResult } from "@/lib/auth/types";
+import {
+  sendEmail,
+  buildPasswordResetEmail,
+  buildVerificationEmail,
+} from "@/lib/email";
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
 
@@ -169,13 +174,17 @@ export async function signUp(
 
   const { email, password, fullName } = parsed.data;
 
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const verifyRedirect = `${appUrl}/login?verified=true`;
+
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       data: { full_name: fullName },
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/login?verified=true`,
+      // Supabase sends its own verification email unless we override below
+      emailRedirectTo: verifyRedirect,
     },
   });
 
@@ -191,6 +200,23 @@ export async function signUp(
   }
 
   await writeAuditLog(data.user?.id ?? null, "signup_success", { email });
+
+  // If a custom provider is configured AND the user needs email verification,
+  // send a branded verification email instead of the generic Supabase one.
+  // We only do this when Supabase didn't auto-confirm (data.session === null).
+  if (process.env.EMAIL_PROVIDER && data.user && data.session === null) {
+    const admin = createAdminClient();
+    const { data: linkData } = await admin.auth.admin.generateLink({
+      type: "signup",
+      email,
+      password,
+      options: { redirectTo: verifyRedirect },
+    });
+    const actionLink = linkData?.properties?.action_link;
+    if (actionLink) {
+      await sendEmail(buildVerificationEmail(actionLink, email));
+    }
+  }
 
   return {
     data: {
@@ -231,10 +257,33 @@ export async function requestPasswordReset(
     };
   }
 
-  const supabase = await createClient();
-  await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/reset-password`,
-  });
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const resetRedirect = `${appUrl}/reset-password`;
+
+  // If a custom email provider is configured, generate a Supabase magic link
+  // via the admin API and send a branded email. Otherwise fall back to
+  // Supabase's built-in reset email (rate-limited to ~3-4/hour on free tier).
+  if (process.env.EMAIL_PROVIDER) {
+    const admin = createAdminClient();
+    const { data: linkData, error: linkError } =
+      await admin.auth.admin.generateLink({
+        type: "recovery",
+        email,
+        options: { redirectTo: resetRedirect },
+      });
+
+    if (!linkError && linkData?.properties?.action_link) {
+      await sendEmail(
+        buildPasswordResetEmail(linkData.properties.action_link, email)
+      );
+    }
+    // Whether the user exists or not, we return the same message (enumeration prevention)
+  } else {
+    const supabase = await createClient();
+    await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: resetRedirect,
+    });
+  }
 
   await writeAuditLog(null, "password_reset_requested", { email });
 

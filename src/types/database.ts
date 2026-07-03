@@ -1,4 +1,4 @@
-export type UserRole = "admin" | "manager" | "employee";
+export type UserRole = "admin" | "hr" | "manager" | "employee";
 export type EmploymentType = "full_time" | "intern" | "contract";
 export type WorkLocation = "onsite" | "remote" | "hybrid";
 export type EmployeeStatus = "active" | "inactive" | "suspended";

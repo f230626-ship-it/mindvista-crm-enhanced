@@ -1,7 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import {
+  verifySupabaseJwt,
+  extractTokenFromCookieHeader,
+} from "@/lib/auth/jwt";
 
 // ─── In-memory rate limiter for auth API routes ────────────────────────────
+// Resets on cold start — acceptable for free tier (no persistent Redis needed).
 const authRateLimitMap = new Map<string, { count: number; resetAt: number }>();
 const AUTH_RATE_LIMIT_MAX = 10;
 const AUTH_RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 min
@@ -33,12 +38,28 @@ function applySecurityHeaders(response: NextResponse): void {
     "Permissions-Policy",
     "camera=(), microphone=(), geolocation=()"
   );
+  response.headers.set(
+    "Content-Security-Policy",
+    [
+      "default-src 'self'",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' https://fonts.gstatic.com",
+      // Next.js chunks use inline scripts during hydration
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      "img-src 'self' data: blob: https:",
+      "font-src 'self'",
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+      "frame-ancestors 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+    ].join("; ")
+  );
 
   // HSTS — only set in production (requires HTTPS)
   if (process.env.NODE_ENV === "production") {
     response.headers.set(
       "Strict-Transport-Security",
-      "max-age=31536000; includeSubDomains"
+      "max-age=31536000; includeSubDomains; preload"
     );
   }
 }
@@ -46,15 +67,14 @@ function applySecurityHeaders(response: NextResponse): void {
 // ─── CSRF: Origin check on state-changing requests ─────────────────────────
 function isOriginAllowed(request: NextRequest): boolean {
   const method = request.method.toUpperCase();
-  // Only check on state-changing methods
   if (["GET", "HEAD", "OPTIONS"].includes(method)) return true;
 
   const origin = request.headers.get("origin");
   const host = request.headers.get("host");
 
   if (!origin) {
-    // Server actions from Next.js include the origin header; if missing, allow
-    // for backwards compat (e.g. curl calls during development)
+    // Next.js Server Actions always include the origin header in production.
+    // Allow missing origin only in development.
     return process.env.NODE_ENV !== "production";
   }
 
@@ -66,6 +86,36 @@ function isOriginAllowed(request: NextRequest): boolean {
   }
 }
 
+// ─── JWT fast-path verification ───────────────────────────────────────────
+/**
+ * Verify the JWT's signature, exp, nbf, iss, and aud locally using JWKS
+ * before allowing the request to hit the Supabase getUser() network call.
+ *
+ * Uses the public JWKS endpoint — no secret key needed.
+ *
+ * Returns:
+ *   "valid"   — token verified; proceed to getUser()
+ *   "invalid" — token present but cryptographically invalid; reject
+ *   "absent"  — no token cookie; getUser() will return null naturally
+ */
+async function localJwtCheck(
+  request: NextRequest
+): Promise<"valid" | "invalid" | "absent"> {
+  const cookieHeader = request.headers.get("cookie");
+  const token = extractTokenFromCookieHeader(cookieHeader);
+  if (!token) return "absent";
+
+  const result = await verifySupabaseJwt(token);
+  if (!result.ok) {
+    // Log reason server-side only — never send to client
+    console.warn("[jwt] Local verification failed:", result.reason);
+    return "invalid";
+  }
+
+  return "valid";
+}
+
+// ─── Main session update + route protection ───────────────────────────────
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
@@ -94,6 +144,12 @@ export async function updateSession(request: NextRequest) {
   const isApiRoute = pathname.startsWith("/api/");
   const isAuthApiRoute = pathname.startsWith("/api/auth/");
 
+  const isAuthPage =
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/signup") ||
+    pathname.startsWith("/reset-password") ||
+    pathname.startsWith("/forgot-password");
+
   // ─── CSRF check on state-changing requests ─────────────────────────────
   if (!isOriginAllowed(request)) {
     applySecurityHeaders(supabaseResponse);
@@ -103,7 +159,6 @@ export async function updateSession(request: NextRequest) {
         { status: 403 }
       );
     }
-    // For page requests, just continue (Next.js server actions are safe)
   }
 
   // ─── Rate limit auth API routes ────────────────────────────────────────
@@ -123,7 +178,32 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
-  // ─── Verify JWT server-side using getUser() (network call to Supabase) ─
+  // ─── Fast local JWT check (signature + claims) ─────────────────────────
+  // Runs before the Supabase network call so tampered tokens are rejected
+  // immediately and expired tokens don't trigger unnecessary network I/O.
+  const jwtStatus = await localJwtCheck(request);
+
+  if (jwtStatus === "invalid") {
+    // Token is present but cryptographically invalid — reject outright.
+    applySecurityHeaders(supabaseResponse);
+    if (isApiRoute) {
+      return NextResponse.json(
+        { code: "UNAUTHORIZED", message: "Invalid or tampered token" },
+        { status: 401 }
+      );
+    }
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    url.searchParams.set("redirectTo", pathname);
+    const redirectResponse = NextResponse.redirect(url);
+    applySecurityHeaders(redirectResponse);
+    return redirectResponse;
+  }
+
+  // ─── Supabase server-side session verification (network call) ─────────
+  // getUser() performs a network round-trip to Supabase to verify the user
+  // is still active (not deleted/banned) and to refresh the session if the
+  // access token has expired but the refresh token is still valid.
   let user = null;
   try {
     const {
@@ -131,18 +211,12 @@ export async function updateSession(request: NextRequest) {
     } = await supabase.auth.getUser();
     user = verifiedUser;
   } catch {
-    // Auth service unreachable — allow through on auth pages, block otherwise
+    // Auth service unreachable — allow through on auth pages, block on others
     applySecurityHeaders(supabaseResponse);
     return supabaseResponse;
   }
 
-  const isAuthPage =
-    pathname.startsWith("/login") ||
-    pathname.startsWith("/signup") ||
-    pathname.startsWith("/reset-password") ||
-    pathname.startsWith("/forgot-password");
-
-  // ─── Unauthenticated user hitting a protected route ────────────────────
+  // ─── Route protection ──────────────────────────────────────────────────
   if (!user && !isAuthPage && pathname !== "/") {
     if (isApiRoute) {
       const unauthResponse = NextResponse.json(
@@ -161,7 +235,6 @@ export async function updateSession(request: NextRequest) {
     return redirectResponse;
   }
 
-  // ─── Authenticated user hitting an auth page — redirect to dashboard ───
   if (user && isAuthPage) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
@@ -170,7 +243,6 @@ export async function updateSession(request: NextRequest) {
     return redirectResponse;
   }
 
-  // ─── Apply security headers to all responses ──────────────────────────
   applySecurityHeaders(supabaseResponse);
   return supabaseResponse;
 }
