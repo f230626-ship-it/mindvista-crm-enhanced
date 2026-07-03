@@ -23,12 +23,23 @@ async function localJwtValid(): Promise<boolean> {
   const token = extractTokenFromCookieHeader(cookieHeader);
   if (!token) return true; // no token — unauthenticated, not invalid
 
-  const result = await verifySupabaseJwt(token);
-  if (!result.ok) {
-    console.warn("[jwt] Server action local verify failed:", result.reason);
-    return false;
+  try {
+    const result = await verifySupabaseJwt(token);
+    if (!result.ok) {
+      // Only hard-reject on definitive cryptographic failures.
+      // JWKS_ERROR / UNKNOWN / MISSING_CONFIG = network issue → fail open
+      // so a transient JWKS fetch failure doesn't log users out.
+      const hardFailures = ["EXPIRED", "INVALID_SIGNATURE", "INVALID_AUDIENCE", "INVALID_ISSUER", "NOT_YET_VALID"];
+      if (hardFailures.includes(result.reason)) {
+        console.warn("[jwt] Server action local verify failed:", result.reason);
+        return false;
+      }
+      return true; // network/config error — let Supabase getUser() decide
+    }
+    return true;
+  } catch {
+    return true; // unexpected error — fail open, Supabase will handle it
   }
-  return true;
 }
 
 // ─── Current User (server-verified via getUser()) ──────────────────────────
@@ -83,6 +94,12 @@ export async function requireAuth() {
 
   const employee = await getCurrentEmployee();
   if (!employee) redirect("/login?error=no_employee_profile");
+
+  // Block inactive or suspended employees
+  if (employee.status === "inactive" || employee.status === "suspended") {
+    redirect("/login?error=account_suspended");
+  }
+
   return employee;
 }
 

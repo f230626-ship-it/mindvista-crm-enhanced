@@ -359,7 +359,7 @@ export function ImportDialog({
         team_employee_ids: (r.data as unknown as { team_employee_ids: string[] }).team_employee_ids,
       }));
 
-      const response = await bulkImportProjects(importPayload, file?.name || "import_sheet.xlsx");
+      const response = await bulkImportProjects(importPayload);
 
       if (response.error) {
         toast.error(response.error);

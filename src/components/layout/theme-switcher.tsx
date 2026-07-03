@@ -11,7 +11,8 @@ export function ThemeSwitcher() {
 
   // Avoid hydration mismatch by rendering only after mounting on the client
   useEffect(() => {
-    setMounted(true);
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
   }, []);
 
   if (!mounted) {

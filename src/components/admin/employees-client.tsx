@@ -1,13 +1,15 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import Link from "next/link";
+import { ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { EditEmployeeDialog } from "@/components/admin/edit-employee-dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { EMPLOYEE_STATUS_LABELS } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 import type { Department, Employee } from "@/types/database";
 
 const ITEMS_PER_PAGE = 8;
@@ -70,7 +72,14 @@ export function EmployeesClient({
               key={emp.id}
               className="emp-card group relative flex min-h-[340px] flex-col overflow-hidden rounded-2xl border border-border/50 bg-card shadow-md transition-shadow duration-300 hover:shadow-lg"
             >
-              <div className="absolute top-3 right-3 z-10 opacity-80 transition-opacity group-hover:opacity-100">
+              <div className="absolute top-3 right-3 z-10 opacity-80 transition-opacity group-hover:opacity-100 flex items-center gap-1">
+                <Link
+                  href={`/admin/employees/${emp.id}`}
+                  className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
+                  aria-label={`View ${emp.full_name}`}
+                >
+                  <Eye className="h-4 w-4" />
+                </Link>
                 <EditEmployeeDialog
                   employee={emp}
                   departments={departments}

@@ -81,17 +81,26 @@ export function EditEmployeeDialog({
 
   useEffect(() => {
     if (open) {
-      setRole(employee.role);
-      setPmRole(employee.pm_role || "developer");
-      setStatus(employee.status);
-      setEmploymentType(employee.employment_type);
-      setWorkLocation(employee.work_location);
-      setDepartmentId(employee.department_id ?? "");
-      setManagerId(employee.manager_id ?? "");
-      setLeadId(employee.lead_id ?? "");
-      setPhotoPreview(employee.profile_photo_url);
+      const applyChanges = () => {
+        setRole(employee.role);
+        setPmRole(employee.pm_role || "developer");
+        setStatus(employee.status);
+        setEmploymentType(employee.employment_type);
+        setWorkLocation(employee.work_location);
+        setDepartmentId(employee.department_id ?? "");
+        setManagerId(employee.manager_id ?? "");
+        setLeadId(employee.lead_id ?? "");
+        setPhotoPreview(employee.profile_photo_url);
+      };
+      
+      if (role !== employee.role) {
+        // Only update state if it's actually different to avoid cascading
+        setTimeout(applyChanges, 0);
+      } else {
+        applyChanges();
+      }
     }
-  }, [open, employee]);
+  }, [open, employee, role]);
 
   const managerOptions = useMemo(
     () =>

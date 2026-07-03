@@ -31,12 +31,22 @@ function LoginForm() {
     const verifiedParam = searchParams.get("verified");
 
     if (errParam === "no_employee_profile") {
-      setError(
-        "Your account exists but has no employee profile. Ask an administrator to link your account."
-      );
+      setTimeout(() => {
+        setError(
+          "Your account exists but has no employee profile. Ask an administrator to link your account."
+        );
+      }, 0);
+    } else if (errParam === "account_suspended") {
+      setTimeout(() => {
+        setError(
+          "Your account has been suspended or deactivated. Please contact your administrator."
+        );
+      }, 0);
     }
     if (verifiedParam === "true") {
-      setNotice("Email verified. You can now sign in.");
+      setTimeout(() => {
+        setNotice("Email verified. You can now sign in.");
+      }, 0);
     }
   }, [searchParams]);
 

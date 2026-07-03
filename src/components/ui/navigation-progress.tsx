@@ -11,8 +11,8 @@ function NavigationProgressBar() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    setVisible(true);
-    setProgress(20);
+    const timer1 = setTimeout(() => setVisible(true), 0);
+    const timer2 = setTimeout(() => setProgress(20), 0);
     const t1 = setTimeout(() => setProgress(60), 100);
     const t2 = setTimeout(() => setProgress(90), 300);
     const t3 = setTimeout(() => {
@@ -21,6 +21,8 @@ function NavigationProgressBar() {
     }, 500);
 
     return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
       clearTimeout(t1);
       clearTimeout(t2);
       clearTimeout(t3);

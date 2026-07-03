@@ -11,7 +11,7 @@ export async function createProject(formData: FormData) {
   const rawData = Object.fromEntries(formData.entries());
   
   // Clean up empty strings to null
-  const payload: any = {};
+  const payload: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(rawData)) {
     if (value === "") {
       payload[key] = null;
@@ -53,7 +53,7 @@ export async function updateProject(id: string, formData: FormData) {
   const rawData = Object.fromEntries(formData.entries());
   
   // Clean up empty strings to null
-  const payload: any = {};
+  const payload: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(rawData)) {
     if (value === "") {
       payload[key] = null;
@@ -122,7 +122,7 @@ export async function assignResource(
   return { success: true };
 }
 
-export async function bulkImportProjects(payload: any[], filename: string) {
+export async function bulkImportProjects(payload: Record<string, unknown>[]) {
   const supabase = await createClient();
   await requireAuth();
 
