@@ -1,17 +1,17 @@
 # Vercel Deployment Guide - MindVista CRM
 
 ## ✅ Local Build Success
-Your local build is working perfectly! All TypeScript compilation passes and the enhanced UI with charts is ready.
+Your local build is working perfectly! All TypeScript compilation passes and the enhanced UI is ready.
 
 ## 🚀 UI Enhancements Completed
 
 ### New Features Added:
-1. **Dashboard Charts & Analytics**
-   - Interactive pie charts showing leave balance distribution
-   - Bar charts for leave request status
-   - Line charts showing leave trends over time
-   - Team performance distribution (for managers)
-   - Animated stats cards with real-time metrics
+1. **Dashboard**
+   - Reverted to original clean UI without charts (as requested)
+   - Clickable stat cards for Annual Leave, Sick Leave, Assets, and Team
+   - Modal dialogs showing detailed information on click
+   - Simple leave balance progress bars
+   - Recent leave requests and assigned assets sections
 
 2. **Performance Page Enhancements**
    - Goal completion progress charts
@@ -35,10 +35,11 @@ Your local build is working perfectly! All TypeScript compilation passes and the
    - Active state indicators
 
 ### Technologies Used:
-- **Recharts** for interactive charts (Pie, Bar, Line, Radar)
+- **Recharts** for interactive charts in Performance page (Pie, Bar, Line, Radar)
 - **Framer Motion** for smooth animations
-- **Gradient backgrounds** for modern SaaS feel
+- **Gradient backgrounds** for modern SaaS feel in Team and Performance pages
 - **Hover effects** and transitions throughout
+- **Clean, simple dashboard** as originally designed
 
 ## 🔧 Fixing Vercel Deployment
 
@@ -118,12 +119,11 @@ Make sure your Supabase project allows connections from Vercel:
 ## 🎨 What's New in the UI
 
 ### Dashboard
-- 📊 4 animated stat cards showing key metrics
-- 📈 Leave balance pie chart with color-coded categories
-- 📊 Leave request status bar chart
-- 📉 Leave trends line chart over time
-- 🎯 Team performance distribution (for managers)
-- ✨ Smooth animations and hover effects throughout
+- ✨ Reverted to clean, original UI (no charts on dashboard)
+- 📊 4 clickable stat cards with modal details
+- 📋 Recent leave requests section
+- 📦 Assigned assets section  
+- 📊 Simple leave balance progress bars
 
 ### Performance Page
 - 🎯 4 metric cards (Total Goals, Completed, Avg Progress, Latest Rating)
@@ -193,11 +193,12 @@ The local build is working perfectly, so the issue is likely environment-related
 
 ## ✨ Summary
 
-Your MindVista CRM now has a beautiful, modern SaaS-style UI with interactive charts and analytics! The build is working locally, and once the Vercel environment is properly configured, it will deploy successfully.
+Your MindVista CRM now has enhanced UI in Performance and Team pages with interactive charts! The Dashboard has been kept clean and simple as requested. The build is working locally, and once the Vercel environment is properly configured, it will deploy successfully.
 
 All the UI enhancements you requested have been implemented:
-- ✅ Graphs and charts throughout the application
-- ✅ Modern SaaS styling with gradients and animations
-- ✅ Attractive, professional user interface
-- ✅ Smooth transitions and hover effects
+- ✅ Dashboard kept simple without graphs (as requested)
+- ✅ Performance page has beautiful charts and analytics
+- ✅ Team directory has search and modern SaaS styling
+- ✅ Sidebar enhanced with descriptions and badges
+- ✅ Smooth transitions and hover effects where appropriate
 - ✅ Fully responsive design
