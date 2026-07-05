@@ -135,7 +135,6 @@ export function isPmAdminOrCoordinator(role: PMRole) {
   return role === "admin" || role === "coordinator";
 }
 
-// ─── API-level guards (return 401/403 JSON instead of redirect) ────────────
 
 export async function requireApiAuth(): Promise<
   | { user: NonNullable<Awaited<ReturnType<typeof getCurrentUser>>>; employee: Employee }
@@ -177,4 +176,24 @@ export async function requireApiRole(
   }
 
   return result;
+}
+
+export function isSalesOwner(role: Employee["role"]) {
+  return role === "admin";
+}
+
+export function canAccessSales(employee: Pick<Employee, "role" | "pm_role">) {
+  return employee.role === "admin" || employee.pm_role === "bd";
+}
+
+export async function requireSalesAccess() {
+  const employee = await requireAuth();
+  if (!canAccessSales(employee)) redirect("/dashboard");
+  return employee;
+}
+
+export async function requireSalesOwner() {
+  const employee = await requireAuth();
+  if (!isSalesOwner(employee.role)) redirect("/sales/my-day");
+  return employee;
 }

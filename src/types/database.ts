@@ -263,3 +263,61 @@ export interface ProjectAuditLog {
   actor?: Pick<Employee, "id" | "full_name" | "email">;
 }
 
+export interface SalesProfile {
+  id: string;
+  name: string;
+  employee_id: string;
+  platform: string;
+  google_sheet_id: string | null;
+  sheet_tab_name: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  employee?: Pick<Employee, "id" | "full_name" | "email" | "employee_code">;
+}
+
+export interface SalesDailyLog {
+  id: string;
+  employee_id: string;
+  profile_id: string;
+  log_date: string;
+  connections_sent: number;
+  connections_accepted: number;
+  messages_sent: number;
+  replies_received: number;
+  follow_ups_done: number;
+  meetings_booked: number;
+  leads_added: number;
+  proposals_sent: number;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+  profile?: SalesProfile;
+  employee?: Pick<Employee, "id" | "full_name" | "email">;
+}
+
+export interface SalesTarget {
+  id: string;
+  employee_id: string;
+  connections_daily: number;
+  messages_daily: number;
+  follow_ups_daily: number;
+  meetings_weekly: number;
+  updated_at: string;
+  employee?: Pick<Employee, "id" | "full_name" | "email">;
+}
+
+export interface SalesSheetSnapshot {
+  id: string;
+  profile_id: string;
+  snapshot_date: string;
+  active_leads: number;
+  follow_up: number;
+  intro_call: number;
+  trying_to_call: number;
+  won_mtd: number;
+  status_breakdown: Record<string, number> | null;
+  created_at: string;
+  profile?: SalesProfile;
+}
+
