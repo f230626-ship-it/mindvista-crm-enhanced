@@ -1,24 +1,56 @@
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { CheckCircle2, ChevronRight, Link2 } from "lucide-react";
+import { CheckCircle2, ChevronRight, Link2, Plus, LayoutDashboard } from "lucide-react";
 import type { SalesDailyLog } from "@/types/database";
 
 export function ProfilePickerCards({
   profiles,
   todayLogs,
   basePath = "/sales/my-day",
+  isOwner = false,
 }: {
   profiles: { id: string; name: string; platform: string }[];
   todayLogs: Pick<SalesDailyLog, "profile_id" | "connections_sent">[];
   basePath?: string;
+  isOwner?: boolean;
 }) {
   if (profiles.length === 0) {
     return (
-      <Card className="border-dashed">
-        <CardContent className="py-12 text-center text-muted-foreground">
-          No LinkedIn profiles assigned yet. Ask your admin to set up profiles for you.
+      <Card className="border-dashed border-primary/30 bg-card/50">
+        <CardContent className="py-12 text-center">
+          {isOwner ? (
+            <div className="mx-auto max-w-md space-y-4">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                <Plus className="h-7 w-7" />
+              </div>
+              <div>
+                <p className="font-semibold text-lg">No sales profiles yet</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Create LinkedIn profiles and assign them to your sales reps to start tracking outreach.
+                </p>
+              </div>
+              <div className="flex flex-wrap justify-center gap-2">
+                <Link href="/sales/admin/profiles/new" className={cn(buttonVariants(), "gap-2")}>
+                  <Plus className="h-4 w-4" />
+                  Create profile
+                </Link>
+                <Link
+                  href="/sales/command"
+                  className={cn(buttonVariants({ variant: "outline" }), "gap-2")}
+                >
+                  <LayoutDashboard className="h-4 w-4" />
+                  Command Center
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <p className="text-muted-foreground">
+              No LinkedIn profiles assigned yet. Ask your admin to set up profiles for you.
+            </p>
+          )}
         </CardContent>
       </Card>
     );

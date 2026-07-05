@@ -1,12 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
-import { requireSalesAccess } from "@/lib/auth";
+import { requireSalesAccess, isSalesOwner } from "@/lib/auth";
 import { ProfilePickerCards } from "@/components/sales/profile-picker-cards";
+import { AdminSalesQuickLinks } from "@/components/sales/admin-sales-quick-links";
 import { todayISO } from "@/lib/sales/stats";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CalendarDays } from "lucide-react";
 
 export default async function MyDayPage() {
   const employee = await requireSalesAccess();
+  const owner = isSalesOwner(employee.role);
   const supabase = await createClient();
   const today = todayISO();
 
@@ -29,6 +31,8 @@ export default async function MyDayPage() {
 
   return (
     <div className="space-y-6">
+      {owner && <AdminSalesQuickLinks />}
+
       <Card className="border-border/60 bg-card/60 backdrop-blur-sm">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-base">
@@ -47,7 +51,11 @@ export default async function MyDayPage() {
         </CardContent>
       </Card>
 
-      <ProfilePickerCards profiles={profiles ?? []} todayLogs={logs ?? []} />
+      <ProfilePickerCards
+        profiles={profiles ?? []}
+        todayLogs={logs ?? []}
+        isOwner={owner}
+      />
     </div>
   );
 }
