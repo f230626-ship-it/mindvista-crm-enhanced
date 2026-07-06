@@ -25,15 +25,11 @@ interface NavItem {
   href: string;
   icon: React.ComponentType<{ className?: string }>;
   roles?: UserRole[];
-<<<<<<< HEAD
   description?: string;
-=======
->>>>>>> f638fe7 (fix: grant sales owner view to admins and correct admin role)
   salesHref?: boolean;
 }
 
 const employeeNav: NavItem[] = [
-<<<<<<< HEAD
   {
     title: "Dashboard",
     href: "/dashboard",
@@ -89,16 +85,6 @@ const employeeNav: NavItem[] = [
     icon: Star,
     description: "Goals & reviews",
   },
-=======
-  { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { title: "Sales", href: "/sales", icon: LineChart, salesHref: true },
-  { title: "Projects", href: "/projects", icon: Briefcase },
-  { title: "Profile", href: "/profile", icon: User },
-  { title: "Leave", href: "/leave", icon: CalendarDays },
-  { title: "Policies", href: "/policies", icon: FileText },
-  { title: "Assets", href: "/assets", icon: Package },
-  { title: "Performance", href: "/performance", icon: Star },
->>>>>>> f638fe7 (fix: grant sales owner view to admins and correct admin role)
 ];
 
 const adminNav: NavItem[] = [
