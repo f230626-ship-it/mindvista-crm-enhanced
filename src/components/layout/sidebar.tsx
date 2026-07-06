@@ -38,7 +38,8 @@ const employeeNav: NavItem[] = [
     title: "Projects", 
     href: "/projects", 
     icon: Briefcase,
-    description: "Project management"
+    description: "Project management",
+    roles: ["admin", "manager"]
   },
   { 
     title: "Team", 
@@ -190,6 +191,10 @@ function SectionHeader({ title, badge }: { title: string; badge?: number }) {
 export function Sidebar({ role }: { role: UserRole }) {
   const pathname = usePathname();
 
+  const filteredEmployeeNav = employeeNav.filter(
+    (item) => !item.roles || item.roles.includes(role)
+  );
+
   const filteredAdminNav = adminNav.filter(
     (item) => !item.roles || item.roles.includes(role)
   );
@@ -213,9 +218,9 @@ export function Sidebar({ role }: { role: UserRole }) {
       <nav className="flex-1 space-y-6 overflow-y-auto p-4">
         {/* Portal Section */}
         <div>
-          <SectionHeader title="Portal" badge={employeeNav.length} />
+          <SectionHeader title="Portal" badge={filteredEmployeeNav.length} />
           <div className="space-y-1">
-            {employeeNav.map((item, i) => {
+            {filteredEmployeeNav.map((item, i) => {
               const active =
                 pathname === item.href ||
                 (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
@@ -237,7 +242,7 @@ export function Sidebar({ role }: { role: UserRole }) {
                     key={item.href}
                     item={item}
                     active={active}
-                    index={i + employeeNav.length}
+                    index={i + filteredEmployeeNav.length}
                   />
                 );
               })}
