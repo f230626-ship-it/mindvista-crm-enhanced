@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 import { createEmployee } from "@/actions/employees";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -450,7 +451,14 @@ export function NewEmployeeForm({
 
         <div className="flex items-center gap-3">
           <Button type="submit" disabled={loading} className="min-w-32">
-            {loading ? "Creating…" : "Create Employee"}
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Creating…
+              </>
+            ) : (
+              "Create Employee"
+            )}
           </Button>
           <Button type="button" variant="outline" onClick={() => router.push("/admin/employees")}>
             Cancel

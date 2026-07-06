@@ -8,6 +8,7 @@ import { NewEmployeeForm } from "@/components/admin/new-employee-form";
 
 export default async function NewEmployeePage() {
   await requireRole("admin");
+
   const supabase = await createClient();
 
   const [{ data: departments }, { data: managers }] = await Promise.all([

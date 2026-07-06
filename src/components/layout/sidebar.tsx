@@ -48,12 +48,13 @@ const employeeNav: NavItem[] = [
     href: "/projects",
     icon: Briefcase,
     description: "Project management",
+    roles: ["admin", "manager"],
   },
   {
-    title: "Team",
+    title: "My Team",
     href: "/team",
     icon: Users,
-    description: "Company directory",
+    description: "Your team directory",
   },
   {
     title: "Profile",
@@ -196,7 +197,7 @@ export function Sidebar({ role, pmRole }: { role: UserRole; pmRole: PMRole }) {
   const showSales = role === "admin" || pmRole === "bd";
 
   const filteredEmployeeNav = employeeNav
-    .filter((item) => item.href !== "/sales" || showSales)
+    .filter((item) => (!item.roles || item.roles.includes(role)) && (item.href !== "/sales" || showSales))
     .map((item) => {
       if (item.salesHref && role === "admin") {
         return { ...item, href: "/sales/command" };
