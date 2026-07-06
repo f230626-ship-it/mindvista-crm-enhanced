@@ -31,8 +31,35 @@ async function validateEmail(email: string): Promise<string | null> {
     return `Did you mean ${email.replace(domain, typoSuggestions[domain])}?`;
   }
 
-  // For now, just validate format and typos
-  // Real email verification can be added later when needed
+  // Real email verification using AbstractAPI (if configured)
+  const apiKey = process.env.EMAIL_VALIDATION_API_KEY;
+  if (apiKey) {
+    try {
+      const response = await fetch(`https://emailvalidation.abstractapi.com/v1/?api_key=${apiKey}&email=${encodeURIComponent(email)}`);
+      const data = await response.json();
+      
+      // Check various validation results
+      if (data.deliverability === "UNDELIVERABLE") {
+        return "This email address does not exist or cannot receive emails";
+      }
+      
+      if (data.quality_score < 0.7) {
+        return "This email address appears to be invalid or risky";
+      }
+      
+      if (data.is_disposable_email?.value) {
+        return "Temporary/disposable email addresses are not allowed";
+      }
+      
+      if (data.is_role_email?.value) {
+        return "Role-based emails (like info@, admin@) are not recommended for personal accounts";
+      }
+      
+    } catch (error) {
+      console.warn('Email validation API error:', error);
+      // Continue without real validation if API fails
+    }
+  }
   
   return null;
 }
