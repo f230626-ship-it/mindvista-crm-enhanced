@@ -22,7 +22,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import { LEAVE_TYPE_LABELS } from "@/lib/constants";
 import type { LeaveType } from "@/types/database";
 
@@ -88,7 +88,14 @@ export function LeaveForm() {
             <Textarea id="reason" name="reason" rows={3} required />
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Submitting..." : "Submit Request"}
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Submitting...
+              </>
+            ) : (
+              "Submit Request"
+            )}
           </Button>
         </form>
       </DialogContent>

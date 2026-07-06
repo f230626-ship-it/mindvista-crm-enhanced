@@ -26,20 +26,83 @@ interface DepartmentWithEmployees {
 }
 
 export default async function TeamPage() {
-  await requireAuth();
+  const currentEmployee = await requireAuth();
   const supabase = await createClient();
 
-  // Get all departments with their employees
+  // Get the user's team hierarchy (people who report to them)
+  const { directReports, leadTeam } = await (async () => {
+    const { data: allEmployees } = await supabase
+      .from("employees")
+      .select("id, full_name, designation, employee_code, manager_id, lead_id, status, profile_photo_url")
+      .eq("status", "active")
+      .order("full_name");
+
+    if (!allEmployees) return { directReports: [], leadTeam: [] };
+
+    const directReports = allEmployees.filter((e) => e.manager_id === currentEmployee.id);
+    const leadTeam = allEmployees.filter(
+      (e) => e.lead_id === currentEmployee.id && e.manager_id !== currentEmployee.id
+    );
+
+    return { directReports, leadTeam };
+  })();
+
+  // Get unique IDs of team members
+  const teamMemberIds = [
+    ...directReports.map(e => e.id),
+    ...leadTeam.map(e => e.id)
+  ];
+
+  // If user has no team, show message
+  if (teamMemberIds.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div className="mb-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg">
+              <Users className="h-6 w-6" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight">My Team</h1>
+              <p className="text-muted-foreground">
+                View team members who report to you
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <Card>
+          <CardContent className="py-16 text-center">
+            <div className="flex flex-col items-center gap-4">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+                <Users className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">No team members</h3>
+                <p className="text-sm text-muted-foreground">
+                  You don't currently have any direct reports or team members
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Get all departments
   const { data: departments } = await supabase
     .from("departments")
     .select("id, name")
     .order("name");
 
+  // Get full employee details for team members only
   const { data: employees } = await supabase
     .from("employees")
     .select(
       "id, full_name, email, phone, designation, role, profile_photo_url, employee_code, department_id"
     )
+    .in("id", teamMemberIds)
     .eq("status", "active")
     .order("full_name");
 
@@ -79,9 +142,9 @@ export default async function TeamPage() {
             <Users className="h-6 w-6" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Team Directory</h1>
+            <h1 className="text-2xl font-bold tracking-tight">My Team</h1>
             <p className="text-muted-foreground">
-              Browse {totalEmployees} team members across {departments?.length ?? 0} departments
+              {totalEmployees} team {totalEmployees === 1 ? 'member' : 'members'} reporting to you across {departments?.length ?? 0} {departments?.length === 1 ? 'department' : 'departments'}
             </p>
           </div>
         </div>
