@@ -164,6 +164,7 @@ export function DashboardClient({
   teamSize,
   annualRemaining,
   sickRemaining,
+  casualRemaining,
 }: {
   leaveBalance: LeaveBalance | null;
   recentLeaves: Leave[] | null;
@@ -172,6 +173,7 @@ export function DashboardClient({
   teamSize: number;
   annualRemaining: number;
   sickRemaining: number;
+  casualRemaining: number;
 }) {
   const [activeModal, setActiveModal] = useState<ModalType>(null);
 
