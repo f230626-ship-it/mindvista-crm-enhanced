@@ -14,8 +14,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ASSET_TYPE_LABELS, ASSET_STATUS_LABELS } from "@/lib/constants";
-import { asAssets, asAssetAssignments, asEmployeePick } from "@/lib/supabase/cast";
+import { asAssets, asAssetAssignments } from "@/lib/supabase/cast";
 import { formatDate } from "@/lib/utils/date";
+import type { Employee } from "@/types/database";
 
 export default async function AdminAssetsPage() {
   await requireRole("admin");
@@ -28,12 +29,16 @@ export default async function AdminAssetsPage() {
       .select("*, asset:assets(*), employee:employees(full_name)")
       .is("return_date", null)
       .order("assigned_date", { ascending: false }),
-    supabase.from("employees").select("id, full_name").eq("status", "active").order("full_name"),
+    supabase
+      .from("employees")
+      .select("id, full_name, email, profile_photo_url")
+      .eq("status", "active")
+      .order("full_name"),
   ]);
 
   const assets = asAssets(assetsRes.data);
   const assignments = asAssetAssignments(assignmentsRes.data);
-  const employees = asEmployeePick(employeesRes.data);
+  const employees = employeesRes.data as Pick<Employee, "id" | "full_name" | "email" | "profile_photo_url">[] | null;
 
   return (
     <div>

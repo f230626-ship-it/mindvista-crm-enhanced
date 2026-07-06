@@ -105,14 +105,23 @@ async function localJwtCheck(
   const token = extractTokenFromCookieHeader(cookieHeader);
   if (!token) return "absent";
 
-  const result = await verifySupabaseJwt(token);
-  if (!result.ok) {
-    // Log reason server-side only — never send to client
-    console.warn("[jwt] Local verification failed:", result.reason);
-    return "invalid";
+  try {
+    const result = await verifySupabaseJwt(token);
+    if (!result.ok) {
+      // Only hard-reject on definitive cryptographic failures.
+      // Treat JWKS_ERROR / UNKNOWN / MISSING_CONFIG as "absent" so a
+      // transient JWKS network failure doesn't log every user out.
+      const hardFailures = ["EXPIRED", "INVALID_SIGNATURE", "INVALID_AUDIENCE", "INVALID_ISSUER", "NOT_YET_VALID"];
+      if (hardFailures.includes(result.reason)) {
+        console.warn("[jwt] Local verification failed:", result.reason);
+        return "invalid";
+      }
+      return "absent"; // network/config error — fall through to Supabase getUser()
+    }
+    return "valid";
+  } catch {
+    return "absent"; // unexpected error — fail open
   }
-
-  return "valid";
 }
 
 // ─── Main session update + route protection ───────────────────────────────

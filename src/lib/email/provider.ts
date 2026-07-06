@@ -42,10 +42,10 @@ class ResendEmailProvider implements EmailProvider {
       }
 
       return { success: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         success: false,
-        error: error?.message || "Unknown error occurred while sending email via Resend",
+        error: (error as Error)?.message || "Unknown error occurred while sending email via Resend",
       };
     }
   }

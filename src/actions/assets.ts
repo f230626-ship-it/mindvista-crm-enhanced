@@ -17,7 +17,7 @@ export async function createAsset(formData: FormData) {
     purchase_date: (formData.get("purchase_date") as string) || null,
     condition: (formData.get("condition") as string) || null,
     notes: (formData.get("notes") as string) || null,
-    status: "available",
+    status: (formData.get("status") as string) || "available",
   });
 
   if (error) return { error: error.message };

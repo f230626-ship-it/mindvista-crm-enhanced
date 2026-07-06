@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import {
   EMPLOYMENT_TYPE_LABELS,
   EMPLOYEE_STATUS_LABELS,
-  ROLE_LABELS,
 } from "@/lib/constants";
 import { formatDate } from "@/lib/utils/date";
 import {
@@ -88,9 +87,6 @@ export default async function ProfilePage() {
             <h2 className="text-2xl font-bold tracking-tight truncate">{employee.full_name}</h2>
             <p className="text-base text-muted-foreground truncate">{employee.designation}</p>
             <div className="mt-2 flex flex-wrap items-center gap-2">
-              <Badge className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/15">
-                {ROLE_LABELS[employee.role]}
-              </Badge>
               <Badge className={statusColors[employee.status]}>
                 {EMPLOYEE_STATUS_LABELS[employee.status]}
               </Badge>
@@ -137,7 +133,6 @@ export default async function ProfilePage() {
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Position</p>
             <p className="text-sm font-semibold truncate">{employee.designation}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">{ROLE_LABELS[employee.role]}</p>
           </div>
         </div>
 

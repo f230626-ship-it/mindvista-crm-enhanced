@@ -26,7 +26,6 @@ import {
   EMPLOYMENT_TYPE_LABELS,
   WORK_LOCATION_LABELS,
   ROLE_LABELS,
-  PM_ROLE_LABELS,
 } from "@/lib/constants";
 import {
   NONE_VALUE,
@@ -36,7 +35,7 @@ import {
   personLabel,
   type PersonOption,
 } from "@/components/admin/employee-select-utils";
-import type { Department, EmploymentType, UserRole, WorkLocation, PMRole } from "@/types/database";
+import type { Department, EmploymentType, UserRole, WorkLocation } from "@/types/database";
 
 export function EmployeeForm({
   departments,
@@ -48,7 +47,6 @@ export function EmployeeForm({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [role, setRole] = useState<UserRole>("employee");
-  const [pmRole, setPmRole] = useState<PMRole>("developer");
   const [employmentType, setEmploymentType] = useState<EmploymentType>("full_time");
   const [workLocation, setWorkLocation] = useState<WorkLocation>("onsite");
   const [departmentId, setDepartmentId] = useState("");
@@ -70,7 +68,6 @@ export function EmployeeForm({
     setLoading(true);
     const formData = new FormData(e.currentTarget);
     formData.set("role", role);
-    formData.set("pm_role", pmRole);
     formData.set("employment_type", employmentType);
     formData.set("work_location", workLocation);
     if (departmentId) formData.set("department_id", departmentId);
@@ -204,21 +201,6 @@ export function EmployeeForm({
                 </SelectTrigger>
                 <SelectContent>
                   {Object.entries(ROLE_LABELS).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>
-                      {label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="min-w-0 space-y-2">
-              <Label>Project Management Role</Label>
-              <Select value={pmRole} onValueChange={(v) => v && setPmRole(v as PMRole)}>
-                <SelectTrigger className={formSelectTriggerClass}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(PM_ROLE_LABELS).map(([value, label]) => (
                     <SelectItem key={value} value={value}>
                       {label}
                     </SelectItem>

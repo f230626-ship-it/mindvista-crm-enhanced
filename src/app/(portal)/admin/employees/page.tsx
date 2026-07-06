@@ -1,7 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/auth";
 import { PageHeader } from "@/components/ui/page-header";
-import { EmployeeForm } from "@/components/admin/employee-form";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import { EmployeesClient } from "@/components/admin/employees-client";
 
 export default async function AdminEmployeesPage() {
@@ -28,10 +30,12 @@ export default async function AdminEmployeesPage() {
         title="Employee Management"
         description="Create and manage employee records"
         action={
-          <EmployeeForm
-            departments={departments ?? []}
-            managers={managers ?? []}
-          />
+          <Link href="/admin/employees/new">
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Employee
+            </Button>
+          </Link>
         }
       />
 

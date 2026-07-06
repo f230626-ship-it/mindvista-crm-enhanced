@@ -41,7 +41,7 @@ function ResetPasswordForm() {
     // Supabase appends error details as query params when the link is invalid
     const errCode = searchParams.get("error_code");
     if (errCode) {
-      setTokenError(true);
+      setTimeout(() => setTokenError(true), 0);
     }
   }, [searchParams]);
 
