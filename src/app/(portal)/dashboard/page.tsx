@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireAuth } from "@/lib/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bell } from "lucide-react";
+import { Bell, CalendarDays, Package, LayoutDashboard } from "lucide-react";
 import { formatDate } from "@/lib/utils/date";
 import { LEAVE_TYPE_LABELS, LEAVE_STATUS_LABELS, STATUS_COLORS } from "@/lib/constants";
 import Link from "next/link";
@@ -71,10 +71,10 @@ export default async function DashboardPage() {
       />
 
       {pendingForLead.length > 0 && (
-        <Card className="mt-6 border-primary/20">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Bell className="h-4 w-4 text-primary" />
+        <Card className="mt-6 overflow-hidden">
+          <CardHeader className="bg-amber-50 dark:bg-transparent border-b border-amber-100 dark:border-border">
+            <CardTitle className="flex items-center gap-2 text-base text-amber-900 dark:text-foreground">
+              <Bell className="h-4 w-4 text-amber-600 dark:text-primary" />
               Leave Approvals Needed
             </CardTitle>
           </CardHeader>
@@ -85,9 +85,9 @@ export default async function DashboardPage() {
       )}
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-base">Recent Leave Requests</CardTitle>
+        <Card className="overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between bg-orange-50 dark:bg-transparent border-b border-orange-100 dark:border-border">
+            <CardTitle className="text-base text-orange-900 dark:text-foreground">Recent Leave Requests</CardTitle>
             <Link href="/leave" className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
               View all
             </Link>
@@ -115,9 +115,9 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Assigned Assets</CardTitle>
+        <Card className="overflow-hidden">
+          <CardHeader className="bg-green-50 dark:bg-transparent border-b border-green-100 dark:border-border">
+            <CardTitle className="text-base text-green-900 dark:text-foreground">Assigned Assets</CardTitle>
           </CardHeader>
           <CardContent>
             {assignedAssets && assignedAssets.length > 0 ? (
@@ -139,9 +139,9 @@ export default async function DashboardPage() {
         </Card>
       </div>
 
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle className="text-base">Leave Balance Summary</CardTitle>
+      <Card className="mt-6 overflow-hidden">
+        <CardHeader className="bg-blue-50 dark:bg-transparent border-b border-blue-100 dark:border-border">
+          <CardTitle className="text-base text-blue-900 dark:text-foreground">Leave Balance Summary</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {[

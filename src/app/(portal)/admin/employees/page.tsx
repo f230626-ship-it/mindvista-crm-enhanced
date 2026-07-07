@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { requireRole } from "@/lib/auth";
+import { requireAdminAccess } from "@/lib/auth";
 import { PageHeader } from "@/components/ui/page-header";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,7 @@ import { Plus } from "lucide-react";
 import { EmployeesClient } from "@/components/admin/employees-client";
 
 export default async function AdminEmployeesPage() {
-  await requireRole("admin");
+  await requireAdminAccess();
   const supabase = await createClient();
 
   const [{ data: employees }, { data: departments }, { data: managers }] = await Promise.all([

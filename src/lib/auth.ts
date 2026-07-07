@@ -109,6 +109,39 @@ export async function requireRole(...roles: Employee["role"][]) {
   return employee;
 }
 
+export async function requireAdminAccess() {
+  const employee = await requireAuth();
+  
+  // Allow admin, hr roles OR legacy "developer" role
+  const hasAccess = employee.role === "admin" || 
+                   employee.role === "hr" || 
+                   employee.role === "developer" ||
+                   employee.pm_role === "admin";
+                   
+  if (!hasAccess) {
+    redirect("/dashboard");
+  }
+  
+  return employee;
+}
+
+export async function requireManagerOrAdminAccess() {
+  const employee = await requireAuth();
+  
+  // Allow admin, manager roles OR legacy "developer" role
+  const hasAccess = employee.role === "admin" || 
+                   employee.role === "manager" || 
+                   employee.role === "hr" ||
+                   employee.role === "developer" ||
+                   employee.pm_role === "admin";
+                   
+  if (!hasAccess) {
+    redirect("/dashboard");
+  }
+  
+  return employee;
+}
+
 export function isAdmin(role: Employee["role"]) {
   return role === "admin";
 }

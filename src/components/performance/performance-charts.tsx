@@ -8,6 +8,26 @@ import {
 import { TrendingUp, Target, Award, Activity } from "lucide-react";
 import { motion } from "framer-motion";
 
+interface TooltipProps {
+  active?: boolean;
+  payload?: any[];
+}
+
+// Move CustomTooltip outside the component to prevent re-creation on each render
+const CustomTooltip = ({ active, payload }: TooltipProps) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="rounded-lg border bg-background p-3 shadow-lg">
+        <p className="font-semibold">{payload[0].payload.name || payload[0].payload.period || payload[0].payload.category}</p>
+        <p className="text-sm text-muted-foreground">
+          {payload[0].name}: <span className="font-medium">{payload[0].value}{payload[0].name === 'rating' ? '/5' : '%'}</span>
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
+
 interface PerformanceChartsProps {
   goals: any[];
   reviews: any[];
@@ -43,20 +63,6 @@ export function PerformanceCharts({ goals, reviews }: PerformanceChartsProps) {
     { status: 'In Progress', count: goals.filter(g => g.completion_status > 0 && g.completion_status < 100).length, fill: '#f59e0b' },
     { status: 'Completed', count: goals.filter(g => g.completion_status === 100).length, fill: '#10b981' },
   ];
-
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="rounded-lg border bg-background p-3 shadow-lg">
-          <p className="font-semibold">{payload[0].payload.name || payload[0].payload.period || payload[0].payload.category}</p>
-          <p className="text-sm text-muted-foreground">
-            {payload[0].name}: <span className="font-medium">{payload[0].value}{payload[0].name === 'rating' ? '/5' : '%'}</span>
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">

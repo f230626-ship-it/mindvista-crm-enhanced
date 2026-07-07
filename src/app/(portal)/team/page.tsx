@@ -80,7 +80,7 @@ export default async function TeamPage() {
               <div>
                 <h3 className="text-lg font-semibold">No team members</h3>
                 <p className="text-sm text-muted-foreground">
-                  You don't currently have any direct reports or team members
+                  You don&apos;t currently have any direct reports or team members
                 </p>
               </div>
             </div>
