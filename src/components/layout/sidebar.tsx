@@ -5,6 +5,9 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/types/database";
+
+// Extend UserRole to include legacy "Developer" role
+type ExtendedUserRole = UserRole | "Developer";
 import {
   LayoutDashboard,
   User,
@@ -84,7 +87,7 @@ const adminNav: NavItem[] = [
     title: "Employees", 
     href: "/admin/employees", 
     icon: Users, 
-    roles: ["admin"],
+    roles: ["admin", "hr"],
     description: "Manage staff"
   },
   { 
@@ -188,16 +191,21 @@ function SectionHeader({ title, badge }: { title: string; badge?: number }) {
   );
 }
 
-export function Sidebar({ role }: { role: UserRole }) {
+export function Sidebar({ role }: { role: ExtendedUserRole }) {
   const pathname = usePathname();
 
   const filteredEmployeeNav = employeeNav.filter(
-    (item) => !item.roles || item.roles.includes(role)
+    (item) => !item.roles || item.roles.includes(role as UserRole)
   );
 
-  const filteredAdminNav = adminNav.filter(
-    (item) => !item.roles || item.roles.includes(role)
-  );
+  // Special handling for admin navigation - include "Developer" as admin-equivalent
+  const filteredAdminNav = adminNav.filter((item) => {
+    if (!item.roles) return true;
+    
+    // Allow if role is in the allowed roles OR if user is "Developer" and item allows "admin"
+    return item.roles.includes(role as UserRole) || 
+           (role === "Developer" && item.roles.includes("admin"));
+  });
 
   return (
     <aside className="flex h-full w-72 flex-col border-r border-sidebar-border bg-gradient-to-b from-sidebar to-sidebar/95 backdrop-blur-sm">

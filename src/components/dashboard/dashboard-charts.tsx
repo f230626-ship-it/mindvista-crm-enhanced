@@ -5,6 +5,26 @@ import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, 
 import { Calendar, TrendingUp, Target, Activity } from "lucide-react";
 import { motion } from "framer-motion";
 
+interface TooltipProps {
+  active?: boolean;
+  payload?: any[];
+}
+
+// Move CustomTooltip outside the component to prevent re-creation on each render
+const CustomTooltip = ({ active, payload }: TooltipProps) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="rounded-lg border bg-background p-3 shadow-lg">
+        <p className="font-semibold">{payload[0].payload.name || payload[0].name}</p>
+        <p className="text-sm text-muted-foreground">
+          {payload[0].name}: <span className="font-medium">{payload[0].value}</span>
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
+
 interface DashboardChartsProps {
   leaveBalance: any;
   recentLeaves: any[];
@@ -67,20 +87,6 @@ export function DashboardCharts({
     }
     return acc;
   }, [] as any[]);
-
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="rounded-lg border bg-background p-3 shadow-lg">
-          <p className="font-semibold">{payload[0].payload.name || payload[0].name}</p>
-          <p className="text-sm text-muted-foreground">
-            {payload[0].name}: <span className="font-medium">{payload[0].value}</span>
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">
