@@ -14,7 +14,8 @@ export default function TestEmailPage() {
       const data = await response.json();
       setResult(data);
     } catch (error) {
-      setResult({ error: 'Request failed', details: error.message });
+      const message = error instanceof Error ? error.message : String(error);
+      setResult({ error: "Request failed", details: message });
     }
     setLoading(false);
   };

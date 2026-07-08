@@ -200,7 +200,7 @@ async function validateEmail(email: string): Promise<string | null> {
       console.log('⚠️ EmailVerify.io API key not configured or invalid');
     }
   } catch (error) {
-    console.error('EmailVerify.io API validation failed:', error.message);
+    console.error('EmailVerify.io API validation failed:', error instanceof Error ? error.message : error);
     console.log('⚠️ Falling back to pattern validation');
     // Continue with other validations - don't fail the entire process
   }
@@ -230,7 +230,7 @@ async function validateEmail(email: string): Promise<string | null> {
       }
     }
   } catch (error) {
-    console.warn('MailboxValidator API error:', error.message);
+    console.warn('MailboxValidator API error:', error instanceof Error ? error.message : error);
   }
 
   // ═══════════════════════════════════════════════════════════════════
@@ -251,7 +251,7 @@ async function validateEmail(email: string): Promise<string | null> {
       console.log('✅ DNS MX records found for domain');
     }
   } catch (error) {
-    console.warn('DNS MX check failed:', error.message);
+    console.warn('DNS MX check failed:', error instanceof Error ? error.message : error);
   }
 
   console.log('✅ Email passed all validation checks');

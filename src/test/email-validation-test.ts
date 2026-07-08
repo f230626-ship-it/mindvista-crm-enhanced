@@ -68,7 +68,8 @@ async function validateEmailForTesting(email: string): Promise<string | null> {
       }
       
     } catch (error) {
-      console.warn('EmailVerify.io API error:', error.message);
+      const message = error instanceof Error ? error.message : String(error);
+      console.warn("EmailVerify.io API error:", message);
       return "Network error during validation";
     }
   }
@@ -136,7 +137,8 @@ async function runEmailValidationTests() {
         failed++;
       }
     } catch (error) {
-      console.log(`⚠️ ERROR: ${email} - ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      console.log(`⚠️ ERROR: ${email} - ${message}`);
       failed++;
     }
     
@@ -159,7 +161,8 @@ async function runEmailValidationTests() {
         failed++;
       }
     } catch (error) {
-      console.log(`⚠️ ERROR: ${email} - ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      console.log(`⚠️ ERROR: ${email} - ${message}`);
       failed++;
     }
     
