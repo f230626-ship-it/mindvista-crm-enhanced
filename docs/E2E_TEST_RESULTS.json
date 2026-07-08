@@ -1,5 +1,5 @@
 {
-  "runAt": "2026-06-29T11:24:10.404Z",
+  "runAt": "2026-07-08T11:29:31.550Z",
   "testUsers": {
     "manager": "sarah.lead@mindvista.io",
     "employee1": "ali.dev@mindvista.io",
@@ -40,17 +40,17 @@
     {
       "name": "Manager sees team members in hierarchy",
       "pass": true,
-      "detail": "visible: 3"
+      "detail": "visible: 4"
     },
     {
       "name": "Employee sees limited employee list (not all org)",
       "pass": true,
-      "detail": "visible: 1"
+      "detail": "visible: 3"
     },
     {
       "name": "Employee can apply leave",
       "pass": true,
-      "detail": "b9398f58-38dc-467b-96c2-e1796f63c0b7"
+      "detail": "30287f26-0faa-4982-ad80-5b9dfa1b2853"
     },
     {
       "name": "Lead receives notification on leave apply",
@@ -75,7 +75,7 @@
     {
       "name": "Leave balance deducted on approval",
       "pass": true,
-      "detail": "annual_used=3"
+      "detail": "annual_used=6"
     },
     {
       "name": "No-lead user DB insert (app should block in UI)",
@@ -85,12 +85,12 @@
     {
       "name": "Employee cannot escalate role via self-update (DB trigger)",
       "pass": true,
-      "detail": "role=employee, code=MV-EMP-001"
+      "detail": "role=employee, code=02"
     },
     {
       "name": "Employee cannot list all employees (admin view)",
       "pass": true,
-      "detail": "count=1"
+      "detail": "count=3"
     },
     {
       "name": "Admin can list all employees",
@@ -120,7 +120,7 @@
     {
       "name": "Manager can create goal for report",
       "pass": true,
-      "detail": "4116de72-763d-4a45-8107-f9758c8bbde0"
+      "detail": "ccde1a12-f673-4757-861a-accb00a67699"
     },
     {
       "name": "Employee cannot update goal progress (RLS)",
