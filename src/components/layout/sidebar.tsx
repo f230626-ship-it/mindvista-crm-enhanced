@@ -4,7 +4,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import type { UserRole, PMRole } from "@/types/database";
+import type { UserRole } from "@/types/database";
+
+// Extend UserRole to include legacy "Developer" role
+type ExtendedUserRole = UserRole | "Developer";
 import {
   LayoutDashboard,
   User,
@@ -16,7 +19,6 @@ import {
   Star,
   Briefcase,
   ChevronRight,
-  LineChart,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -26,110 +28,102 @@ interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
   roles?: UserRole[];
   description?: string;
-  salesHref?: boolean;
 }
 
 const employeeNav: NavItem[] = [
-  {
-    title: "Dashboard",
-    href: "/dashboard",
+  { 
+    title: "Dashboard", 
+    href: "/dashboard", 
     icon: LayoutDashboard,
-    description: "Overview & analytics",
+    description: "Overview & analytics"
   },
-  {
-    title: "Sales",
-    href: "/sales",
-    icon: LineChart,
-    description: "Outreach & performance",
-    salesHref: true,
-  },
-  {
-    title: "Projects",
-    href: "/projects",
+  { 
+    title: "Projects", 
+    href: "/projects", 
     icon: Briefcase,
     description: "Project management",
-    roles: ["admin", "manager"],
+    roles: ["admin", "manager"]
   },
-  {
-    title: "My Team",
-    href: "/team",
+  { 
+    title: "Team", 
+    href: "/team", 
     icon: Users,
-    description: "Your team directory",
+    description: "Company directory"
   },
-  {
-    title: "Profile",
-    href: "/profile",
+  { 
+    title: "Profile", 
+    href: "/profile", 
     icon: User,
-    description: "Personal settings",
+    description: "Personal settings"
   },
-  {
-    title: "Leave",
-    href: "/leave",
+  { 
+    title: "Leave", 
+    href: "/leave", 
     icon: CalendarDays,
-    description: "Time off requests",
+    description: "Time off requests"
   },
-  {
-    title: "Policies",
-    href: "/policies",
+  { 
+    title: "Policies", 
+    href: "/policies", 
     icon: FileText,
-    description: "Company policies",
+    description: "Company policies"
   },
-  {
-    title: "Assets",
-    href: "/assets",
+  { 
+    title: "Assets", 
+    href: "/assets", 
     icon: Package,
-    description: "Equipment tracking",
+    description: "Equipment tracking"
   },
-  {
-    title: "My Performance",
-    href: "/performance",
+  { 
+    title: "My Performance", 
+    href: "/performance", 
     icon: Star,
-    description: "Goals & reviews",
+    description: "Goals & reviews"
   },
 ];
 
 const adminNav: NavItem[] = [
-  {
-    title: "Employees",
-    href: "/admin/employees",
-    icon: Users,
-    roles: ["admin"],
-    description: "Manage staff",
+  { 
+    title: "Employees", 
+    href: "/admin/employees", 
+    icon: Users, 
+    roles: ["admin", "hr"],
+    description: "Manage staff"
   },
-  {
-    title: "Leave Approvals",
-    href: "/admin/leaves",
-    icon: CheckSquare,
+  { 
+    title: "Leave Approvals", 
+    href: "/admin/leaves", 
+    icon: CheckSquare, 
     roles: ["admin", "manager"],
-    description: "Review requests",
+    description: "Review requests"
   },
-  {
-    title: "Performance Reviews",
-    href: "/admin/performance",
-    icon: Star,
+  { 
+    title: "Performance Reviews", 
+    href: "/admin/performance", 
+    icon: Star, 
     roles: ["admin", "manager"],
-    description: "Team evaluations",
+    description: "Team evaluations"
   },
-  {
-    title: "Assets",
-    href: "/admin/assets",
-    icon: Package,
+  { 
+    title: "Assets", 
+    href: "/admin/assets", 
+    icon: Package, 
     roles: ["admin"],
-    description: "Equipment management",
+    description: "Equipment management"
   },
-  {
-    title: "Policies",
-    href: "/admin/policies",
-    icon: FileText,
+  { 
+    title: "Policies", 
+    href: "/admin/policies", 
+    icon: FileText, 
     roles: ["admin"],
-    description: "Document management",
+    description: "Document management"
   },
-  {
-    title: "Holidays",
-    href: "/admin/holidays",
-    icon: CalendarDays,
+  { 
+    title: "Holidays", 
+    href: "/admin/holidays", 
+    icon: CalendarDays, 
     roles: ["admin"],
-    description: "Company calendar",
+    description: "Company calendar"
   },
 ];
 
@@ -162,13 +156,19 @@ function NavLink({
           active && "drop-shadow-sm"
         )}
       />
-      <div className="min-w-0 flex-1">
+      <div className="flex-1 min-w-0">
         <div className="font-semibold">{item.title}</div>
         {item.description && (
-          <div className="truncate text-xs opacity-75">{item.description}</div>
+          <div className="text-xs opacity-75 truncate">
+            {item.description}
+          </div>
         )}
       </div>
-      {active && <ChevronRight className="h-4 w-4 shrink-0" />}
+      {active && (
+        <ChevronRight className="h-4 w-4 shrink-0" />
+      )}
+      
+      {/* Active indicator */}
       {active && (
         <div className="absolute -left-1 top-1/2 h-8 w-1 -translate-y-1/2 rounded-full bg-primary-foreground shadow-sm" />
       )}
@@ -178,12 +178,12 @@ function NavLink({
 
 function SectionHeader({ title, badge }: { title: string; badge?: number }) {
   return (
-    <div className="mb-3 flex items-center justify-between px-4">
+    <div className="flex items-center justify-between mb-3 px-4">
       <h3 className="text-[11px] font-bold uppercase tracking-widest text-sidebar-foreground/40">
         {title}
       </h3>
       {badge !== undefined && (
-        <Badge variant="secondary" className="h-5 px-2 text-[10px]">
+        <Badge variant="secondary" className="text-[10px] h-5 px-2">
           {badge}
         </Badge>
       )}
@@ -191,28 +191,27 @@ function SectionHeader({ title, badge }: { title: string; badge?: number }) {
   );
 }
 
-export function Sidebar({ role, pmRole }: { role: UserRole; pmRole: PMRole }) {
+export function Sidebar({ role }: { role: ExtendedUserRole }) {
   const pathname = usePathname();
 
-  const showSales = role === "admin" || pmRole === "bd";
-
-  const filteredEmployeeNav = employeeNav
-    .filter((item) => (!item.roles || item.roles.includes(role)) && (item.href !== "/sales" || showSales))
-    .map((item) => {
-      if (item.salesHref && role === "admin") {
-        return { ...item, href: "/sales/command" };
-      }
-      return item;
-    });
-
-  const filteredAdminNav = adminNav.filter(
-    (item) => !item.roles || item.roles.includes(role)
+  const filteredEmployeeNav = employeeNav.filter(
+    (item) => !item.roles || item.roles.includes(role as UserRole)
   );
+
+  // Special handling for admin navigation - include "Developer" as admin-equivalent
+  const filteredAdminNav = adminNav.filter((item) => {
+    if (!item.roles) return true;
+    
+    // Allow if role is in the allowed roles OR if user is "Developer" and item allows "admin"
+    return item.roles.includes(role as UserRole) || 
+           (role === "Developer" && item.roles.includes("admin"));
+  });
 
   return (
     <aside className="flex h-full w-72 flex-col border-r border-sidebar-border bg-gradient-to-b from-sidebar to-sidebar/95 backdrop-blur-sm">
+      {/* Header */}
       <div className="flex h-16 items-center justify-center gap-3 border-b border-sidebar-border/50 px-6">
-        <Link href="/dashboard" className="group flex items-center justify-center">
+        <Link href="/dashboard" className="flex items-center justify-center group">
           <Image
             src="/images/logo.png"
             alt="MindVista"
@@ -225,20 +224,20 @@ export function Sidebar({ role, pmRole }: { role: UserRole; pmRole: PMRole }) {
       </div>
 
       <nav className="flex-1 space-y-6 overflow-y-auto p-4">
+        {/* Portal Section */}
         <div>
           <SectionHeader title="Portal" badge={filteredEmployeeNav.length} />
           <div className="space-y-1">
             {filteredEmployeeNav.map((item, i) => {
-              const active = Boolean(
+              const active =
                 pathname === item.href ||
-                  (item.href !== "/dashboard" && pathname.startsWith(item.href + "/")) ||
-                  (item.salesHref && pathname.startsWith("/sales"))
-              );
+                (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
               return <NavLink key={item.href} item={item} active={active} index={i} />;
             })}
           </div>
         </div>
 
+        {/* Management Section */}
         {filteredAdminNav.length > 0 && (
           <div>
             <SectionHeader title="Management" badge={filteredAdminNav.length} />
@@ -260,12 +259,15 @@ export function Sidebar({ role, pmRole }: { role: UserRole; pmRole: PMRole }) {
         )}
       </nav>
 
+      {/* Footer */}
       <div className="border-t border-sidebar-border/50 p-4">
         <div className="rounded-lg bg-gradient-to-r from-primary/10 to-primary/5 p-3 text-center">
           <p className="text-[10px] font-medium text-sidebar-foreground/60">
             MindVista HRMS v1.0
           </p>
-          <p className="mt-1 text-[9px] text-sidebar-foreground/40">Enterprise Edition</p>
+          <p className="text-[9px] text-sidebar-foreground/40 mt-1">
+            Enterprise Edition
+          </p>
         </div>
       </div>
     </aside>

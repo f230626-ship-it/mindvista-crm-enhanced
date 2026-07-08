@@ -1,322 +1,183 @@
-import { createClient } from "@/lib/supabase/server";
-import { requireRole, getCurrentEmployee } from "@/lib/auth";
-import { notFound } from "next/navigation";
-import Link from "next/link";
-import { PageHeader } from "@/components/ui/page-header";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { EditEmployeeDialog } from "@/components/admin/edit-employee-dialog";
-import {
-  EMPLOYMENT_TYPE_LABELS,
-  WORK_LOCATION_LABELS,
-  ROLE_LABELS,
-  EMPLOYEE_STATUS_LABELS,
-} from "@/lib/constants";
-import { formatDate } from "@/lib/utils/date";
-import {
-  ArrowLeft,
-  Building2,
-  Briefcase,
-  CalendarDays,
-  Hash,
-  Mail,
-  Phone,
-  MapPin,
-  Shield,
-  UserCheck,
-  Activity,
-  CreditCard,
-  Banknote,
-  IdCard,
-  Users,
-  Baby,
-} from "lucide-react";
+import { notFound } from 'next/navigation';
+import { createClient } from '@/lib/supabase/server';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, Mail, Phone, MapPin, Calendar, Clock } from 'lucide-react';
+import Link from 'next/link';
 
-interface InfoRowProps {
-  icon: React.ReactNode;
-  label: string;
-  value: React.ReactNode;
-}
-
-function InfoRow({ icon, label, value }: InfoRowProps) {
-  return (
-    <div className="flex items-start gap-3 py-3 border-b border-border/40 last:border-0">
-      <div className="mt-0.5 shrink-0 text-muted-foreground">{icon}</div>
-      <div className="min-w-0 flex-1">
-        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          {label}
-        </p>
-        <div className="mt-0.5 text-sm font-medium">{value ?? "—"}</div>
-      </div>
-    </div>
-  );
-}
-
-function SectionCard({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-xl border border-border/60 bg-card shadow-sm overflow-hidden">
-      <div className="px-5 py-3 border-b border-border/40 bg-muted/30">
-        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
-      </div>
-      <div className="px-5 py-1">{children}</div>
-    </div>
-  );
-}
-
-export default async function EmployeeDetailPage({
-  params,
-}: {
+interface EmployeeDetailsPageProps {
   params: Promise<{ id: string }>;
-}) {
+}
+
+export default async function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps) {
   const { id } = await params;
-  await requireRole("admin");
-
   const supabase = await createClient();
-  const viewer = await getCurrentEmployee();
 
-  const [empRes, departmentsRes, managersRes] = await Promise.all([
-    supabase
-      .from("employees")
-      .select(
-        "*, department:departments(*), manager:employees!manager_id(id, full_name, employee_code), lead:employees!lead_id(id, full_name, employee_code)"
-      )
-      .eq("id", id)
-      .maybeSingle(),
-    supabase.from("departments").select("*").order("name"),
-    supabase.from("employees").select("id, full_name, employee_code").order("full_name"),
-  ]);
+  const { data: employee, error } = await supabase
+    .from('profiles')
+    .select(`
+      *,
+      departments(name),
+      user_roles(role)
+    `)
+    .eq('id', id)
+    .single();
 
-  const employee = empRes.data;
-  if (!employee) notFound();
+  if (error || !employee) {
+    notFound();
+  }
 
-  const departments = departmentsRes.data ?? [];
-  const managers = managersRes.data ?? [];
-  const isAdmin = viewer?.role === "admin";
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase();
+  };
 
-  const initials = employee.full_name
-    .split(" ")
-    .map((n: string) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-
-  const statusColors: Record<string, string> = {
-    active: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400",
-    inactive: "bg-slate-100 text-slate-700 dark:bg-slate-800/40 dark:text-slate-400",
-    suspended: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
+  const getRoleBadgeVariant = (role: string) => {
+    switch (role.toLowerCase()) {
+      case 'admin':
+        return 'destructive';
+      case 'manager':
+        return 'default';
+      default:
+        return 'secondary';
+    }
   };
 
   return (
-    <div>
-      <PageHeader
-        title="Employee Profile"
-        description={`Full details for ${employee.full_name}`}
-        action={
-          <div className="flex items-center gap-2">
-            <Link href="/admin/employees">
-              <Button variant="outline" size="sm">
-                <ArrowLeft className="mr-1.5 h-4 w-4" />
-                Back
-              </Button>
-            </Link>
-            <EditEmployeeDialog
-              employee={employee}
-              departments={departments}
-              managers={managers}
-            />
-          </div>
-        }
-      />
-
-      {/* Hero */}
-      <div className="mb-6 rounded-2xl border border-border/60 bg-card shadow-sm overflow-hidden">
-        <div className="h-24 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent" />
-        <div className="px-6 pb-6 -mt-12 flex flex-col sm:flex-row sm:items-end gap-4">
-          <Avatar className="h-24 w-24 border-4 border-card shadow-lg rounded-2xl">
-            <AvatarImage src={employee.profile_photo_url ?? undefined} />
-            <AvatarFallback className="text-2xl font-bold bg-primary/10 text-primary rounded-2xl">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0 pb-1">
-            <h2 className="text-2xl font-bold tracking-tight truncate">
-              {employee.full_name}
-            </h2>
-            <p className="text-base text-muted-foreground">{employee.designation}</p>
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-              <Badge className={statusColors[employee.status]}>
-                {EMPLOYEE_STATUS_LABELS[employee.status]}
-              </Badge>
-              <Badge variant="outline" className="font-mono text-xs">
-                ID: {employee.employee_code ?? "—"}
-              </Badge>
-              {employee.department?.name && (
-                <Badge variant="secondary">{employee.department.name}</Badge>
-              )}
-            </div>
-          </div>
-        </div>
+    <div className="container mx-auto p-6 max-w-4xl">
+      <div className="flex items-center gap-4 mb-6">
+        <Link href="/admin/employees">
+          <Button variant="ghost" size="sm">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Employees
+          </Button>
+        </Link>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Personal Information */}
-        <SectionCard title="Personal Information">
-          <InfoRow
-            icon={<Mail className="h-4 w-4" />}
-            label="Email"
-            value={employee.email}
-          />
-          <InfoRow
-            icon={<Phone className="h-4 w-4" />}
-            label="Phone"
-            value={employee.phone}
-          />
-          <InfoRow
-            icon={<IdCard className="h-4 w-4" />}
-            label="CNIC"
-            value={
-              employee.cnic_number ? (
-                <span className="font-mono">{employee.cnic_number}</span>
-              ) : null
-            }
-          />
-          <InfoRow
-            icon={<Baby className="h-4 w-4" />}
-            label="Date of Birth"
-            value={employee.date_of_birth ? formatDate(employee.date_of_birth) : null}
-          />
-          <InfoRow
-            icon={<MapPin className="h-4 w-4" />}
-            label="Address"
-            value={employee.address}
-          />
-        </SectionCard>
+      <div className="grid gap-6 md:grid-cols-3">
+        {/* Profile Card */}
+        <Card className="md:col-span-1">
+          <CardHeader className="text-center">
+            <Avatar className="h-24 w-24 mx-auto mb-4">
+              <AvatarImage src={employee.avatar_url} alt={employee.full_name} />
+              <AvatarFallback className="text-lg">
+                {getInitials(employee.full_name)}
+              </AvatarFallback>
+            </Avatar>
+            <CardTitle>{employee.full_name}</CardTitle>
+            <CardDescription>{employee.job_title}</CardDescription>
+            <Badge variant={getRoleBadgeVariant(employee.user_roles?.role || 'employee')}>
+              {employee.user_roles?.role || 'Employee'}
+            </Badge>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Mail className="h-4 w-4" />
+              <span>{employee.email}</span>
+            </div>
+            {employee.phone && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Phone className="h-4 w-4" />
+                <span>{employee.phone}</span>
+              </div>
+            )}
+            {employee.address && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <MapPin className="h-4 w-4" />
+                <span>{employee.address}</span>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
-        {/* Employment Details */}
-        <SectionCard title="Employment Details">
-          <InfoRow
-            icon={<Hash className="h-4 w-4" />}
-            label="Employee ID"
-            value={
-              <span className="font-mono font-bold">{employee.employee_code ?? "—"}</span>
-            }
-          />
-          <InfoRow
-            icon={<CalendarDays className="h-4 w-4" />}
-            label="Joining Date"
-            value={formatDate(employee.joining_date)}
-          />
-          <InfoRow
-            icon={<Briefcase className="h-4 w-4" />}
-            label="Employment Type"
-            value={EMPLOYMENT_TYPE_LABELS[employee.employment_type]}
-          />
-          <InfoRow
-            icon={<Building2 className="h-4 w-4" />}
-            label="Work Location"
-            value={WORK_LOCATION_LABELS[employee.work_location]}
-          />
-          <InfoRow
-            icon={<Activity className="h-4 w-4" />}
-            label="Status"
-            value={
-              <Badge className={statusColors[employee.status] + " text-xs"}>
-                {EMPLOYEE_STATUS_LABELS[employee.status]}
-              </Badge>
-            }
-          />
-          <InfoRow
-            icon={<Shield className="h-4 w-4" />}
-            label="System Role"
-            value={ROLE_LABELS[employee.role] ?? employee.role}
-          />
-        </SectionCard>
+        {/* Details Cards */}
+        <div className="md:col-span-2 space-y-6">
+          {/* Employment Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Employment Information</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Employee ID</label>
+                <p className="text-sm">{employee.employee_id || 'N/A'}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Department</label>
+                <p className="text-sm">{employee.departments?.name || 'N/A'}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Job Title</label>
+                <p className="text-sm">{employee.job_title}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Manager ID</label>
+                <p className="text-sm">{employee.manager_id || 'N/A'}</p>
+              </div>
+              {employee.hire_date && (
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Hire Date</label>
+                    <p className="text-sm">{new Date(employee.hire_date).toLocaleDateString()}</p>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
-        {/* Organizational Hierarchy */}
-        <SectionCard title="Organizational Hierarchy">
-          <InfoRow
-            icon={<Building2 className="h-4 w-4" />}
-            label="Department"
-            value={employee.department?.name}
-          />
-          <InfoRow
-            icon={<UserCheck className="h-4 w-4" />}
-            label="Reporting Manager"
-            value={
-              employee.manager
-                ? `${employee.manager.full_name}${employee.manager.employee_code ? ` (${employee.manager.employee_code})` : ""}`
-                : null
-            }
-          />
-          <InfoRow
-            icon={<Users className="h-4 w-4" />}
-            label="Team Lead"
-            value={
-              employee.lead
-                ? `${employee.lead.full_name}${employee.lead.employee_code ? ` (${employee.lead.employee_code})` : ""}`
-                : null
-            }
-          />
-        </SectionCard>
+          {/* Personal Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Personal Information</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-4 sm:grid-cols-2">
+              {employee.date_of_birth && (
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Date of Birth</label>
+                  <p className="text-sm">{new Date(employee.date_of_birth).toLocaleDateString()}</p>
+                </div>
+              )}
+              {employee.emergency_contact_name && (
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Emergency Contact</label>
+                  <p className="text-sm">{employee.emergency_contact_name}</p>
+                  {employee.emergency_contact_phone && (
+                    <p className="text-sm text-muted-foreground">{employee.emergency_contact_phone}</p>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
-        {/* Emergency Contacts */}
-        <SectionCard title="Emergency Contact">
-          <InfoRow
-            icon={<UserCheck className="h-4 w-4" />}
-            label="Contact Name"
-            value={employee.emergency_contact_name}
-          />
-          <InfoRow
-            icon={<Phone className="h-4 w-4" />}
-            label="Contact Phone"
-            value={employee.emergency_contact_phone}
-          />
-        </SectionCard>
-
-        {/* Salary — admin only */}
-        {isAdmin && (
-          <SectionCard title="Compensation (Admin Only)">
-            <InfoRow
-              icon={<Banknote className="h-4 w-4" />}
-              label="Basic Salary"
-              value={
-                employee.basic_salary != null
-                  ? `PKR ${employee.basic_salary.toLocaleString()}`
-                  : null
-              }
-            />
-            <InfoRow
-              icon={<Banknote className="h-4 w-4" />}
-              label="Allowances"
-              value={
-                employee.allowances != null
-                  ? `PKR ${employee.allowances.toLocaleString()}`
-                  : null
-              }
-            />
-            <InfoRow
-              icon={<CreditCard className="h-4 w-4" />}
-              label="Bank Name"
-              value={employee.bank_name}
-            />
-            <InfoRow
-              icon={<CreditCard className="h-4 w-4" />}
-              label="Bank Account"
-              value={
-                employee.bank_account_number ? (
-                  <span className="font-mono">{employee.bank_account_number}</span>
-                ) : null
-              }
-            />
-          </SectionCard>
-        )}
+          {/* Account Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Account Information</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-4 sm:grid-cols-2">
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Created</label>
+                  <p className="text-sm">{new Date(employee.created_at).toLocaleDateString()}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Last Updated</label>
+                  <p className="text-sm">{new Date(employee.updated_at).toLocaleDateString()}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

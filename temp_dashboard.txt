@@ -1,8 +1,8 @@
-import { createClient } from "@/lib/supabase/server";
+﻿import { createClient } from "@/lib/supabase/server";
 import { requireAuth } from "@/lib/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bell, CalendarDays, Package, LayoutDashboard } from "lucide-react";
+import { Bell } from "lucide-react";
 import { formatDate } from "@/lib/utils/date";
 import { LEAVE_TYPE_LABELS, LEAVE_STATUS_LABELS, STATUS_COLORS } from "@/lib/constants";
 import Link from "next/link";
@@ -53,12 +53,12 @@ export default async function DashboardPage() {
         <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground">
           {employee.employee_code
-            ? `${employee.full_name} · ${employee.employee_code}`
+            ? `${employee.full_name} ┬╖ ${employee.employee_code}`
             : employee.full_name}
         </p>
       </div>
 
-      {/* Clickable Stat Cards — handled by client component */}
+      {/* Clickable Stat Cards ΓÇö handled by client component */}
       <DashboardClient
         leaveBalance={leaveBalance}
         recentLeaves={recentLeaves}
@@ -67,14 +67,13 @@ export default async function DashboardPage() {
         teamSize={teamSize}
         annualRemaining={annualRemaining}
         sickRemaining={sickRemaining}
-        casualRemaining={casualRemaining}
       />
 
       {pendingForLead.length > 0 && (
-        <Card className="mt-6 overflow-hidden">
-          <CardHeader className="bg-amber-50 dark:bg-transparent border-b border-amber-100 dark:border-border">
-            <CardTitle className="flex items-center gap-2 text-base text-amber-900 dark:text-foreground">
-              <Bell className="h-4 w-4 text-amber-600 dark:text-primary" />
+        <Card className="mt-6 border-primary/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Bell className="h-4 w-4 text-primary" />
               Leave Approvals Needed
             </CardTitle>
           </CardHeader>
@@ -85,9 +84,9 @@ export default async function DashboardPage() {
       )}
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <Card className="overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between bg-orange-50 dark:bg-transparent border-b border-orange-100 dark:border-border">
-            <CardTitle className="text-base text-orange-900 dark:text-foreground">Recent Leave Requests</CardTitle>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-base">Recent Leave Requests</CardTitle>
             <Link href="/leave" className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
               View all
             </Link>
@@ -100,7 +99,7 @@ export default async function DashboardPage() {
                     <div>
                       <p className="text-sm font-medium">{LEAVE_TYPE_LABELS[leave.leave_type]}</p>
                       <p className="text-xs text-muted-foreground">
-                        {formatDate(leave.start_date)} – {formatDate(leave.end_date)} ({leave.days_count}d)
+                        {formatDate(leave.start_date)} ΓÇô {formatDate(leave.end_date)} ({leave.days_count}d)
                       </p>
                     </div>
                     <Badge className={STATUS_COLORS[leave.status]} variant="secondary">
@@ -115,9 +114,9 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="overflow-hidden">
-          <CardHeader className="bg-green-50 dark:bg-transparent border-b border-green-100 dark:border-border">
-            <CardTitle className="text-base text-green-900 dark:text-foreground">Assigned Assets</CardTitle>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Assigned Assets</CardTitle>
           </CardHeader>
           <CardContent>
             {assignedAssets && assignedAssets.length > 0 ? (
@@ -125,7 +124,7 @@ export default async function DashboardPage() {
                 {assignedAssets.map((a) => (
                   <div key={a.id} className="flex items-center justify-between rounded-lg border p-3 text-sm">
                     <span className="font-medium">{a.asset?.name}</span>
-                    <span className="text-muted-foreground">{a.asset?.serial_number ?? "—"}</span>
+                    <span className="text-muted-foreground">{a.asset?.serial_number ?? "ΓÇö"}</span>
                   </div>
                 ))}
                 <Link href="/assets" className={cn(buttonVariants({ variant: "outline", size: "sm" }), "mt-2 w-full")}>
@@ -139,9 +138,9 @@ export default async function DashboardPage() {
         </Card>
       </div>
 
-      <Card className="mt-6 overflow-hidden">
-        <CardHeader className="bg-blue-50 dark:bg-transparent border-b border-blue-100 dark:border-border">
-          <CardTitle className="text-base text-blue-900 dark:text-foreground">Leave Balance Summary</CardTitle>
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle className="text-base">Leave Balance Summary</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {[
