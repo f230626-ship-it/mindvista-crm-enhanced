@@ -45,7 +45,7 @@ const employeeNav: NavItem[] = [
     href: "/projects", 
     icon: Briefcase,
     description: "Project management",
-    roles: ["admin", "manager"]
+    roles: ["admin"]
   },
   { 
     title: "My Team", 

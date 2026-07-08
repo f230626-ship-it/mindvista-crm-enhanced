@@ -1,10 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
-import { requireAuth } from "@/lib/auth";
+import { requireRole } from "@/lib/auth";
 import ProjectsClient from "./projects-client";
 import { checkApproachingDeliveries } from "@/actions/projects";
 
 export default async function ProjectsPage() {
-  const employee = await requireAuth();
+  const employee = await requireRole("admin");
   const supabase = await createClient();
 
   // Run the approaching delivery date check in the background
