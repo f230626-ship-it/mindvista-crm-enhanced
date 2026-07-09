@@ -42,6 +42,12 @@ function LoginForm() {
           "Your account has been suspended or deactivated. Please contact your administrator."
         );
       }, 0);
+    } else if (errParam === "invalid_link") {
+      setTimeout(() => {
+        setError(
+          "This password reset link is invalid or has expired. Please request a new one."
+        );
+      }, 0);
     }
     if (verifiedParam === "true") {
       setTimeout(() => {

@@ -18,6 +18,7 @@ import {
   buildPasswordResetEmail,
   buildVerificationEmail,
 } from "@/lib/email";
+import { buildAuthConfirmUrl } from "@/lib/auth/confirm-url";
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
 
@@ -173,13 +174,14 @@ export async function signUp(
   }
 
   const { email, password, fullName } = parsed.data;
+  const normalizedEmail = email.toLowerCase().trim();
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const verifyRedirect = `${appUrl}/login?verified=true`;
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
-    email,
+    email: normalizedEmail,
     password,
     options: {
       data: { full_name: fullName },
@@ -189,7 +191,7 @@ export async function signUp(
   });
 
   if (error) {
-    await writeAuditLog(null, "signup_failed", { email });
+    await writeAuditLog(null, "signup_failed", { email: normalizedEmail });
     // Generic message — don't reveal if email already exists
     return {
       error: toAuthError(
@@ -199,7 +201,7 @@ export async function signUp(
     };
   }
 
-  await writeAuditLog(data.user?.id ?? null, "signup_success", { email });
+  await writeAuditLog(data.user?.id ?? null, "signup_success", { email: normalizedEmail });
 
   // If a custom provider is configured AND the user needs email verification,
   // send a branded verification email instead of the generic Supabase one.
@@ -208,13 +210,21 @@ export async function signUp(
     const admin = createAdminClient();
     const { data: linkData } = await admin.auth.admin.generateLink({
       type: "signup",
-      email,
+      email: normalizedEmail,
       password,
       options: { redirectTo: verifyRedirect },
     });
-    const actionLink = linkData?.properties?.action_link;
-    if (actionLink) {
-      await sendEmail(buildVerificationEmail(actionLink, email));
+    const hashedToken = linkData?.properties?.hashed_token;
+    const verifyUrl = hashedToken
+      ? buildAuthConfirmUrl(appUrl, hashedToken, "signup", "/login?verified=true")
+      : linkData?.properties?.action_link;
+    if (verifyUrl) {
+      const emailResult = await sendEmail(
+        buildVerificationEmail(verifyUrl, normalizedEmail)
+      );
+      if (!emailResult.ok) {
+        console.error("[auth] signup verification email failed:", emailResult.error);
+      }
     }
   }
 
@@ -246,8 +256,9 @@ export async function requestPasswordReset(
   }
 
   const { email } = parsed.data;
+  const normalizedEmail = email.toLowerCase().trim();
 
-  const rlKey = `reset:${email.toLowerCase()}`;
+  const rlKey = `reset:${normalizedEmail}`;
   if (!checkRateLimit(rlKey)) {
     return {
       data: {
@@ -260,32 +271,104 @@ export async function requestPasswordReset(
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const resetRedirect = `${appUrl}/reset-password`;
 
-  // If a custom email provider is configured, generate a Supabase magic link
-  // via the admin API and send a branded email. Otherwise fall back to
-  // Supabase's built-in reset email (rate-limited to ~3-4/hour on free tier).
-  if (process.env.EMAIL_PROVIDER) {
-    const admin = createAdminClient();
-    const { data: linkData, error: linkError } =
-      await admin.auth.admin.generateLink({
-        type: "recovery",
-        email,
-        options: { redirectTo: resetRedirect },
-      });
+  // ── Diagnostic logging (masked values — safe for production logs) ──────
+  const emailProvider = process.env.EMAIL_PROVIDER || "(not set)";
+  const brevoKey = process.env.BREVO_API_KEY;
+  const emailFrom = process.env.EMAIL_FROM || "(not set)";
+  const maskedBrevoKey = brevoKey && brevoKey.length > 16
+    ? `${brevoKey.slice(0, 12)}...${brevoKey.slice(-4)}`
+    : brevoKey
+      ? "***short***"
+      : "(not set)";
 
-    if (!linkError && linkData?.properties?.action_link) {
-      await sendEmail(
-        buildPasswordResetEmail(linkData.properties.action_link, email)
-      );
+  console.log("[auth] requestPasswordReset:", {
+    email: normalizedEmail,
+    emailProvider,
+    brevoApiKey: maskedBrevoKey,
+    emailFrom,
+    appUrl,
+    resetRedirect,
+  });
+
+  // If a custom email provider is configured, generate a Supabase recovery token
+  // via the admin API and send a branded email through Brevo/Resend.
+  let emailSent = false;
+
+  if (process.env.EMAIL_PROVIDER) {
+    try {
+      const admin = createAdminClient();
+      const { data: linkData, error: linkError } =
+        await admin.auth.admin.generateLink({
+          type: "recovery",
+          email: normalizedEmail,
+          options: { redirectTo: resetRedirect },
+        });
+
+      if (linkError) {
+        // generateLink fails when the user doesn't exist in Supabase auth.
+        // This is expected — we still return generic success (anti-enumeration).
+        console.warn("[auth] generateLink failed (user may not exist):", linkError.message);
+      } else {
+        const hashedToken = linkData?.properties?.hashed_token;
+        const actionLink = linkData?.properties?.action_link;
+
+        console.log("[auth] generateLink result:", {
+          hasHashedToken: !!hashedToken,
+          hasActionLink: !!actionLink,
+        });
+
+        const resetUrl = hashedToken
+          ? buildAuthConfirmUrl(appUrl, hashedToken, "recovery", "/reset-password")
+          : actionLink;
+
+        if (resetUrl) {
+          console.log("[auth] Sending password-reset email via", emailProvider, "to", normalizedEmail);
+          const emailResult = await sendEmail(
+            buildPasswordResetEmail(resetUrl, normalizedEmail)
+          );
+          console.log("[auth] sendEmail result:", {
+            ok: emailResult.ok,
+            provider: emailResult.provider,
+            error: emailResult.error,
+          });
+          emailSent = emailResult.ok;
+
+          if (!emailResult.ok) {
+            console.error(
+              "[auth] Custom email send FAILED — will fall back to Supabase built-in.",
+              "Check: 1) Is EMAIL_FROM verified in Brevo dashboard?",
+              "2) Is BREVO_API_KEY valid?",
+              "Error:", emailResult.error
+            );
+          }
+        } else {
+          console.error("[auth] Could not build reset URL — no hashed_token or action_link");
+        }
+      }
+    } catch (e) {
+      console.error("[auth] Custom email provider threw exception:", e);
     }
-    // Whether the user exists or not, we return the same message (enumeration prevention)
-  } else {
-    const supabase = await createClient();
-    await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: resetRedirect,
-    });
   }
 
-  await writeAuditLog(null, "password_reset_requested", { email });
+  // Fallback: use Supabase's built-in reset email if custom provider
+  // was not configured or if it failed for any reason.
+  if (!emailSent) {
+    console.log("[auth] Falling back to Supabase built-in resetPasswordForEmail");
+    const supabase = await createClient();
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+      normalizedEmail,
+      {
+        redirectTo: resetRedirect,
+      }
+    );
+    if (resetError) {
+      console.error("[auth] Supabase resetPasswordForEmail error:", resetError.message);
+    } else {
+      console.log("[auth] Supabase resetPasswordForEmail called (delivery depends on Supabase SMTP config)");
+    }
+  }
+
+  await writeAuditLog(null, "password_reset_requested", { email: normalizedEmail });
 
   // Always return success to not reveal whether email exists
   return {

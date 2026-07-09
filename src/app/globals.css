@@ -559,3 +559,11 @@
   animation: shimmer 1.5s ease-in-out infinite;
 }
 
+/* ── Light mode header: professional warm-white gradient with amber accent ── */
+:root:not(.dark) header {
+  background: linear-gradient(to right, #fffefb, #ffffff, #fffdf8) !important;
+  border-bottom: 1px solid #e8e4dc !important;
+  box-shadow:
+    0 1px 0 0 rgba(229, 161, 88, 0.18),
+    0 2px 12px -4px rgba(0, 0, 0, 0.08) !important;
+}

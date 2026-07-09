@@ -103,12 +103,32 @@ function ResetPasswordForm() {
     );
   }
 
+  // Detect auth/session errors that mean the token is no longer valid
+  const isAuthError =
+    error &&
+    (error.toLowerCase().includes("expired") ||
+      error.toLowerCase().includes("failed to reset") ||
+      error.toLowerCase().includes("session") ||
+      error.toLowerCase().includes("auth"));
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
-        <Alert variant="destructive" className="animate-scale-in">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
+        <div className="space-y-2">
+          <Alert variant="destructive" className="animate-scale-in">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+          {isAuthError && (
+            <p className="text-center text-sm text-muted-foreground">
+              <Link
+                href="/forgot-password"
+                className="underline hover:text-foreground transition-colors"
+              >
+                Request a new reset link
+              </Link>
+            </p>
+          )}
+        </div>
       )}
 
       <div className="space-y-2">

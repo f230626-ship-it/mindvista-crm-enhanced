@@ -31,7 +31,9 @@ const PROVIDERS = {
  * handle this and fall back to Supabase's built-in emails where applicable.
  */
 export async function sendEmail(payload: EmailPayload): Promise<EmailResult> {
-  const providerName = (process.env.EMAIL_PROVIDER ?? "") as ProviderName | "";
+  const providerName = (process.env.EMAIL_PROVIDER ?? "").toLowerCase() as
+    | ProviderName
+    | "";
 
   if (!providerName || !(providerName in PROVIDERS)) {
     // No custom provider configured — Supabase auth emails handle delivery
