@@ -1,0 +1,634 @@
+▲ Next.js 16.2.9 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.56.1:3000
+- Environments: .env.local
+✓ Ready in 874ms
+
+ GET / 307 in 3.5s (next.js: 2.2s, proxy.ts: 721ms, application-code: 631ms)
+ GET /dashboard 200 in 1950ms (next.js: 98ms, proxy.ts: 138ms, application-code: 1715ms)
+[browser] Image with src "/images/logo.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+ GET /projects 200 in 1015ms (next.js: 73ms, proxy.ts: 184ms, application-code: 758ms)
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /team 200 in 1648ms (next.js: 113ms, proxy.ts: 394ms, application-code: 1141ms)
+ GET /login?redirectTo=%2Fteam 200 in 395ms (next.js: 184ms, proxy.ts: 7ms, application-code: 204ms)
+ POST /login?redirectTo=%2Fteam 200 in 2.1s (next.js: 18ms, proxy.ts: 15ms, application-code: 2.1s)
+  └─ ƒ login({}) in 1897ms src/actions/auth.ts
+ GET /team 200 in 2.9s (next.js: 10ms, proxy.ts: 156ms, application-code: 2.7s)
+ GET /team 200 in 2.5s (next.js: 20ms, proxy.ts: 344ms, application-code: 2.2s)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /team 200 in 756ms (next.js: 10ms, proxy.ts: 171ms, application-code: 575ms)
+ GET /team 200 in 1628ms (next.js: 10ms, proxy.ts: 191ms, application-code: 1427ms)
+[browser] Encountered a script tag while rendering React component. Scripts inside React components are never executed when rendering on the client. Consider using template tag instead (https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template). 
+[browser] Uncaught Error: Hydration failed because the server rendered HTML didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/team" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head headCacheNode={{rsc:{...}, ...}}>
+                    <__next_viewport_boundary__>
+                    <MetadataWrapper>
++                     <div hidden={true}>
+-                     {"\n        "}
+                  ...
+
+    at <unknown> (https://react.dev/link/hydration-mismatch)
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at se (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:117171)
+    at l7 (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:116531)
+    at se (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:117503)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118750)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:121184)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:121184)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:123428)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:121184)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:121184)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:121184)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:119002)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:121184)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:119002)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:121184)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:119002)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:119002)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:123428)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:123428)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:123428)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:119002)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:119002)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:121987)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:119002)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:119002)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:123428)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:119002)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:121630)
+    at c_ (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:154382)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at <unknown> (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1890:55)
+    at lb (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:103375)
+    at se (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:117479)
+    at l7 (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:116531)
+    at se (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:117503)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118750)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:121630)
+    at c_ (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:154382)
+    at <unknown> (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:154069)
+    at cy (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:154085)
+    at cr (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:137223)
+    at ct (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:135459)
+    at cq (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:160794)
+    at cU (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:159007)
+    at ck (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:156653)
+    at <unknown> (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:154079)
+    at cy (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:154085)
+    at cr (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:137223)
+    at ct (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:135459)
+    at cB (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:160673)
+    at MessagePort.N (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:224252)
+[browser] Uncaught TypeError: Cannot read properties of null (reading 'removeChild')
+ GET /team 200 in 1263ms (next.js: 9ms, proxy.ts: 172ms, application-code: 1083ms)
+[browser] Encountered a script tag while rendering React component. Scripts inside React components are never executed when rendering on the client. Consider using template tag instead (https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template). 
+ GET /team 200 in 1253ms (next.js: 10ms, proxy.ts: 144ms, application-code: 1100ms)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at se (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:117171)
+    at l7 (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:116531)
+    at se (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:117503)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118750)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:121184)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:121184)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:123428)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:121184)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:121184)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:121184)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:119002)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:121184)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:119002)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:121184)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:119002)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:119002)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:123428)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:123428)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:123428)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:119002)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:119002)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:121987)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:119002)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:119002)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:123428)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:119002)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:121630)
+    at c_ (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:154382)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at <unknown> (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1890:55)
+    at lb (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:103375)
+    at se (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:117479)
+    at l7 (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:116531)
+    at se (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:117503)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118750)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:121630)
+    at c_ (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:154382)
+    at <unknown> (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:154069)
+    at cy (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:154085)
+    at cr (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:137223)
+    at ct (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:135459)
+    at cq (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:160794)
+    at cU (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:159007)
+    at ck (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:156653)
+    at <unknown> (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:154079)
+    at cy (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:154085)
+    at cr (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:137223)
+    at ct (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:135459)
+    at cB (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:160673)
+    at MessagePort.N (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:224252)
+[browser] Uncaught Error: Hydration failed because the server rendered HTML didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/team" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head headCacheNode={{rsc:{...}, ...}}>
+                    <__next_viewport_boundary__>
+                    <MetadataWrapper>
++                     <div hidden={true}>
+-                     {"\n        "}
+                  ...
+
+    at <unknown> (https://react.dev/link/hydration-mismatch)
+    at div (<anonymous>)
+[browser] Uncaught TypeError: Cannot read properties of null (reading 'removeChild')
+ GET /team 200 in 2.1s (next.js: 6ms, proxy.ts: 451ms, application-code: 1606ms)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at script (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at section (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+[browser] Uncaught Error: Maximum update depth exceeded. This can happen when a component repeatedly calls setState inside componentWillUpdate or componentDidUpdate. React limits the number of nested updates to prevent infinite loops.
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at se (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:117171)
+    at l7 (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:116531)
+    at se (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:117768)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118750)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:122176)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:121184)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:119002)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:119002)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:121184)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:119002)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:121184)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:121184)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:119002)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:121184)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:119002)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:121184)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:119002)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:121184)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:121184)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:119002)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:119002)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:119002)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:119002)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:122459)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:122086)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:119002)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:123428)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118876)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at <unknown> (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1890:55)
+    at lb (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:103375)
+    at se (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:117479)
+    at l7 (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:116531)
+    at se (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:117503)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118750)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:121630)
+    at c_ (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:154382)
+    at <unknown> (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:154069)
+    at cy (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:154085)
+    at cr (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:137223)
+    at ct (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:135459)
+    at cq (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:160794)
+    at cU (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:159007)
+    at ck (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:156653)
+    at <unknown> (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:154079)
+    at cy (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:154085)
+    at cr (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:137223)
+    at ct (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:135459)
+    at cB (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:160673)
+    at MessagePort.N (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:224252)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at se (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:117109)
+    at l7 (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:116531)
+    at se (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:117503)
+    at l7 (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:116531)
+    at se (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:117503)
+    at l7 (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:116531)
+    at se (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:117503)
+    at l7 (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:116531)
+    at se (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:117503)
+    at l7 (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:116531)
+    at se (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:117696)
+    at l7 (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:116531)
+    at se (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:117638)
+    at l7 (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:116531)
+    at se (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:117503)
+    at l7 (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:116531)
+    at se (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:117638)
+    at l7 (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:116531)
+    at se (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:117638)
+    at l7 (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:116531)
+    at se (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:117768)
+    at l7 (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:116531)
+    at se (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:117503)
+    at l7 (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:116531)
+    at se (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:117503)
+    at l7 (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:116531)
+    at se (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:117422)
+    at l7 (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:116531)
+    at se (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:117503)
+    at l7 (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:116531)
+    at se (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:117503)
+    at l7 (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:116531)
+    at se (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:117638)
+    at l7 (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:116531)
+    at se (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:117503)
+    at so (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:118750)
+    at si (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:121630)
+    at c_ (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:154382)
+    at <unknown> (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:154069)
+    at cy (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:154085)
+    at cr (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:137223)
+    at ct (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:135459)
+    at cq (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:160794)
+    at cU (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:159007)
+    at ck (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:156653)
+    at <unknown> (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:154079)
+    at cy (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:154085)
+    at cr (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:137223)
+    at ct (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:135459)
+    at cB (file://C:/Users/HC_PC/OneDrive/Desktop/mindcrm/.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js:1841:160673)
+ GET /team 200 in 1556ms (next.js: 11ms, proxy.ts: 173ms, application-code: 1372ms)
+[browser] Image with src "/images/logo.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+ GET /profile 200 in 1049ms (next.js: 152ms, proxy.ts: 183ms, application-code: 714ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /profile 200 in 2.5s (next.js: 8ms, proxy.ts: 186ms, application-code: 2.3s)
+ GET /team 200 in 1382ms (next.js: 9ms, proxy.ts: 380ms, application-code: 993ms)
+ GET /performance 200 in 1143ms (next.js: 174ms, proxy.ts: 195ms, application-code: 774ms)
+ GET /performance 200 in 1369ms (next.js: 6ms, proxy.ts: 179ms, application-code: 1184ms)
+[browser] Image with src "/images/logo.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+ GET /profile 200 in 944ms (next.js: 9ms, proxy.ts: 192ms, application-code: 742ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /profile 200 in 1143ms (next.js: 7ms, proxy.ts: 187ms, application-code: 948ms)
+ GET /profile 200 in 1115ms (next.js: 11ms, proxy.ts: 304ms, application-code: 800ms)
+○ Compiling /policies ...
+[browser] Image with src "/images/logo.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+ GET /policies 200 in 7.5s (next.js: 6.8s, proxy.ts: 168ms, application-code: 512ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /login 200 in 77ms (next.js: 11ms, proxy.ts: 11ms, application-code: 54ms)
+ GET /login 200 in 148ms (next.js: 42ms, proxy.ts: 34ms, application-code: 72ms)
+ POST /login 200 in 754ms (next.js: 9ms, proxy.ts: 10ms, application-code: 735ms)
+  └─ ƒ login({}) in 682ms src/actions/auth.ts
+ GET /dashboard 200 in 1728ms (next.js: 51ms, proxy.ts: 135ms, application-code: 1542ms)
+ GET /dashboard 200 in 1637ms (next.js: 9ms, proxy.ts: 197ms, application-code: 1432ms)
+ GET /projects 200 in 832ms (next.js: 23ms, proxy.ts: 165ms, application-code: 645ms)
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+ GET /admin/employees 200 in 943ms (next.js: 164ms, proxy.ts: 130ms, application-code: 649ms)
+ GET /admin/employees 200 in 1103ms (next.js: 6ms, proxy.ts: 212ms, application-code: 885ms)
+ GET /admin/employees 200 in 1196ms (next.js: 27ms, proxy.ts: 219ms, application-code: 950ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /dashboard 200 in 1117ms (next.js: 10ms, proxy.ts: 203ms, application-code: 904ms)
+[browser] Image with src "/images/logo.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+ GET /projects 200 in 1060ms (next.js: 9ms, proxy.ts: 306ms, application-code: 745ms)
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+ GET /projects/e00ce876-676a-425e-a9de-1c94937e865b 200 in 5.1s (next.js: 2.4s, proxy.ts: 193ms, application-code: 2.5s)
+ GET /projects 200 in 1126ms (next.js: 86ms, proxy.ts: 200ms, application-code: 839ms)
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+ GET /projects 200 in 2.1s (next.js: 8ms, proxy.ts: 462ms, application-code: 1641ms)
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.

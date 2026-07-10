@@ -11,7 +11,6 @@ import type { PMRole } from "@/types/database";
 type ExtendedUserRole = UserRole | "Developer";
 import {
   LayoutDashboard,
-  User,
   CalendarDays,
   FileText,
   Package,
@@ -52,12 +51,6 @@ const employeeNav: NavItem[] = [
     href: "/team", 
     icon: Users,
     description: "Company directory"
-  },
-  { 
-    title: "Profile", 
-    href: "/profile", 
-    icon: User,
-    description: "Personal settings"
   },
   { 
     title: "Leave", 
@@ -141,16 +134,19 @@ function NavLink({
   item,
   active,
   index,
+  onClick,
 }: {
   item: NavItem;
   active: boolean;
   index: number;
+  onClick?: () => void;
 }) {
   const Icon = item.icon;
   return (
     <Link
       href={item.href}
       prefetch
+      onClick={onClick}
       className={cn(
         "group relative flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200",
         "animate-slide-up opacity-0 fill-mode-[forwards] hover:scale-105 active:scale-95",
@@ -204,9 +200,17 @@ function SectionHeader({ title, badge }: { title: string; badge?: number }) {
 export function Sidebar({
   role,
   pmRole,
+  profilePhotoUrl,
+  fullName,
+  designation,
+  onNavClick,
 }: {
   role: ExtendedUserRole;
   pmRole: PMRole;
+  profilePhotoUrl?: string | null;
+  fullName?: string;
+  designation?: string;
+  onNavClick?: () => void;
 }) {
   const pathname = usePathname();
 
@@ -265,6 +269,7 @@ export function Sidebar({
                   item={{ ...item, href: effectiveHref }}
                   active={active}
                   index={i}
+                  onClick={onNavClick}
                 />
               );
             })}
@@ -285,6 +290,7 @@ export function Sidebar({
                     item={item}
                     active={active}
                     index={i + filteredEmployeeNav.length}
+                    onClick={onNavClick}
                   />
                 );
               })}
@@ -293,16 +299,40 @@ export function Sidebar({
         )}
       </nav>
 
-      {/* Footer */}
+      {/* Footer - Profile Card */}
       <div className="border-t border-sidebar-border/50 p-4">
-        <div className="rounded-lg bg-linear-to-r from-primary/10 to-primary/5 p-3 text-center">
-          <p className="text-[10px] font-medium text-sidebar-foreground/60">
-            MindVista HRMS v1.0
-          </p>
-          <p className="text-[9px] text-sidebar-foreground/40 mt-1">
-            Enterprise Edition
-          </p>
-        </div>
+        <Link
+          href="/profile"
+          className="flex items-center gap-3 rounded-xl p-3 transition-all duration-200 hover:bg-linear-to-r hover:from-primary/10 hover:to-primary/5 group"
+        >
+          <div className="relative shrink-0">
+            {profilePhotoUrl ? (
+              <img
+                src={profilePhotoUrl}
+                alt={fullName ?? "Profile"}
+                className="h-10 w-10 rounded-full object-cover ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all"
+              />
+            ) : (
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary/30 to-primary/10 text-primary font-bold text-sm">
+                {fullName
+                  ?.split(" ")
+                  .map((n) => n[0])
+                  .join("")
+                  .toUpperCase()
+                  .slice(0, 2) ?? "U"}
+              </div>
+            )}
+            <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-sidebar bg-green-500" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold truncate text-sidebar-foreground">
+              {fullName ?? "User"}
+            </p>
+            <p className="text-[11px] text-sidebar-foreground/60 truncate">
+              {designation ?? "Employee"}
+            </p>
+          </div>
+        </Link>
       </div>
     </aside>
   );

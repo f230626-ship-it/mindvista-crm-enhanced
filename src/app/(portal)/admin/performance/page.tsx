@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { requireRole } from "@/lib/auth";
 import { PageHeader } from "@/components/ui/page-header";
 import { GoalForm, ReviewForm } from "@/components/admin/performance-forms";
@@ -10,7 +10,7 @@ import { formatDate } from "@/lib/utils/date";
 
 export default async function AdminPerformancePage() {
   await requireRole("admin", "manager");
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const [{ data: goals }, { data: reviews }, { data: employeesList }] = await Promise.all([
     supabase

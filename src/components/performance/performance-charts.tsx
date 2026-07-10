@@ -73,8 +73,8 @@ export function PerformanceCharts({ goals, reviews }: PerformanceChartsProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <Card className="overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-blue-500/5 to-blue-500/10">
+          <Card className="overflow-hidden pt-0">
+            <CardHeader className="bg-gradient-to-r from-blue-500/5 to-blue-500/10 py-(--card-spacing)">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Target className="h-5 w-5 text-blue-600" />
                 Goal Completion Progress
@@ -102,8 +102,8 @@ export function PerformanceCharts({ goals, reviews }: PerformanceChartsProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <Card className="overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-green-500/5 to-green-500/10">
+          <Card className="overflow-hidden pt-0">
+            <CardHeader className="bg-gradient-to-r from-green-500/5 to-green-500/10 py-(--card-spacing)">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Activity className="h-5 w-5 text-green-600" />
                 Goal Status Overview
@@ -143,8 +143,8 @@ export function PerformanceCharts({ goals, reviews }: PerformanceChartsProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
         >
-          <Card className="overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-purple-500/5 to-purple-500/10">
+          <Card className="overflow-hidden pt-0">
+            <CardHeader className="bg-gradient-to-r from-purple-500/5 to-purple-500/10 py-(--card-spacing)">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <TrendingUp className="h-5 w-5 text-purple-600" />
                 Performance Rating Trend
@@ -179,8 +179,8 @@ export function PerformanceCharts({ goals, reviews }: PerformanceChartsProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
         >
-          <Card className="overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-amber-500/5 to-amber-500/10">
+          <Card className="overflow-hidden pt-0">
+            <CardHeader className="bg-gradient-to-r from-amber-500/5 to-amber-500/10 py-(--card-spacing)">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Award className="h-5 w-5 text-amber-600" />
                 Performance Dimensions

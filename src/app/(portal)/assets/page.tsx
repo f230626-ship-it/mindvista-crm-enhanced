@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/auth";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +10,7 @@ import { Package } from "lucide-react";
 
 export default async function AssetsPage() {
   const employee = await requireAuth();
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data: assignments } = await supabase
     .from("asset_assignments")

@@ -50,7 +50,7 @@ export function TeamSearch({ employees, departments }: TeamSearchProps) {
           </div>
           
           {/* Quick Stats */}
-          <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="rounded-lg bg-background/80 p-3 text-center">
               <Users className="mx-auto h-5 w-5 text-primary mb-1" />
               <p className="text-2xl font-bold">{employees.length}</p>

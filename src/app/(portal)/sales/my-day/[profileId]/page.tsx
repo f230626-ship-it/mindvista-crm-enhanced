@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { requireSalesAccess } from "@/lib/auth";
 import { DailyLogPageForm } from "@/components/sales/daily-log-page-form";
 import { getProfileLogForToday } from "@/actions/sales";
@@ -11,7 +11,7 @@ export default async function MyDayProfilePage({
 }) {
   const employee = await requireSalesAccess();
   const { profileId } = await params;
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data: profile } = await supabase
     .from("sales_profiles")

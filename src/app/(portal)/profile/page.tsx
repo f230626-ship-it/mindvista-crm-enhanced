@@ -1,5 +1,5 @@
 import { requireAuth } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { PageHeader } from "@/components/ui/page-header";
 import { ProfilePhotoUpload } from "@/components/profile/profile-photo-upload";
 import { ProfileForm } from "@/components/profile/profile-form";
@@ -22,7 +22,7 @@ import {
 
 export default async function ProfilePage() {
   const employee = await requireAuth();
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   // Fetch manager name if present
   let managerName: string | null = null;
@@ -73,7 +73,7 @@ export default async function ProfilePage() {
       {/* ── Hero: Avatar + Name + Title ── */}
       <div className="mb-6 rounded-2xl border border-border/60 bg-card shadow-sm overflow-hidden">
         <div className="h-24 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent" />
-        <div className="px-6 pb-6 -mt-12 flex flex-col sm:flex-row sm:items-end gap-4">
+        <div className="px-4 pb-4 sm:px-6 sm:pb-6 -mt-12 flex flex-col sm:flex-row sm:items-end gap-4">
           <div className="relative shrink-0">
             <div className="rounded-2xl border-4 border-card bg-card p-4 shadow-lg overflow-hidden">
               <ProfilePhotoUpload

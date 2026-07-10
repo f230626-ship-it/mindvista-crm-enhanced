@@ -123,7 +123,7 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
               />
             </div>
 
-            <div className="grid gap-4 grid-cols-2">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
               <div className="space-y-1.5">
                 <Label htmlFor="client_name" className="text-xs font-semibold text-muted-foreground">Client Name</Label>
                 <Input
@@ -147,7 +147,7 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
               </div>
             </div>
 
-            <div className="grid gap-4 grid-cols-2">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
               <div className="space-y-1.5">
                 <Label htmlFor="client_email" className="text-xs font-semibold text-muted-foreground">Client Email</Label>
                 <Input
@@ -216,7 +216,7 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid gap-4 grid-cols-2">
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
                 <div className="space-y-1.5">
                   <Label className="text-xs font-semibold text-muted-foreground">BD Representative</Label>
                   <Select value={bdId} onValueChange={(val) => setBdId(val || "")}>
@@ -227,7 +227,7 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
                       {employees
                         .filter((e) => e.pm_role === "bd" || e.pm_role === "admin")
                         .map((emp) => (
-                          <SelectItem key={emp.id} value={emp.id}>
+                          <SelectItem key={emp.id} value={emp.id} label={emp.full_name}>
                             {emp.full_name}
                           </SelectItem>
                         ))}
@@ -254,7 +254,7 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
                 </div>
               </div>
 
-              <div className="grid gap-4 grid-cols-2">
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
                 <div className="space-y-1.5">
                   <Label className="text-xs font-semibold text-muted-foreground">Project Manager / PM</Label>
                   <Select value={managerId} onValueChange={(val) => setManagerId(val || "")}>
@@ -265,7 +265,7 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
                       {employees
                         .filter((e) => e.pm_role === "coordinator" || e.pm_role === "admin")
                         .map((emp) => (
-                          <SelectItem key={emp.id} value={emp.id}>
+                          <SelectItem key={emp.id} value={emp.id} label={emp.full_name}>
                             {emp.full_name}
                           </SelectItem>
                         ))}
@@ -281,16 +281,16 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
                     </SelectTrigger>
                     <SelectContent>
                       {employees.map((emp) => (
-                        <SelectItem key={emp.id} value={emp.id}>
-                          {emp.full_name}
-                        </SelectItem>
+                          <SelectItem key={emp.id} value={emp.id} label={emp.full_name}>
+                            {emp.full_name}
+                          </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
               </div>
 
-              <div className="grid gap-4 grid-cols-2">
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
                 <div className="space-y-1.5">
                   <Label className="text-xs font-semibold text-muted-foreground">Project Status</Label>
                   <Select value={status} onValueChange={(val) => setStatus(val as Project["status"])}>
@@ -329,7 +329,7 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
                 </div>
               </div>
 
-              <div className="grid gap-4 grid-cols-2 pt-1 border-t border-border/40">
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 pt-1 border-t border-border/40">
                 <div className="space-y-1.5">
                   <Label className="text-xs font-semibold text-muted-foreground">Project Priority</Label>
                   <Select value={priority} onValueChange={(val) => setPriority(val as Project["priority"])}>
@@ -378,7 +378,7 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid gap-4 grid-cols-3">
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                 <div className="space-y-1.5 col-span-2">
                   <Label htmlFor="value" className="text-xs font-semibold text-muted-foreground">Project Value</Label>
                   <Input
@@ -424,7 +424,7 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
               </div>
 
               {isMonthlyRetainer && (
-                <div className="grid gap-4 grid-cols-2 animate-fade-in">
+                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 animate-fade-in">
                   <div className="space-y-1.5">
                     <Label htmlFor="retainer_amount" className="text-xs font-semibold text-muted-foreground">Monthly Retainer Amount</Label>
                     <Input
@@ -481,7 +481,7 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
                 <p className="text-[11px] text-muted-foreground mt-0.5">Crucial dates, deadlines, and delivery milestones</p>
               </div>
             </CardHeader>
-            <CardContent className="grid gap-4 grid-cols-3">
+            <CardContent className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               <div className="space-y-1.5">
                 <Label htmlFor="start_date" className="text-xs font-semibold text-muted-foreground">Start Date</Label>
                 <Input
@@ -520,20 +520,20 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
       </div>
 
       {/* Action buttons */}
-      <div className="flex justify-end gap-3 pt-6 border-t border-border/40">
+      <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6 border-t border-border/40">
         <Button
           type="button"
           variant="outline"
           onClick={() => router.push(isEditing ? `/projects/${project?.id}` : "/projects")}
           disabled={loading}
-          className="pm-btn-outline h-10 px-5"
+          className="pm-btn-outline h-10 px-5 w-full sm:w-auto"
         >
           Cancel
         </Button>
         <Button 
           type="submit" 
           disabled={loading} 
-          className="pm-btn-primary text-primary-foreground px-6 h-10"
+          className="pm-btn-primary text-primary-foreground px-6 h-10 w-full sm:w-auto"
         >
           {loading ? (
             "Saving..."

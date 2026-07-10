@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { requireRole } from "@/lib/auth";
 import { PageHeader } from "@/components/ui/page-header";
 import { HolidayForm } from "@/components/admin/holiday-form";
@@ -16,7 +16,7 @@ import { formatDate } from "@/lib/utils/date";
 
 export default async function AdminHolidaysPage() {
   await requireRole("admin");
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data: holidays } = await supabase
     .from("holidays")

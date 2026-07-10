@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { requireSalesAccess, isSalesOwner } from "@/lib/auth";
 import { ProfilePickerCards } from "@/components/sales/profile-picker-cards";
 import { AdminSalesQuickLinks } from "@/components/sales/admin-sales-quick-links";
@@ -9,7 +9,7 @@ import { CalendarDays } from "lucide-react";
 export default async function MyDayPage() {
   const employee = await requireSalesAccess();
   const owner = isSalesOwner(employee.role);
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const today = todayISO();
 
   const [{ data: profiles }, { data: logs }] = await Promise.all([

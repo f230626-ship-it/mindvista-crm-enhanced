@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { requireRole, isAdmin } from "@/lib/auth";
 import { PageHeader } from "@/components/ui/page-header";
 import { LeaveActions } from "@/components/admin/leave-actions";
@@ -19,14 +19,14 @@ import { getPendingLeavesForLead } from "@/actions/leaves";
 
 export default async function AdminLeavesPage() {
   const employee = await requireRole("admin", "manager");
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const pendingForLead = await getPendingLeavesForLead();
 
   const { data: allLeaves } = isAdmin(employee.role)
     ? await supabase
         .from("leaves")
-        .select("*, employee:employees(id, full_name, email, designation, employee_code)")
+        .select("*, employee:employees!leaves_employee_id_fkey(id, full_name, email, designation, employee_code)")
         .order("created_at", { ascending: false })
     : { data: null };
 

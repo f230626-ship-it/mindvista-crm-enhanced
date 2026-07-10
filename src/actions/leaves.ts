@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentEmployee, requireRole } from "@/lib/auth";
 import { calculateLeaveDays } from "@/lib/utils/date";
 import { revalidatePath } from "next/cache";
@@ -19,7 +19,7 @@ export async function applyLeave(formData: FormData) {
   const endDate = formData.get("end_date") as string;
   const reason = formData.get("reason") as string;
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data: holidays } = await supabase.from("holidays").select("date");
   const holidayDates = holidays?.map((h) => h.date) ?? [];
@@ -52,11 +52,11 @@ export async function reviewLeave(
   const reviewer = await getCurrentEmployee();
   if (!reviewer) return { error: "Not authenticated" };
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data: leave } = await supabase
     .from("leaves")
-    .select("*, employee:employees(id, full_name, lead_id, manager_id)")
+    .select("*, employee:employees!leaves_employee_id_fkey(id, full_name, lead_id, manager_id)")
     .eq("id", leaveId)
     .single();
 
@@ -103,7 +103,7 @@ export async function getPendingLeavesForLead() {
   const employee = await getCurrentEmployee();
   if (!employee) return [];
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data: team } = await supabase
     .from("employees")
@@ -115,7 +115,7 @@ export async function getPendingLeavesForLead() {
 
   const { data } = await supabase
     .from("leaves")
-    .select("*, employee:employees(id, full_name, email, designation, employee_code)")
+      .select("*, employee:employees!leaves_employee_id_fkey(id, full_name, email, designation, employee_code)")
     .in("employee_id", teamIds)
     .eq("status", "pending")
     .order("created_at", { ascending: false });

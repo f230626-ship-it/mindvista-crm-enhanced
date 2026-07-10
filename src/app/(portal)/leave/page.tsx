@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/auth";
 import { PageHeader } from "@/components/ui/page-header";
 import { LeaveForm } from "@/components/leave/leave-form";
@@ -19,7 +19,7 @@ import { getPendingLeavesForLead } from "@/actions/leaves";
 
 export default async function LeavePage() {
   const employee = await requireAuth();
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const [{ data: leaves }, { data: balance }, pendingForLead] = await Promise.all([
     supabase

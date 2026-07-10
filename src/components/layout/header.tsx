@@ -14,13 +14,14 @@ import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/client";
 import { ROLE_LABELS } from "@/lib/constants";
 import type { Employee, Notification } from "@/types/database";
-import { LogOut, User } from "lucide-react";
+import { LogOut, User, Menu } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 import { NotificationBell } from "@/components/layout/notification-bell";
 import { ThemeSwitcher } from "@/components/layout/theme-switcher";
+import { useSidebar } from "@/components/layout/app-shell-client";
 
 export function Header({
   employee,
@@ -33,6 +34,7 @@ export function Header({
 }) {
   const router = useRouter();
   const [signingOut, setSigningOut] = useState(false);
+  const { setOpen } = useSidebar();
   const initials = employee.full_name
     .split(" ")
     .map((n) => n[0])
@@ -54,21 +56,30 @@ export function Header({
   }
 
   return (
-    <header className="flex h-16 items-center justify-between border-b border-border bg-card/80 px-6 backdrop-blur-sm">
-      <div className="animate-fade-in">
-        <h1 className="text-lg font-semibold">
-          Welcome,{" "}
-          <span className="text-gradient-brand">{employee.full_name.split(" ")[0]}</span>
-        </h1>
-          <p className="text-sm text-muted-foreground">{employee.designation}</p>
+    <header className="flex h-14 sm:h-16 items-center justify-between border-b border-border bg-card/80 px-4 sm:px-6 backdrop-blur-sm">
+      <div className="flex items-center gap-3 animate-fade-in">
+        <button
+          onClick={() => setOpen(true)}
+          className="lg:hidden flex items-center justify-center h-9 w-9 rounded-lg hover:bg-muted transition-colors"
+          aria-label="Open menu"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+        <div>
+          <h1 className="text-base sm:text-lg font-semibold">
+            Welcome,{" "}
+            <span className="text-gradient-brand">{employee.full_name.split(" ")[0]}</span>
+          </h1>
+          <p className="text-xs sm:text-sm text-muted-foreground">{employee.designation}</p>
+        </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 sm:gap-2">
         <ThemeSwitcher />
         <NotificationBell notifications={notifications} unreadCount={unreadCount} />
       <DropdownMenu>
         <DropdownMenuTrigger className="relative inline-flex rounded-full outline-none ring-primary/30 transition-all hover:ring-2 focus-visible:ring-2">
-          <Avatar className="h-10 w-10 border-2 border-primary/30 p-1 bg-background">
+          <Avatar className="h-8 w-8 sm:h-10 sm:w-10 border-2 border-primary/30 p-1 bg-background">
             <AvatarImage src={employee.profile_photo_url ?? undefined} />
             <AvatarFallback className="bg-primary/10 text-primary rounded-full">{initials}</AvatarFallback>
           </Avatar>

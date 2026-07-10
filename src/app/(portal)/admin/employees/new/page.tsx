@@ -1,11 +1,11 @@
 import { requireAdminAccess } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { PageHeader } from "@/components/ui/page-header";
 import { NewEmployeeForm } from "@/components/admin/new-employee-form";
 
 export default async function NewEmployeePage() {
   await requireAdminAccess();
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const [{ data: departments }, { data: managers }] = await Promise.all([
     supabase.from("departments").select("*").order("name"),

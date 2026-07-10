@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { requireSalesOwner } from "@/lib/auth";
 import { ProfileFormPage } from "@/components/sales/profile-form-page";
 import { notFound } from "next/navigation";
@@ -10,7 +10,7 @@ export default async function EditProfilePage({
 }) {
   await requireSalesOwner();
   const { id } = await params;
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const [{ data: profile }, { data: employees }] = await Promise.all([
     supabase.from("sales_profiles").select("*").eq("id", id).maybeSingle(),
