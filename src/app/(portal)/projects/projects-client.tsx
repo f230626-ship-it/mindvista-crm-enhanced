@@ -146,7 +146,7 @@ export default function ProjectsClient({
   const [activeTab, setActiveTab] = useState<"dashboard" | "list">("dashboard");
   const [isImportOpen, setIsImportOpen] = useState(false);
   // Only pm_role='admin' can create projects (coordinators can edit but not create)
-  const isAdmin = currentEmployee.pm_role === "admin";
+  const isAdmin = currentEmployee.pm_role === "admin" || currentEmployee.role === "admin";
   // Both admin and coordinator can edit/delete
   const isWritable = currentEmployee.pm_role === "admin" || currentEmployee.pm_role === "coordinator";
 
@@ -854,7 +854,7 @@ export default function ProjectsClient({
                       <SelectContent>
                         <SelectItem value="ALL">All Resources</SelectItem>
                         {allEmployees.map((emp) => (
-                          <SelectItem key={emp.id} value={emp.id}>
+                          <SelectItem key={emp.id} value={emp.id} label={emp.full_name}>
                             {emp.full_name}
                           </SelectItem>
                         ))}

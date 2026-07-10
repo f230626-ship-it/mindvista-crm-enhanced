@@ -70,7 +70,7 @@ export function EmployeesClient({
           return (
             <Card
               key={emp.id}
-              className="emp-card group relative flex min-h-[340px] flex-col overflow-hidden rounded-2xl border border-border/50 bg-card shadow-md transition-shadow duration-300 hover:shadow-lg"
+              className="emp-card group relative flex min-h-[280px] sm:min-h-[340px] flex-col overflow-hidden rounded-2xl border border-border/50 bg-card shadow-md transition-shadow duration-300 hover:shadow-lg"
             >
               <div className="absolute top-3 right-3 z-10 opacity-80 transition-opacity group-hover:opacity-100 flex items-center gap-1">
                 <Link
@@ -112,7 +112,7 @@ export function EmployeesClient({
                 </div>
 
                 <div className="mt-auto w-full space-y-3 border-t border-border/40 pt-5">
-                  <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                     <div className="min-w-0">
                       <p className="mb-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                         Employee ID

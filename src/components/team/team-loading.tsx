@@ -71,8 +71,8 @@ export function TeamMemberCardSkeleton() {
 
 export function TeamDepartmentSkeleton() {
   return (
-    <Card className="overflow-hidden">
-      <CardHeader className="bg-gradient-to-r from-muted/50 to-muted/30 border-b">
+    <Card className="overflow-hidden pt-0">
+      <CardHeader className="bg-gradient-to-r from-muted/50 to-muted/30 border-b py-(--card-spacing)">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Skeleton className="h-10 w-10 rounded-full" />

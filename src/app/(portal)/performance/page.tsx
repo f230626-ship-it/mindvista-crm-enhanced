@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -10,7 +10,7 @@ import { PerformanceCharts } from "@/components/performance/performance-charts";
 
 export default async function PerformancePage() {
   const employee = await requireAuth();
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const [{ data: goals }, { data: reviews }] = await Promise.all([
     supabase
@@ -118,8 +118,8 @@ export default async function PerformancePage() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Goals & KPIs */}
-        <Card className="overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-muted/50 to-muted/30">
+        <Card className="overflow-hidden pt-0">
+          <CardHeader className="bg-gradient-to-r from-muted/50 to-muted/30 py-(--card-spacing)">
             <CardTitle className="flex items-center gap-2">
               <Target className="h-5 w-5 text-primary" />
               Goals & KPIs
@@ -175,8 +175,8 @@ export default async function PerformancePage() {
         </Card>
 
         {/* Performance Reviews */}
-        <Card className="overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-muted/50 to-muted/30">
+        <Card className="overflow-hidden pt-0">
+          <CardHeader className="bg-gradient-to-r from-muted/50 to-muted/30 py-(--card-spacing)">
             <CardTitle className="flex items-center gap-2">
               <Star className="h-5 w-5 text-primary" />
               Performance Reviews

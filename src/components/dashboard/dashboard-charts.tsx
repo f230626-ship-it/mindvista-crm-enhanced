@@ -96,8 +96,8 @@ export function DashboardCharts({
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.2 }}
       >
-        <Card className="overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10">
+        <Card className="overflow-hidden pt-0">
+          <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 py-(--card-spacing)">
             <CardTitle className="flex items-center gap-2 text-lg">
               <Calendar className="h-5 w-5 text-primary" />
               Leave Balance Distribution
@@ -141,8 +141,8 @@ export function DashboardCharts({
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.3 }}
       >
-        <Card className="overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-green-500/5 to-green-500/10">
+        <Card className="overflow-hidden pt-0">
+          <CardHeader className="bg-gradient-to-r from-green-500/5 to-green-500/10 py-(--card-spacing)">
             <CardTitle className="flex items-center gap-2 text-lg">
               <Activity className="h-5 w-5 text-green-600" />
               Leave Request Status
@@ -173,8 +173,8 @@ export function DashboardCharts({
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.4 }}
         >
-          <Card className="overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-blue-500/5 to-blue-500/10">
+            <Card className="overflow-hidden pt-0">
+              <CardHeader className="bg-gradient-to-r from-blue-500/5 to-blue-500/10 py-(--card-spacing)">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <TrendingUp className="h-5 w-5 text-blue-600" />
                 Leave Request Trends
@@ -209,8 +209,8 @@ export function DashboardCharts({
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5 }}
         >
-          <Card className="overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-purple-500/5 to-purple-500/10">
+            <Card className="overflow-hidden pt-0">
+              <CardHeader className="bg-gradient-to-r from-purple-500/5 to-purple-500/10 py-(--card-spacing)">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Target className="h-5 w-5 text-purple-600" />
                 Team Performance Distribution

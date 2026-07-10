@@ -38,7 +38,7 @@ function TreeNode({ node }: { node: HierarchyNode }) {
     <div className="relative flex flex-col items-center">
       {/* Node card */}
       <div className="relative z-10 flex flex-col items-center">
-        <div className="flex flex-col items-center gap-1.5 rounded-xl border border-border/60 bg-card px-4 py-3 shadow-sm min-w-[140px] max-w-[160px] text-center">
+          <div className="flex flex-col items-center gap-1.5 rounded-xl border border-border/60 bg-card px-3 sm:px-4 py-3 shadow-sm min-w-[120px] sm:min-w-[140px] max-w-full sm:max-w-[160px] text-center">
           <Avatar className="h-10 w-10">
             <AvatarImage src={node.profile_photo_url ?? undefined} />
             <AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">

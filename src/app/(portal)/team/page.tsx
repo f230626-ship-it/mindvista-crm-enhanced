@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -27,7 +27,7 @@ interface DepartmentWithEmployees {
 
 export default async function TeamPage() {
   const currentEmployee = await requireAuth();
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   // Get the user's team hierarchy (people who report to them)
   const { directReports, leadTeam } = await (async () => {
@@ -155,8 +155,8 @@ export default async function TeamPage() {
 
       <div className="space-y-6">
         {departmentsWithEmployees.map((department, deptIndex) => (
-          <Card key={department.id} className="overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-muted/50 to-muted/30 border-b">
+          <Card key={department.id} className="overflow-hidden pt-0">
+            <CardHeader className="bg-gradient-to-r from-muted/50 to-muted/30 border-b py-(--card-spacing)">
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
@@ -187,7 +187,7 @@ export default async function TeamPage() {
                   return (
                     <div
                       key={employee.id}
-                      className="group relative overflow-hidden rounded-xl border border-border bg-card p-6 transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1"
+                      className="group relative overflow-hidden rounded-xl border border-border bg-card p-4 sm:p-6 transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1"
                       style={{
                         animationDelay: `${(deptIndex * 100) + (empIndex * 50)}ms`
                       }}

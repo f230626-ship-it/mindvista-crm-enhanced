@@ -104,7 +104,7 @@ export function DailyLogPageForm({
               />
             </div>
 
-            <Button type="submit" size="lg" disabled={loading} className="min-w-[200px]">
+            <Button type="submit" size="lg" disabled={loading} className="w-full sm:w-auto sm:min-w-[200px]">
               <Send className="mr-2 h-4 w-4" />
               {loading ? "Saving..." : existing ? "Update log" : "Submit log"}
             </Button>

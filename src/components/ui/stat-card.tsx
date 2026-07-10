@@ -30,12 +30,12 @@ export function StatCard({
   return (
     <Card
       className={cn(
-        "card-hover border-border/60 bg-card/80 opacity-0 animate-slide-up backdrop-blur-sm overflow-hidden",
+        "card-hover border-border/60 bg-card/80 opacity-0 animate-slide-up backdrop-blur-sm overflow-hidden pt-0",
         className
       )}
       style={{ animationDelay: `${delay}ms`, animationFillMode: "forwards" }}
     >
-      <CardHeader className={cn("flex flex-row items-center justify-between space-y-0 pb-2 border-b", colors.bg, colors.border)}>
+      <CardHeader className={cn("flex flex-row items-center justify-between border-b py-(--card-spacing)", colors.bg, colors.border)}>
         <CardTitle className={cn("text-sm font-medium", colors.text)}>{title}</CardTitle>
         <div className="flex items-center justify-center">
           <Icon className={cn("h-5 w-5", colors.icon)} />

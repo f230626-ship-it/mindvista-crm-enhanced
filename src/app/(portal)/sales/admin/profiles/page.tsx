@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { requireSalesOwner } from "@/lib/auth";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 
 export default async function AdminProfilesPage() {
   await requireSalesOwner();
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data: profiles } = await supabase
     .from("sales_profiles")

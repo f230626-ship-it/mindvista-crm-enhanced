@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { requireRole } from "@/lib/auth";
 import { PageHeader } from "@/components/ui/page-header";
 import { PolicyForm } from "@/components/admin/policy-form";
@@ -21,7 +21,7 @@ import { Download } from "lucide-react";
 
 export default async function AdminPoliciesPage() {
   await requireRole("admin");
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data: policies } = await supabase
     .from("policies")

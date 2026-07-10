@@ -1,6 +1,4 @@
-import { Sidebar } from "@/components/layout/sidebar";
-import { Header } from "@/components/layout/header";
-import { AnimatedPage } from "@/components/ui/animated-page";
+import { AppShellClient } from "@/components/layout/app-shell-client";
 import type { Employee, Notification } from "@/types/database";
 
 export function AppShell({
@@ -15,14 +13,12 @@ export function AppShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      <Sidebar role={employee.role} pmRole={employee.pm_role} />
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <Header employee={employee} notifications={notifications} unreadCount={unreadCount} />
-        <main className="flex-1 overflow-y-auto p-6 bg-slate-50/30 dark:bg-background">
-          <AnimatedPage>{children}</AnimatedPage>
-        </main>
-      </div>
-    </div>
+    <AppShellClient
+      employee={employee}
+      notifications={notifications}
+      unreadCount={unreadCount}
+    >
+      {children}
+    </AppShellClient>
   );
 }

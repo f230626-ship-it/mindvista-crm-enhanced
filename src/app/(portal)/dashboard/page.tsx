@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,10 +12,35 @@ import { buildHierarchyTree, getTeamHierarchy } from "@/lib/hierarchy";
 import { getPendingLeavesForLead } from "@/actions/leaves";
 import { PendingLeaveApprovals } from "@/components/leave/pending-approvals";
 import { DashboardClient } from "@/components/dashboard/dashboard-client";
+import { MyProjects } from "@/components/dashboard/my-projects";
 
 export default async function DashboardPage() {
   const employee = await requireAuth();
-  const supabase = await createClient();
+  const supabase = createAdminClient();
+  const adminSupabase = createAdminClient();
+
+  let myProjects: any[] = [];
+  const isAdmin = employee.role === "admin" || employee.pm_role === "admin";
+  if (!isAdmin) {
+    try {
+      const { data: resourceRows } = await adminSupabase
+        .from("project_resources")
+        .select("project_id")
+        .eq("employee_id", employee.id);
+
+      if (resourceRows && resourceRows.length > 0) {
+        const projectIds = resourceRows.map((r) => r.project_id);
+        const { data } = await adminSupabase
+          .from("projects")
+          .select("id, name, client_name, status, progress_percentage, value, currency, start_date, expected_delivery_date, manager:employees!manager_id(full_name)")
+          .in("id", projectIds)
+          .order("created_at", { ascending: false });
+        myProjects = data ?? [];
+      }
+    } catch (e) {
+      console.error("[MY_PROJECTS] Error:", e);
+    }
+  }
 
   const [
     { data: leaveBalance },
@@ -70,9 +95,13 @@ export default async function DashboardPage() {
         casualRemaining={casualRemaining}
       />
 
+      <div className="mt-6">
+        <MyProjects projects={myProjects} />
+      </div>
+
       {pendingForLead.length > 0 && (
-        <Card className="mt-6 overflow-hidden">
-          <CardHeader className="bg-amber-50 dark:bg-transparent border-b border-amber-100 dark:border-border">
+        <Card className="mt-6 overflow-hidden pt-0">
+          <CardHeader className="bg-amber-50 dark:bg-transparent border-b border-amber-100 dark:border-border py-(--card-spacing)">
             <CardTitle className="flex items-center gap-2 text-base text-amber-900 dark:text-foreground">
               <Bell className="h-4 w-4 text-amber-600 dark:text-primary" />
               Leave Approvals Needed
@@ -84,9 +113,9 @@ export default async function DashboardPage() {
         </Card>
       )}
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <Card className="overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between bg-orange-50 dark:bg-transparent border-b border-orange-100 dark:border-border">
+      <div className="mt-6 grid gap-6 grid-cols-1 lg:grid-cols-2">
+        <Card className="overflow-hidden pt-0">
+          <CardHeader className="flex flex-row items-center justify-between bg-orange-50 dark:bg-transparent border-b border-orange-100 dark:border-border py-(--card-spacing)">
             <CardTitle className="text-base text-orange-900 dark:text-foreground">Recent Leave Requests</CardTitle>
             <Link href="/leave" className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
               View all
@@ -115,8 +144,8 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="overflow-hidden">
-          <CardHeader className="bg-green-50 dark:bg-transparent border-b border-green-100 dark:border-border">
+        <Card className="overflow-hidden pt-0">
+          <CardHeader className="bg-green-50 dark:bg-transparent border-b border-green-100 dark:border-border py-(--card-spacing)">
             <CardTitle className="text-base text-green-900 dark:text-foreground">Assigned Assets</CardTitle>
           </CardHeader>
           <CardContent>
@@ -139,8 +168,8 @@ export default async function DashboardPage() {
         </Card>
       </div>
 
-      <Card className="mt-6 overflow-hidden">
-        <CardHeader className="bg-blue-50 dark:bg-transparent border-b border-blue-100 dark:border-border">
+      <Card className="mt-6 overflow-hidden pt-0">
+        <CardHeader className="bg-blue-50 dark:bg-transparent border-b border-blue-100 dark:border-border py-(--card-spacing)">
           <CardTitle className="text-base text-blue-900 dark:text-foreground">Leave Balance Summary</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">

@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { requireRole } from "@/lib/auth";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
@@ -18,7 +18,7 @@ import { Users, Clock, AlertTriangle } from "lucide-react";
 
 export default async function AdminAttendancePage() {
   await requireRole("admin", "manager");
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const monthStart = format(startOfMonth(new Date()), "yyyy-MM-dd");
   const monthEnd = format(endOfMonth(new Date()), "yyyy-MM-dd");

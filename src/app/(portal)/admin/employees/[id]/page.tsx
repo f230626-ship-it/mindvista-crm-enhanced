@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -13,20 +13,29 @@ interface EmployeeDetailsPageProps {
 
 export default async function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps) {
   const { id } = await params;
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data: employee, error } = await supabase
-    .from('profiles')
+    .from('employees')
     .select(`
       *,
-      departments(name),
-      user_roles(role)
+      department:departments(name)
     `)
     .eq('id', id)
     .single();
 
   if (error || !employee) {
     notFound();
+  }
+
+  let managerName: string | null = null;
+  if (employee.manager_id) {
+    const { data: manager } = await supabase
+      .from('employees')
+      .select('full_name')
+      .eq('id', employee.manager_id)
+      .single();
+    managerName = manager?.full_name ?? null;
   }
 
   const getInitials = (name: string) => {
@@ -38,7 +47,7 @@ export default async function EmployeeDetailsPage({ params }: EmployeeDetailsPag
   };
 
   const getRoleBadgeVariant = (role: string) => {
-    switch (role.toLowerCase()) {
+    switch (role?.toLowerCase()) {
       case 'admin':
         return 'destructive';
       case 'manager':
@@ -49,7 +58,7 @@ export default async function EmployeeDetailsPage({ params }: EmployeeDetailsPag
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
+    <div className="container mx-auto p-4 sm:p-6 max-w-4xl">
       <div className="flex items-center gap-4 mb-6">
         <Link href="/admin/employees">
           <Button variant="ghost" size="sm">
@@ -64,15 +73,15 @@ export default async function EmployeeDetailsPage({ params }: EmployeeDetailsPag
         <Card className="md:col-span-1">
           <CardHeader className="text-center">
             <Avatar className="h-24 w-24 mx-auto mb-4">
-              <AvatarImage src={employee.avatar_url} alt={employee.full_name} />
+              <AvatarImage src={employee.profile_photo_url} alt={employee.full_name} />
               <AvatarFallback className="text-lg">
                 {getInitials(employee.full_name)}
               </AvatarFallback>
             </Avatar>
             <CardTitle>{employee.full_name}</CardTitle>
-            <CardDescription>{employee.job_title}</CardDescription>
-            <Badge variant={getRoleBadgeVariant(employee.user_roles?.role || 'employee')}>
-              {employee.user_roles?.role || 'Employee'}
+            <CardDescription>{employee.designation}</CardDescription>
+            <Badge variant={getRoleBadgeVariant(employee.role || 'employee')}>
+              {employee.role || 'Employee'}
             </Badge>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -105,26 +114,26 @@ export default async function EmployeeDetailsPage({ params }: EmployeeDetailsPag
             <CardContent className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Employee ID</label>
-                <p className="text-sm">{employee.employee_id || 'N/A'}</p>
+                <p className="text-sm">{employee.employee_code || 'N/A'}</p>
               </div>
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Department</label>
-                <p className="text-sm">{employee.departments?.name || 'N/A'}</p>
+                <p className="text-sm">{employee.department?.name || 'N/A'}</p>
               </div>
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Job Title</label>
-                <p className="text-sm">{employee.job_title}</p>
+                <p className="text-sm">{employee.designation}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Manager ID</label>
-                <p className="text-sm">{employee.manager_id || 'N/A'}</p>
+                <label className="text-sm font-medium text-muted-foreground">Manager</label>
+                <p className="text-sm">{managerName || 'N/A'}</p>
               </div>
-              {employee.hire_date && (
+              {employee.joining_date && (
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Hire Date</label>
-                    <p className="text-sm">{new Date(employee.hire_date).toLocaleDateString()}</p>
+                    <p className="text-sm">{new Date(employee.joining_date).toLocaleDateString()}</p>
                   </div>
                 </div>
               )}

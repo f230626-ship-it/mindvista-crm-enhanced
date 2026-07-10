@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { requireRole } from "@/lib/auth";
 import { PageHeader } from "@/components/ui/page-header";
 import { AssetForm, AssignAssetForm } from "@/components/admin/asset-forms";
@@ -20,7 +20,7 @@ import type { Employee } from "@/types/database";
 
 export default async function AdminAssetsPage() {
   await requireRole("admin");
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const [assetsRes, assignmentsRes, employeesRes] = await Promise.all([
     supabase.from("assets").select("*").order("created_at", { ascending: false }),

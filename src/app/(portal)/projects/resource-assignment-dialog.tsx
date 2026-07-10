@@ -1,18 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { assignResource } from "@/actions/projects";
+import { useRouter } from "next/navigation";
+import { assignResource, updateResource } from "@/actions/projects";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -46,6 +40,7 @@ export function ResourceAssignmentDialog({
   employees,
   existingAssignment,
 }: ResourceAssignmentDialogProps) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -57,6 +52,11 @@ export function ResourceAssignmentDialog({
 
   const isEditing = !!existingAssignment;
 
+  const getEmployeeName = (id: string) => {
+    const emp = employees.find((e) => e.id === id);
+    return emp?.full_name || emp?.email || emp?.employee_code || "Unknown";
+  };
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!employeeId || !role || !startDate || !endDate) {
@@ -66,24 +66,35 @@ export function ResourceAssignmentDialog({
 
     setLoading(true);
     try {
-      const result = await assignResource(projectId, {
-        employeeId,
-        role,
-        allocationPercentage: Number(allocation),
-        startDate,
-        endDate,
-      });
+      let result;
+      if (isEditing && existingAssignment) {
+        result = await updateResource(existingAssignment.id, {
+          role,
+          allocationPercentage: Number(allocation),
+          startDate,
+          endDate,
+        });
+      } else {
+        result = await assignResource(projectId, {
+          employeeId,
+          role,
+          allocationPercentage: Number(allocation),
+          startDate,
+          endDate,
+        });
+      }
 
       if (result.error) {
         toast.error(result.error);
       } else {
-        toast.success(isEditing ? "Allocation updated!" : "Resource assigned successfully!");
+        toast.success(isEditing ? "Assignment updated!" : "Resource assigned successfully!");
         setOpen(false);
+        router.refresh();
         if (!isEditing) {
-          // Clear form for next insert
           setEmployeeId("");
           setStartDate("");
           setEndDate("");
+          setAllocation(100);
         }
       }
     } catch (err: unknown) {
@@ -115,53 +126,50 @@ export function ResourceAssignmentDialog({
           <DialogTitle className="text-lg font-bold">{isEditing ? "Edit Assignment" : "Assign Resource"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 pt-4">
-          {/* Employee selection (disabled if editing) */}
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-muted-foreground">Employee</Label>
             {isEditing ? (
               <Input
-                value={employees.find((e) => e.id === employeeId)?.full_name || ""}
+                value={getEmployeeName(employeeId)}
                 disabled
                 className="pm-input"
               />
             ) : (
-              <Select value={employeeId} onValueChange={(val) => setEmployeeId(val || "")}>
-                <SelectTrigger className="pm-select-trigger">
-                  <SelectValue placeholder="Select Employee" />
-                </SelectTrigger>
-                <SelectContent>
-                  {employees
-                    .filter((emp) => emp.status === "active")
-                    .map((emp) => (
-                      <SelectItem key={emp.id} value={emp.id}>
-                        {emp.full_name}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
+              <select
+                value={employeeId}
+                onChange={(e) => setEmployeeId(e.target.value)}
+                required
+                className="pm-select-trigger flex w-full rounded-lg border border-border/60 bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
+                style={{ colorScheme: "dark" }}
+              >
+                <option value="" disabled className="bg-background text-muted-foreground">Select Employee</option>
+                {employees
+                  .filter((emp) => emp.status === "active")
+                  .map((emp) => (
+                    <option key={emp.id} value={emp.id} className="bg-background text-foreground">
+                      {emp.full_name || emp.email || emp.employee_code || "Unknown"}
+                    </option>
+                  ))}
+              </select>
             )}
           </div>
 
-          {/* Allocation Role */}
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-muted-foreground">Role</Label>
-            <Select value={role} onValueChange={(val) => setRole(val || RESOURCE_ROLES[0])}>
-              <SelectTrigger className="pm-select-trigger">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {RESOURCE_ROLES.map((r) => (
-                  <SelectItem key={r} value={r}>
-                    {r}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="pm-select-trigger flex w-full rounded-lg border border-border/60 bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
+              style={{ colorScheme: "dark" }}
+            >
+              {RESOURCE_ROLES.map((r) => (
+                <option key={r} value={r} className="bg-background text-foreground">{r}</option>
+              ))}
+            </select>
           </div>
 
-          {/* Allocation Percentage */}
           <div className="space-y-1.5">
-            <Label htmlFor="allocation" className="text-xs font-semibold text-muted-foreground">Allocation Percentage (%)</Label>
+            <Label htmlFor="allocation" className="text-xs font-semibold text-muted-foreground">Allocation %</Label>
             <Input
               id="allocation"
               type="number"
@@ -174,8 +182,7 @@ export function ResourceAssignmentDialog({
             />
           </div>
 
-          {/* Timeline */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label htmlFor="start_date" className="text-xs font-semibold text-muted-foreground">Start Date</Label>
               <Input

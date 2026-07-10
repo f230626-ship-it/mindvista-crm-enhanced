@@ -1,11 +1,11 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/auth";
 import { ProjectForm } from "../project-form";
 import { PageHeader } from "@/components/ui/page-header";
 
 export default async function NewProjectPage() {
   const employee = await requireAuth();
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data: allEmployees, error: employeesError } = await supabase
     .from("employees")
