@@ -49,7 +49,7 @@ export function AdminSalesQuickLinks() {
         </p>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 sm:gap-4 grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
         {links.map((link) => {
           const Icon = link.icon;
           return (

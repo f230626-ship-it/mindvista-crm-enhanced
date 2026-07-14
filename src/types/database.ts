@@ -1,4 +1,4 @@
-export type UserRole = "admin" | "hr" | "manager" | "employee" | "developer";
+export type UserRole = "admin" | "hr" | "employee" | "developer";
 export type EmploymentType = "full_time" | "intern" | "contract";
 export type WorkLocation = "onsite" | "remote" | "hybrid";
 export type EmployeeStatus = "active" | "inactive" | "suspended";
@@ -50,6 +50,11 @@ export interface Employee {
   bank_account_number: string | null;
   created_at: string;
   updated_at: string;
+  work_start_time: string | null;
+  work_end_time: string | null;
+  weekly_working_days: number | null;
+  probation_end_date: string | null;
+  currency: string | null;
   department?: Department;
   manager?: Pick<Employee, "id" | "full_name" | "email">;
   lead?: Pick<Employee, "id" | "full_name" | "email">;
@@ -271,6 +276,13 @@ export interface SalesProfile {
   google_sheet_id: string | null;
   sheet_tab_name: string | null;
   is_active: boolean;
+  linkedin_email: string | null;
+  linkedin_username: string | null;
+  linkedin_url: string | null;
+  profile_image: string | null;
+  assigned_team_id: string | null;
+  notes: string | null;
+  created_by: string | null;
   created_at: string;
   updated_at: string;
   employee?: Pick<Employee, "id" | "full_name" | "email" | "employee_code">;
@@ -290,6 +302,7 @@ export interface SalesDailyLog {
   leads_added: number;
   proposals_sent: number;
   notes: string | null;
+  screenshot: string | null;
   created_at: string;
   updated_at: string;
   profile?: SalesProfile;
@@ -303,6 +316,9 @@ export interface SalesTarget {
   messages_daily: number;
   follow_ups_daily: number;
   meetings_weekly: number;
+  monthly_goal: number;
+  created_by: string | null;
+  updated_by: string | null;
   updated_at: string;
   employee?: Pick<Employee, "id" | "full_name" | "email">;
 }
@@ -319,5 +335,138 @@ export interface SalesSheetSnapshot {
   status_breakdown: Record<string, number> | null;
   created_at: string;
   profile?: SalesProfile;
+}
+
+export type SalesTeamStatus = "active" | "archived" | "deleted";
+
+export interface SalesTeam {
+  id: string;
+  name: string;
+  description: string | null;
+  team_lead_id: string | null;
+  project_id: string | null;
+  status: SalesTeamStatus;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+  team_lead?: Pick<Employee, "id" | "full_name" | "email">;
+  creator?: Pick<Employee, "id" | "full_name">;
+  members?: SalesTeamMember[];
+}
+
+export interface SalesTeamMember {
+  id: string;
+  team_id: string;
+  employee_id: string;
+  created_at: string;
+  employee?: Pick<Employee, "id" | "full_name" | "email" | "designation" | "profile_photo_url" | "employee_code">;
+}
+
+export type LeadStatus = "cold" | "contacted" | "replied" | "interested" | "meeting_booked" | "closed" | "lost";
+
+export interface SalesLead {
+  id: string;
+  employee_id: string;
+  profile_id: string | null;
+  lead_name: string;
+  company_name: string | null;
+  email: string | null;
+  phone: string | null;
+  linkedin_url: string | null;
+  source: string;
+  status: LeadStatus;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+  employee?: Pick<Employee, "id" | "full_name" | "email">;
+  profile?: Pick<SalesProfile, "id" | "name" | "platform">;
+}
+
+export type MeetingStatus = "pending" | "completed" | "cancelled";
+
+export interface SalesMeeting {
+  id: string;
+  lead_id: string | null;
+  employee_id: string;
+  meeting_date: string;
+  meeting_link: string | null;
+  status: MeetingStatus;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+  lead?: Pick<SalesLead, "id" | "lead_name" | "company_name">;
+  employee?: Pick<Employee, "id" | "full_name" | "email">;
+}
+
+export interface SalesActivityLog {
+  id: string;
+  user_id: string;
+  action: string;
+  module: string;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+  user?: Pick<Employee, "id" | "full_name" | "email">;
+}
+
+export interface WeeklyReport {
+  id: string;
+  week_start: string;
+  total_connections: number;
+  total_messages: number;
+  total_replies: number;
+  total_meetings: number;
+  total_leads: number;
+  total_followups: number;
+  conversion_rate: number;
+  acceptance_rate: number;
+  reply_rate: number;
+  top_performer_id: string | null;
+  needs_attention_id: string | null;
+  pipeline_summary: Record<string, number> | null;
+  recommendations: string | null;
+  generated_at: string;
+  top_performer?: Pick<Employee, "id" | "full_name">;
+  needs_attention?: Pick<Employee, "id" | "full_name">;
+}
+
+
+
+export type TeamStatus = "active" | "inactive" | "archived";
+
+export interface Team {
+  id: string;
+  name: string;
+  code: string;
+  description: string | null;
+  lead_id: string | null;
+  status: TeamStatus;
+  color: string | null;
+  icon: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+  lead?: Pick<Employee, "id" | "full_name" | "email" | "profile_photo_url">;
+  creator?: Pick<Employee, "id" | "full_name">;
+  members?: TeamMember[];
+}
+
+export interface TeamMember {
+  id: string;
+  team_id: string;
+  employee_id: string;
+  role: "lead" | "member";
+  joined_at: string;
+  employee?: Pick<Employee, "id" | "full_name" | "email" | "designation" | "profile_photo_url" | "employee_code" | "department_id">;
+}
+
+export interface TeamAuditLog {
+  id: string;
+  team_id: string;
+  actor_id: string | null;
+  action: string;
+  details: Record<string, unknown> | null;
+  created_at: string;
+  actor?: Pick<Employee, "id" | "full_name">;
 }
 

@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDate } from "@/lib/utils/date";
 
 export default async function AdminPerformancePage() {
-  await requireRole("admin", "manager");
+  await requireRole("admin");
   const supabase = createAdminClient();
 
   const [{ data: goals }, { data: reviews }, { data: employeesList }] = await Promise.all([

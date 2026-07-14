@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache";
 export async function createGoal(formData: FormData) {
   const employee = await getCurrentEmployee();
   if (!employee) return { error: "Not authenticated" };
-  await requireRole("admin", "manager");
+  await requireRole("admin");
 
   const supabase = await createClient();
 
@@ -44,7 +44,7 @@ export async function updateGoalProgress(goalId: string, completionStatus: numbe
 export async function submitReview(formData: FormData) {
   const employee = await getCurrentEmployee();
   if (!employee) return { error: "Not authenticated" };
-  await requireRole("admin", "manager");
+  await requireRole("admin");
 
   const supabase = await createClient();
 

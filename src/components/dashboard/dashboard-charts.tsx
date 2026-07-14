@@ -89,7 +89,7 @@ export function DashboardCharts({
   }, [] as any[]);
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
+    <div className="grid gap-4 sm:gap-6 grid-cols-[repeat(auto-fit,minmax(min(380px,100%),1fr))]">
       {/* Leave Balance Pie Chart */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}

@@ -99,7 +99,7 @@ export default async function ProfilePage() {
       </div>
 
       {/* ── Org Info Card Grid ── */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mb-6">
+      <div className="grid gap-3 sm:gap-4 grid-cols-[repeat(auto-fit,minmax(200px,1fr))] mb-6">
 
         {/* Employee ID */}
         <div className="rounded-xl border border-border/60 bg-card p-4 shadow-sm flex items-start gap-3">

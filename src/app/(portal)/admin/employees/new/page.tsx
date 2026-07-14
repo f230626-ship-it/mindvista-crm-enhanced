@@ -12,7 +12,7 @@ export default async function NewEmployeePage() {
     supabase
       .from("employees")
       .select("id, full_name, employee_code")
-      .in("role", ["admin", "manager"])
+      .in("role", ["admin"])
       .order("full_name"),
   ]);
 

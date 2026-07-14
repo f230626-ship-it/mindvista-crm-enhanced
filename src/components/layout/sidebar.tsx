@@ -20,8 +20,11 @@ import {
   Briefcase,
   LineChart,
   ChevronRight,
+  UsersRound,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+
+import { X } from "lucide-react";
 
 interface NavItem {
   title: string;
@@ -94,17 +97,24 @@ const adminNav: NavItem[] = [
     description: "Manage staff"
   },
   { 
+    title: "Teams", 
+    href: "/admin/teams", 
+    icon: UsersRound, 
+    roles: ["admin"],
+    description: "Manage teams"
+  },
+  { 
     title: "Leave Approvals", 
     href: "/admin/leaves", 
     icon: CheckSquare, 
-    roles: ["admin", "manager"],
+    roles: ["admin"],
     description: "Review requests"
   },
   { 
     title: "Performance Reviews", 
     href: "/admin/performance", 
     icon: Star, 
-    roles: ["admin", "manager"],
+    roles: ["admin"],
     description: "Team evaluations"
   },
   { 
@@ -170,14 +180,6 @@ function NavLink({
           </div>
         )}
       </div>
-      {active && (
-        <ChevronRight className="h-4 w-4 shrink-0" />
-      )}
-      
-      {/* Active indicator */}
-      {active && (
-        <div className="absolute -left-1 top-1/2 h-8 w-1 -translate-y-1/2 rounded-full bg-primary-foreground shadow-sm" />
-      )}
     </Link>
   );
 }
@@ -204,6 +206,7 @@ export function Sidebar({
   fullName,
   designation,
   onNavClick,
+  onClose,
 }: {
   role: ExtendedUserRole;
   pmRole: PMRole;
@@ -211,6 +214,7 @@ export function Sidebar({
   fullName?: string;
   designation?: string;
   onNavClick?: () => void;
+  onClose?: () => void;
 }) {
   const pathname = usePathname();
 
@@ -230,19 +234,26 @@ export function Sidebar({
   });
 
   return (
-    <aside className="flex h-full w-72 flex-col border-r border-sidebar-border bg-linear-to-b from-sidebar to-sidebar/95 backdrop-blur-sm">
+    <aside className="flex h-full w-64 lg:w-72 xl:w-72 2xl:w-80 flex-col border-r border-sidebar-border bg-linear-to-b from-sidebar to-sidebar/95 backdrop-blur-sm">
       {/* Header */}
-      <div className="flex h-16 items-center justify-center gap-3 border-b border-sidebar-border/50 px-6">
+      <div className="flex h-14 sm:h-16 items-center justify-between border-b border-sidebar-border/50 px-4 sm:px-6">
         <Link href="/dashboard" className="flex items-center justify-center group">
           <Image
             src="/images/logo.png"
             alt="MindVista"
             width={140}
             height={40}
-            className="h-9 w-auto object-contain transition-transform group-hover:scale-105"
+            className="h-8 sm:h-9 w-auto object-contain transition-transform group-hover:scale-105"
             priority
           />
         </Link>
+        <button
+          onClick={onClose}
+          className="lg:hidden flex items-center justify-center h-8 w-8 rounded-lg hover:bg-sidebar-accent transition-colors"
+          aria-label="Close menu"
+        >
+          <X className="h-4 w-4" />
+        </button>
       </div>
 
       <nav className="flex-1 space-y-6 overflow-y-auto p-4">

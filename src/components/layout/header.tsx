@@ -57,10 +57,11 @@ export function Header({
 
   return (
     <header className="flex h-14 sm:h-16 items-center justify-between border-b border-border bg-card/80 px-4 sm:px-6 backdrop-blur-sm">
+      <div className="mx-auto w-full max-w-[2200px] flex items-center justify-between">
       <div className="flex items-center gap-3 animate-fade-in">
         <button
           onClick={() => setOpen(true)}
-          className="lg:hidden flex items-center justify-center h-9 w-9 rounded-lg hover:bg-muted transition-colors"
+          className="lg:hidden flex items-center justify-center h-9 w-9 rounded-lg hover:bg-muted active:bg-muted/80 transition-colors"
           aria-label="Open menu"
         >
           <Menu className="h-5 w-5" />
@@ -117,6 +118,7 @@ export function Header({
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
+      </div>
       </div>
     </header>
   );

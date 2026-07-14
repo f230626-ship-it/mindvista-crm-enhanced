@@ -37,6 +37,23 @@ export default async function ProjectDetailPage({
     .eq("status", "active")
     .order("full_name");
 
+  const { data: teams } = await supabase
+    .from("teams")
+    .select(`
+      id, name, code, color,
+      members:team_members(
+        employee_id,
+        employee:employees(id, full_name, email, designation, status)
+      )
+    `)
+    .eq("status", "active");
+
+  // Filter active members
+  const enrichedTeams = (teams ?? []).map((t: any) => ({
+    ...t,
+    members: (t.members ?? []).filter((m: any) => m.employee?.status === "active"),
+  }));
+
   return (
     <ProjectDetailClient
       project={project as any}
@@ -44,6 +61,7 @@ export default async function ProjectDetailPage({
       currentEmployee={employee}
       canEdit={true}
       canUpdateProgress={true}
+      teams={enrichedTeams}
     />
   );
 }

@@ -41,6 +41,7 @@ export default async function AdminPoliciesPage() {
           <CardTitle>All Policies ({policies?.length ?? 0})</CardTitle>
         </CardHeader>
         <CardContent>
+          <div className="overflow-x-auto">
           {policies && policies.length > 0 ? (
             <Table>
               <TableHeader>
@@ -87,6 +88,7 @@ export default async function AdminPoliciesPage() {
           ) : (
             <p className="text-sm text-muted-foreground">No policies uploaded yet</p>
           )}
+          </div>
         </CardContent>
       </Card>
     </div>

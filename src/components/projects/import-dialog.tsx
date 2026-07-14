@@ -67,7 +67,7 @@ const COLUMN_MAP_RULES: {
   { field: "progress_percentage", fieldLabel: "Progress %", keywords: ["progress", "completion", "%", "percentage", "done", "completed %"] },
   { field: "manager_name", fieldLabel: "Project Manager", keywords: ["manager", "pm", "project manager", "lead", "project lead", "handled by"] },
   { field: "bd_name", fieldLabel: "BD Rep", keywords: ["bd", "business development", "bd rep", "bd representative", "sales rep"] },
-  { field: "dev_name", fieldLabel: "Developer", keywords: ["developer", "dev", "closing developer", "engineer", "dev rep"] },
+  { field: "dev_name", fieldLabel: "Front Face", keywords: ["developer", "dev", "front face", "frontface", "engineer", "dev rep", "resource"] },
   { field: "team_members_raw", fieldLabel: "Team Members", keywords: ["team", "team members", "members", "resources", "assignees", "staff", "team member"] },
   { field: "payment_status", fieldLabel: "Payment Status", keywords: ["payment", "payment status", "paid", "billing status"] },
   { field: "is_monthly_retainer", fieldLabel: "Monthly Retainer", keywords: ["retainer", "monthly", "recurring", "monthly retainer"] },

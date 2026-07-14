@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function DashboardStatsSkeleton() {
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-3 sm:gap-4 grid-cols-[repeat(auto-fit,minmax(220px,1fr))]">
       {Array.from({ length: 4 }).map((_, i) => (
         <Card key={i} className="overflow-hidden">
           <CardContent className="p-6">
@@ -24,7 +24,7 @@ export function DashboardStatsSkeleton() {
 
 export function DashboardCardsSkeleton() {
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
+    <div className="grid gap-4 sm:gap-6 grid-cols-[repeat(auto-fit,minmax(min(340px,100%),1fr))]">
       {Array.from({ length: 2 }).map((_, i) => (
         <Card key={i}>
           <CardHeader className="flex flex-row items-center justify-between pb-4">

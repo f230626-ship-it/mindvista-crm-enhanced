@@ -52,6 +52,7 @@ interface ProjectDetailClientProps {
   currentEmployee: Employee;
   canEdit: boolean;
   canUpdateProgress: boolean;
+  teams?: any[];
 }
 
 const STATUS_ICONS: Record<string, typeof TrendingUp> = {
@@ -90,6 +91,7 @@ export default function ProjectDetailClient({
   currentEmployee,
   canEdit,
   canUpdateProgress,
+  teams = [],
 }: ProjectDetailClientProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -195,7 +197,7 @@ export default function ProjectDetailClient({
       </Card>
 
       {/* KPIs */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3 sm:gap-4">
         <Card className="pm-glass-card">
           <CardContent className="p-4 text-center">
             <DollarSign className="h-5 w-5 text-green-500 mx-auto mb-1" />
@@ -291,6 +293,7 @@ export default function ProjectDetailClient({
               <ResourceAssignmentDialog
                 projectId={project.id}
                 employees={allEmployees}
+                teams={teams}
               />
             </CardHeader>
             <CardContent>
@@ -394,7 +397,7 @@ export default function ProjectDetailClient({
                 fallback="Unassigned"
               />
               <OwnerRow
-                label="Closing Developer"
+                label="Front Face"
                 person={project.closing_developer}
                 fallback="Unassigned"
               />

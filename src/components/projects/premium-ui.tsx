@@ -119,6 +119,8 @@ interface KpiCardProps {
   borderClass?: string;
   staggerClass?: string;
   valueClassName?: string;
+  onClick?: () => void;
+  active?: boolean;
 }
 
 export function KpiCard({
@@ -130,9 +132,20 @@ export function KpiCard({
   borderClass = "border-l-primary/80",
   staggerClass = "",
   valueClassName = "",
+  onClick,
+  active,
 }: KpiCardProps) {
   return (
-    <div className={cn("pm-kpi border-l-4 p-4", borderClass, staggerClass)}>
+    <div
+      className={cn(
+        "pm-kpi border-l-4 p-4 transition-all",
+        borderClass,
+        staggerClass,
+        onClick && "cursor-pointer hover:shadow-md hover:-translate-y-0.5",
+        active && "ring-2 ring-primary/40 shadow-md"
+      )}
+      onClick={onClick}
+    >
       <div className="flex items-center justify-between pb-2">
         <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{label}</span>
         <div className={cn("pm-kpi-icon", accentClass)}>{icon}</div>

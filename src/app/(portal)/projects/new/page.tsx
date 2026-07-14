@@ -23,7 +23,7 @@ export default async function NewProjectPage() {
         description="Create a new project or lead in the CRM." 
       />
       
-      <div className="mx-auto max-w-4xl">
+      <div>
         <ProjectForm
           employees={allEmployees ?? []}
           currentEmployee={employee}

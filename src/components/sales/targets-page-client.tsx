@@ -7,8 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Save, Target } from "lucide-react";
+import { Save, Target, Trash2 } from "lucide-react";
 import { EmployeeTilePicker } from "@/components/sales/employee-tile-picker";
+import { DeleteTargetButton } from "@/components/sales/delete-target-button";
 import type { SalesTarget } from "@/types/database";
 
 export function TargetsPageClient({
@@ -36,7 +37,7 @@ export function TargetsPageClient({
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="space-y-6">
       <Card className="border-primary/20 shadow-xl">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -53,7 +54,7 @@ export function TargetsPageClient({
 
           {selectedId && (
             <form key={selectedId} onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-3 sm:gap-4 grid-cols-[repeat(auto-fit,minmax(220px,1fr))]">
                 {(
                   [
                     { name: "connections_daily" as const, label: "Connections / day", default: 50 },
@@ -75,10 +76,36 @@ export function TargetsPageClient({
                   </div>
                 ))}
               </div>
-              <Button type="submit" size="lg" disabled={loading}>
-                <Save className="mr-2 h-4 w-4" />
-                {loading ? "Saving..." : "Save targets"}
-              </Button>
+
+              {/* Monthly Goal */}
+              <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
+                <div className="space-y-2">
+                  <Label htmlFor="monthly_goal" className="text-base font-semibold">Monthly Connection Goal</Label>
+                  <p className="text-xs text-muted-foreground">Total connections target for the month (used for progress tracking)</p>
+                  <Input
+                    id="monthly_goal"
+                    name="monthly_goal"
+                    type="number"
+                    min="0"
+                    defaultValue={(current as any)?.monthly_goal ?? 1000}
+                    className="text-lg font-semibold max-w-xs"
+                    placeholder="1000"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <Button type="submit" size="lg" disabled={loading}>
+                  <Save className="mr-2 h-4 w-4" />
+                  {loading ? "Saving..." : "Save targets"}
+                </Button>
+                {current && (
+                  <DeleteTargetButton
+                    targetId={current.id}
+                    repName={employees.find((e) => e.id === selectedId)?.full_name ?? "this rep"}
+                  />
+                )}
+              </div>
             </form>
           )}
         </CardContent>

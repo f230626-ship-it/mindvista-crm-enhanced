@@ -17,7 +17,7 @@ import { startOfMonth, endOfMonth, format } from "date-fns";
 import { Users, Clock, AlertTriangle } from "lucide-react";
 
 export default async function AdminAttendancePage() {
-  await requireRole("admin", "manager");
+  await requireRole("admin");
   const supabase = createAdminClient();
 
   const monthStart = format(startOfMonth(new Date()), "yyyy-MM-dd");
@@ -61,7 +61,7 @@ export default async function AdminAttendancePage() {
         description="Monitor team attendance and working hours"
       />
 
-      <div className="mb-6 grid gap-4 md:grid-cols-3">
+      <div className="mb-6 grid gap-3 sm:gap-4 grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
         <StatCard
           title="Present Today"
           value={`${presentToday}/${employeeCount ?? 0}`}
@@ -87,6 +87,7 @@ export default async function AdminAttendancePage() {
           <CardTitle>Monthly Attendance Log</CardTitle>
         </CardHeader>
         <CardContent>
+          <div className="overflow-x-auto">
           {records && records.length > 0 ? (
             <Table>
               <TableHeader>
@@ -119,6 +120,7 @@ export default async function AdminAttendancePage() {
           ) : (
             <p className="text-sm text-muted-foreground">No attendance records this month</p>
           )}
+          </div>
         </CardContent>
       </Card>
     </div>

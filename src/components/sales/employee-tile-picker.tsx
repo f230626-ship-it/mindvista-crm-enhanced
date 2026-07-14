@@ -15,7 +15,7 @@ export function EmployeeTilePicker({
   }
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
+    <div className="grid gap-3 sm:gap-4 grid-cols-[repeat(auto-fit,minmax(240px,1fr))]">
       {employees.map((emp) => {
         const selected = value === emp.id;
         return (
@@ -37,11 +37,6 @@ export function EmployeeTilePicker({
             )}
             <p className="pr-8 font-semibold">{emp.full_name}</p>
             <p className="mt-1 text-sm text-muted-foreground">{emp.email}</p>
-            {emp.pm_role && (
-              <span className="mt-2 inline-flex w-fit rounded-md bg-muted px-2 py-0.5 text-[10px] font-medium uppercase">
-                {emp.pm_role}
-              </span>
-            )}
           </button>
         );
       })}

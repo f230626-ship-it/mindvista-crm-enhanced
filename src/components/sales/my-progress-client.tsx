@@ -46,7 +46,7 @@ export function MyProgressClient({ data }: { data: ProgressData }) {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-3 sm:gap-4 grid-cols-[repeat(auto-fit,minmax(220px,1fr))]">
         <MetricGlowCard title="Connections" value={data.weekTotals.connections_sent} subtitle="This week" icon={Link2} />
         <MetricGlowCard title="Reply rate" value={`${replyPct}%`} subtitle={`${data.weekTotals.replies_received} replies`} icon={MessageSquare} accent="blue" />
         <MetricGlowCard title="Meetings" value={data.weekTotals.meetings_booked} subtitle={`Target: ${data.target.meetings_weekly}/wk`} icon={CalendarCheck} accent="violet" />
