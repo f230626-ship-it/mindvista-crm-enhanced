@@ -371,7 +371,7 @@ export async function getSalesAlerts() {
   const { data: bdEmployees } = await supabase
     .from("employees")
     .select("id, full_name")
-    .eq("pm_role", "bd")
+    .or("pm_role.eq.bd,designation.ilike.%BD%,designation.ilike.%Business Development%")
     .eq("status", "active");
 
   const targetEmployeeIds = new Set(allTargets?.map((t) => t.employee_id) ?? []);
