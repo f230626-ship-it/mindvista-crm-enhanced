@@ -43,6 +43,7 @@ import {
   X,
   Activity,
   HelpCircle,
+  Filter,
 } from "lucide-react";
 import { ImportDialog } from "@/components/projects/import-dialog";
 import { AnimatedNumber, KpiCard } from "@/components/projects/premium-ui";
@@ -161,6 +162,7 @@ export default function ProjectsClient({
   const [startDateFrom, setStartDateFrom] = useState("");
   const [startDateTo, setStartDateTo] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const [kpiFilter, setKpiFilter] = useState<string | null>(null);
 
   // --- Pagination State ---
   const [currentPage, setCurrentPage] = useState(1);
@@ -201,6 +203,18 @@ export default function ProjectsClient({
       const matchesStartFrom = !startDateFrom || projectStart >= new Date(startDateFrom);
       const matchesStartTo = !startDateTo || projectStart <= new Date(startDateTo);
 
+      // KPI filter
+      let matchesKpi = true;
+      if (kpiFilter === "active") {
+        matchesKpi = ["Onboarding", "In Progress", "Maintenance"].includes(p.status);
+      } else if (kpiFilter === "on_hold") {
+        matchesKpi = p.status === "On Hold";
+      } else if (kpiFilter === "completed") {
+        matchesKpi = p.status === "Completed";
+      } else if (kpiFilter === "retainers") {
+        matchesKpi = !!p.is_monthly_retainer;
+      }
+
       return (
         matchesSearch &&
         matchesStatus &&
@@ -210,7 +224,8 @@ export default function ProjectsClient({
         matchesResource &&
         matchesLeadSource &&
         matchesStartFrom &&
-        matchesStartTo
+        matchesStartTo &&
+        matchesKpi
       );
     });
   }, [
@@ -224,6 +239,7 @@ export default function ProjectsClient({
     leadSourceFilter,
     startDateFrom,
     startDateTo,
+    kpiFilter,
   ]);
 
   // --- Paginated Projects ---
@@ -465,7 +481,7 @@ export default function ProjectsClient({
       {activeTab === "dashboard" && (
         <div className="space-y-6">
           {/* 1. Summary Cards */}
-          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7">
+          <div className="grid gap-3 sm:gap-4 grid-cols-[repeat(auto-fit,minmax(140px,1fr))]">
             <KpiCard
               label="Total Projects"
               value={<AnimatedNumber value={metrics.total} />}
@@ -474,6 +490,8 @@ export default function ProjectsClient({
               borderClass="border-l-primary/80"
               accentClass="text-primary"
               staggerClass="pm-stagger-1"
+              active={kpiFilter === null}
+              onClick={() => { setKpiFilter(null); setActiveTab("list"); }}
             />
             <KpiCard
               label="Active Projects"
@@ -484,6 +502,8 @@ export default function ProjectsClient({
               accentClass="text-blue-500"
               valueClassName="text-blue-600 dark:text-blue-400"
               staggerClass="pm-stagger-2"
+              active={kpiFilter === "active"}
+              onClick={() => { setKpiFilter("active"); setActiveTab("list"); }}
             />
             <KpiCard
               label="On Hold"
@@ -494,6 +514,8 @@ export default function ProjectsClient({
               accentClass="text-orange-500"
               valueClassName="text-orange-600 dark:text-orange-400"
               staggerClass="pm-stagger-3"
+              active={kpiFilter === "on_hold"}
+              onClick={() => { setKpiFilter("on_hold"); setActiveTab("list"); }}
             />
             <KpiCard
               label="Completed"
@@ -504,6 +526,8 @@ export default function ProjectsClient({
               accentClass="text-green-500"
               valueClassName="text-green-600 dark:text-green-400"
               staggerClass="pm-stagger-4"
+              active={kpiFilter === "completed"}
+              onClick={() => { setKpiFilter("completed"); setActiveTab("list"); }}
             />
             <KpiCard
               label="Monthly Retainers"
@@ -514,6 +538,8 @@ export default function ProjectsClient({
               accentClass="text-purple-500"
               valueClassName="text-purple-600 dark:text-purple-400"
               staggerClass="pm-stagger-5"
+              active={kpiFilter === "retainers"}
+              onClick={() => { setKpiFilter("retainers"); setActiveTab("list"); }}
             />
             <KpiCard
               label="Total Value"
@@ -530,18 +556,19 @@ export default function ProjectsClient({
               accentClass="text-primary"
               valueClassName="text-primary"
               staggerClass="pm-stagger-6 col-span-1 sm:col-span-2"
+              onClick={() => { setKpiFilter(null); setActiveTab("list"); }}
             />
           </div>
 
           {/* Charts grid */}
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-4 sm:gap-6 grid-cols-[repeat(auto-fit,minmax(min(420px,100%),1fr))]">
             {/* Project Status breakdown chart */}
             <Card className="pm-chart-card">
               <CardHeader className="pb-2">
                 <CardTitle className="text-base font-bold">Project Status Breakdown</CardTitle>
                 <CardDescription>Status share of all projects</CardDescription>
               </CardHeader>
-              <CardContent className="h-80">
+              <CardContent className="min-h-[300px]">
                 {statusChartData.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -577,7 +604,7 @@ export default function ProjectsClient({
                 <CardTitle className="text-base font-bold">Monthly Revenue Timeline</CardTitle>
                 <CardDescription>Revenue incoming grouped by project start date</CardDescription>
               </CardHeader>
-              <CardContent className="h-80">
+              <CardContent className="min-h-[300px]">
                 {revenueMetrics.monthData.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={revenueMetrics.monthData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
@@ -604,14 +631,14 @@ export default function ProjectsClient({
             </Card>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-4 sm:gap-6 grid-cols-[repeat(auto-fit,minmax(min(420px,100%),1fr))]">
             {/* Revenue by Lead Source */}
             <Card className="pm-chart-card">
               <CardHeader className="pb-2">
                 <CardTitle className="text-base font-bold">Revenue by Lead Source</CardTitle>
                 <CardDescription>Financial volume generated by origin source</CardDescription>
               </CardHeader>
-              <CardContent className="h-80">
+              <CardContent className="min-h-[300px]">
                 {revenueMetrics.sourceData.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={revenueMetrics.sourceData}>
@@ -649,7 +676,7 @@ export default function ProjectsClient({
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="h-80 overflow-y-auto pr-2 space-y-4">
+              <CardContent className="min-h-[300px] overflow-y-auto pr-2 space-y-4">
                 <div>
                   <div className="mb-2 flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     <span>Employee Resource Workload (%)</span>
@@ -735,6 +762,32 @@ export default function ProjectsClient({
       {/* ========================================================== */}
       {activeTab === "list" && (
         <div className="space-y-4">
+          {/* Active KPI filter banner */}
+          {kpiFilter && (
+            <div className="flex items-center justify-between rounded-lg bg-primary/5 border border-primary/20 px-4 py-2.5">
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium">
+                  Filtered by: <span className="font-bold text-primary">
+                    {kpiFilter === "active" && "Active Projects"}
+                    {kpiFilter === "on_hold" && "On Hold"}
+                    {kpiFilter === "completed" && "Completed"}
+                    {kpiFilter === "retainers" && "Monthly Retainers"}
+                  </span>
+                  <span className="text-muted-foreground ml-1.5">({filteredProjects.length} results)</span>
+                </span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setKpiFilter(null)}
+                className="h-7 gap-1 text-xs"
+              >
+                <X className="h-3 w-3" /> Clear
+              </Button>
+            </div>
+          )}
+
           {/* Filters Bar */}
           <Card className="pm-filter-card">
             <CardContent className="pt-4 space-y-4">
@@ -764,7 +817,7 @@ export default function ProjectsClient({
 
               {/* Extended filters */}
               {showFilters && (
-                <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 pm-filter-panel">
+                <div className="grid gap-3 sm:gap-4 grid-cols-[repeat(auto-fit,minmax(160px,1fr))] pm-filter-panel">
                   {/* Status Filter */}
                   <div className="space-y-1">
                     <Label className="text-xs">Status</Label>
@@ -827,7 +880,16 @@ export default function ProjectsClient({
                   {/* BD Rep Filter */}
                   <div className="space-y-1">
                     <Label className="text-xs">BD Representative</Label>
-                    <Select value={bdFilter} onValueChange={(val) => { setBdFilter(val || "ALL"); setCurrentPage(1); }}>
+                    <Select
+                      value={bdFilter}
+                      onValueChange={(val) => { setBdFilter(val || "ALL"); setCurrentPage(1); }}
+                      items={[
+                        { value: "ALL", label: "All BD Reps" },
+                        ...allEmployees
+                          .filter((e) => e.pm_role === "bd" || e.pm_role === "admin")
+                          .map((bd) => ({ value: bd.id, label: bd.full_name }))
+                      ]}
+                    >
                       <SelectTrigger className="h-9">
                         <SelectValue placeholder="Select BD" />
                       </SelectTrigger>
@@ -847,14 +909,21 @@ export default function ProjectsClient({
                   {/* Assigned Resource Filter */}
                   <div className="space-y-1">
                     <Label className="text-xs">Resource</Label>
-                    <Select value={resourceFilter} onValueChange={(val) => { setResourceFilter(val || "ALL"); setCurrentPage(1); }}>
+                    <Select
+                      value={resourceFilter}
+                      onValueChange={(val) => { setResourceFilter(val || "ALL"); setCurrentPage(1); }}
+                      items={[
+                        { value: "ALL", label: "All Resources" },
+                        ...allEmployees.map((emp) => ({ value: emp.id, label: emp.full_name }))
+                      ]}
+                    >
                       <SelectTrigger className="h-9">
                         <SelectValue placeholder="Select Resource" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="ALL">All Resources</SelectItem>
                         {allEmployees.map((emp) => (
-                          <SelectItem key={emp.id} value={emp.id} label={emp.full_name}>
+                          <SelectItem key={emp.id} value={emp.id}>
                             {emp.full_name}
                           </SelectItem>
                         ))}
@@ -915,17 +984,17 @@ export default function ProjectsClient({
           {/* Table Card */}
           <Card className="pm-table-card">
             <CardContent className="p-0">
-              <Table className="pm-table">
+              <Table className="pm-table" style={{ tableLayout: 'auto' }}>
                 <TableHeader>
                   <TableRow className="hover:bg-transparent border-b border-border/50">
-                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-3">Project Name</TableHead>
-                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-3">Client & BD</TableHead>
-                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-3">Status</TableHead>
-                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-3">Priority</TableHead>
-                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-3">Progress</TableHead>
-                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-3">Assigned Team</TableHead>
-                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-3 text-right">Value</TableHead>
-                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-3">Delivery Date</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-3 w-[25%] min-w-[180px]">Project Name</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-3 w-[18%] min-w-[140px]">Client & BD</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-3 w-[10%] min-w-[90px]">Status</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-3 w-[8%] min-w-[70px]">Priority</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-3 w-[12%] min-w-[100px]">Progress</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-3 w-[12%] min-w-[100px]">Assigned Team</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-3 text-right w-[8%] min-w-[90px]">Value</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-3 w-[7%] min-w-[100px]">Delivery Date</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

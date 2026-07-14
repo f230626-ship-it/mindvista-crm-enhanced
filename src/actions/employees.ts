@@ -381,7 +381,7 @@ export async function updateEmployee(employeeId: string, formData: FormData) {
       work_location: formData.get("work_location") as WorkLocation,
       status: formData.get("status") as EmployeeStatus,
       role: formData.get("role") as UserRole,
-      pm_role: formData.get("pm_role") as PMRole,
+      pm_role: (formData.get("pm_role") as PMRole) || "developer",
       cnic_number: (formData.get("cnic_number") as string) || null,
       date_of_birth: (formData.get("date_of_birth") as string) || null,
       joining_date: (formData.get("joining_date") as string) || undefined,

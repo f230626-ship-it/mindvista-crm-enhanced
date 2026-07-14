@@ -29,7 +29,7 @@ export default async function EditProjectPage({
         description={`Editing ${project.name}`}
       />
 
-      <div className="mx-auto max-w-4xl">
+      <div>
         <ProjectForm
           employees={allEmployees ?? []}
           currentEmployee={employee}

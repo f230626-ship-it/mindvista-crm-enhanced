@@ -44,7 +44,7 @@ export default async function PoliciesPage() {
               <h3 className="mb-4 text-lg font-semibold">
                 {POLICY_CATEGORY_LABELS[category as keyof typeof POLICY_CATEGORY_LABELS]}
               </h3>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-3 sm:gap-4 grid-cols-[repeat(auto-fit,minmax(280px,1fr))]">
                 {items.map((policy) => (
                   <Card key={policy.id}>
                     <CardHeader>

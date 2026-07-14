@@ -57,7 +57,7 @@ export function StatsCards({
   ];
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-3 sm:gap-4 grid-cols-[repeat(auto-fit,minmax(220px,1fr))]">
       {stats.map((stat, index) => {
         const Icon = stat.icon;
         return (

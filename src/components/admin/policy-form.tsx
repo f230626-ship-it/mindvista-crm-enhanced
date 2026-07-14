@@ -103,7 +103,7 @@ export function PolicyForm() {
         <Plus className="mr-2 h-4 w-4" />
         Upload Policy
       </DialogTrigger>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Upload Policy Document</DialogTitle>
         </DialogHeader>

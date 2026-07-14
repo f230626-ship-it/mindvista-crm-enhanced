@@ -47,7 +47,7 @@ export default async function PerformancePage() {
       </div>
 
       {/* Performance Overview Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:gap-4 grid-cols-[repeat(auto-fit,minmax(220px,1fr))]">
         <Card className="overflow-hidden bg-gradient-to-br from-blue-500/10 to-blue-600/5">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
@@ -116,7 +116,7 @@ export default async function PerformancePage() {
       {/* Charts Section */}
       <PerformanceCharts goals={goals ?? []} reviews={reviews ?? []} />
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 grid-cols-[repeat(auto-fit,minmax(min(380px,100%),1fr))]">
         {/* Goals & KPIs */}
         <Card className="overflow-hidden pt-0">
           <CardHeader className="bg-gradient-to-r from-muted/50 to-muted/30 py-(--card-spacing)">

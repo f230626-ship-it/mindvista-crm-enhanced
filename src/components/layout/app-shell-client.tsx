@@ -42,7 +42,7 @@ export function AppShellClient({
         {/* Sidebar */}
         <div
           className={`
-            fixed inset-y-0 left-0 z-50 w-72 transform transition-transform duration-300 ease-in-out
+            fixed inset-y-0 left-0 z-50 w-64 lg:w-72 xl:w-72 2xl:w-80 transform transition-transform duration-300 ease-in-out
             lg:relative lg:translate-x-0
             ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
           `}
@@ -54,6 +54,7 @@ export function AppShellClient({
             fullName={employee.full_name}
             designation={employee.designation}
             onNavClick={() => setSidebarOpen(false)}
+            onClose={() => setSidebarOpen(false)}
           />
         </div>
 
@@ -64,8 +65,10 @@ export function AppShellClient({
             notifications={notifications}
             unreadCount={unreadCount}
           />
-          <main className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50/30 dark:bg-background">
-            <AnimatedPage>{children}</AnimatedPage>
+          <main className="flex-1 overflow-y-auto bg-slate-50/30 dark:bg-background">
+            <div className="mx-auto w-full max-w-[2200px] px-3 sm:px-5 lg:px-6 xl:px-8 py-3 sm:py-5 lg:py-6 xl:py-8">
+              <AnimatedPage>{children}</AnimatedPage>
+            </div>
           </main>
         </div>
       </div>

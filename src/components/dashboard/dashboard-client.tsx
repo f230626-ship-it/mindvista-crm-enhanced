@@ -117,8 +117,8 @@ function TeamTree({ tree }: { tree: HierarchyNode[] }) {
   }
 
   return (
-    <div className="overflow-auto py-4">
-      <div className="flex gap-8 justify-center flex-wrap">
+      <div className="overflow-auto py-4">
+      <div className="flex gap-4 sm:gap-8 justify-center flex-wrap">
         {tree.map((node) => (
           <TreeNode key={node.id} node={node} />
         ))}
@@ -190,7 +190,7 @@ export function DashboardClient({
   return (
     <>
       {/* ── Stat Cards ── */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:gap-4 grid-cols-[repeat(auto-fit,minmax(220px,1fr))]">
         <button
           onClick={() => openModal("annual")}
           className="text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl cursor-pointer"
@@ -399,7 +399,7 @@ export function DashboardClient({
 
       {/* ── My Team Modal ── */}
       <Dialog open={activeModal === "team"} onOpenChange={(open) => !open && closeModal()}>
-        <DialogContent className="sm:max-w-3xl max-h-[85vh] overflow-y-auto w-[95vw]">
+        <DialogContent className="sm:max-w-lg lg:max-w-xl xl:max-w-2xl max-h-[85vh] overflow-y-auto w-[95vw]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Users className="h-4 w-4 text-primary" />

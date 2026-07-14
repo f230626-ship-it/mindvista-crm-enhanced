@@ -57,7 +57,7 @@ export function ProfilePickerCards({
   }
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
+    <div className="grid gap-3 sm:gap-4 grid-cols-[repeat(auto-fit,minmax(240px,1fr))]">
       {profiles.map((profile) => {
         const logged = todayLogs.find((l) => l.profile_id === profile.id);
         const done = !!logged;

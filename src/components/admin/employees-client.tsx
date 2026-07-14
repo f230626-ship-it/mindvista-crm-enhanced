@@ -58,7 +58,7 @@ export function EmployeesClient({
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-4 sm:gap-5">
         {paginatedEmployees.map((emp) => {
           const initials = emp.full_name
             .split(" ")
@@ -70,7 +70,7 @@ export function EmployeesClient({
           return (
             <Card
               key={emp.id}
-              className="emp-card group relative flex min-h-[280px] sm:min-h-[340px] flex-col overflow-hidden rounded-2xl border border-border/50 bg-card shadow-md transition-shadow duration-300 hover:shadow-lg"
+              className="emp-card group relative flex flex-col overflow-hidden rounded-2xl border border-border/50 bg-card shadow-md transition-shadow duration-300 hover:shadow-lg"
             >
               <div className="absolute top-3 right-3 z-10 opacity-80 transition-opacity group-hover:opacity-100 flex items-center gap-1">
                 <Link
@@ -130,9 +130,9 @@ export function EmployeesClient({
                   </div>
                   <div className="min-w-0">
                     <p className="mb-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      Manager
+                      Lead
                     </p>
-                    <p className="truncate font-medium">{emp.manager?.full_name ?? "—"}</p>
+                    <p className="truncate font-medium">{emp.lead?.full_name ?? "—"}</p>
                   </div>
                 </div>
               </CardContent>

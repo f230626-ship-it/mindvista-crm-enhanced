@@ -3,7 +3,7 @@ import { describe, it, expect } from "@jest/globals";
 // ─── RBAC guard logic test ─────────────────────────────────────────────────
 // We test the pure logic of role checking here (no Next.js runtime needed)
 
-type AppRole = "admin" | "manager" | "employee";
+type AppRole = "admin" | "employee";
 
 function isRoleAllowed(userRole: AppRole, allowedRoles: AppRole[]): boolean {
   return allowedRoles.includes(userRole);

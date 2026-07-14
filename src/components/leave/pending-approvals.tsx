@@ -52,6 +52,7 @@ export function PendingLeaveApprovals({ leaves }: { leaves: PendingLeave[] }) {
         <h3 className="font-semibold">Pending Approvals</h3>
         <Badge variant="secondary">{leaves.length}</Badge>
       </div>
+      <div className="overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
@@ -110,6 +111,7 @@ export function PendingLeaveApprovals({ leaves }: { leaves: PendingLeave[] }) {
           ))}
         </TableBody>
       </Table>
+      </div>
     </div>
   );
 }

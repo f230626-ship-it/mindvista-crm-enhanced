@@ -66,7 +66,7 @@ export function AssetForm() {
         <Plus className="mr-2 h-4 w-4" />
         Add Asset
       </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Package className="h-5 w-5 text-primary" />
@@ -274,7 +274,7 @@ export function AssignAssetForm({
         <UserPlus className="mr-2 h-4 w-4" />
         Assign Asset
       </DialogTrigger>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <UserPlus className="h-5 w-5 text-primary" />
@@ -300,7 +300,7 @@ export function AssignAssetForm({
               </div>
             ) : (
               <>
-                <Select value={assetId} onValueChange={(v) => setAssetId(v ?? "")} required>
+                <Select value={assetId} onValueChange={(v) => setAssetId(v ?? "")} required items={availableAssets.map((a) => ({ value: a.id, label: `${a.name} (${ASSET_TYPE_LABELS[a.asset_type]}${a.serial_number ? ` - ${a.serial_number}` : ""})` }))}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select an available asset" />
                   </SelectTrigger>
@@ -360,7 +360,7 @@ export function AssignAssetForm({
                 onChange={(e) => setSearchEmployee(e.target.value)}
                 className="w-full"
               />
-              <Select value={employeeId} onValueChange={(v) => setEmployeeId(v ?? "")} required>
+              <Select value={employeeId} onValueChange={(v) => setEmployeeId(v ?? "")} required items={filteredEmployees.slice(0, 50).map((e) => ({ value: e.id, label: e.full_name }))}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select an employee" />
                 </SelectTrigger>

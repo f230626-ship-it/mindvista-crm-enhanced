@@ -58,7 +58,7 @@ export function GoalForm({ employees }: { employees: Pick<Employee, "id" | "full
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label>Employee</Label>
-            <Select value={employeeId} onValueChange={(v) => setEmployeeId(v ?? "")} required>
+            <Select value={employeeId} onValueChange={(v) => setEmployeeId(v ?? "")} required items={employees.map((e) => ({ value: e.id, label: e.full_name }))}>
               <SelectTrigger>
                 <SelectValue placeholder="Select employee" />
               </SelectTrigger>
@@ -120,14 +120,14 @@ export function ReviewForm({ employees }: { employees: Pick<Employee, "id" | "fu
         <Star className="mr-2 h-4 w-4" />
         Submit Review
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Performance Review</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label>Employee</Label>
-            <Select value={employeeId} onValueChange={(v) => setEmployeeId(v ?? "")} required>
+            <Select value={employeeId} onValueChange={(v) => setEmployeeId(v ?? "")} required items={employees.map((e) => ({ value: e.id, label: e.full_name }))}>
               <SelectTrigger>
                 <SelectValue placeholder="Select employee" />
               </SelectTrigger>

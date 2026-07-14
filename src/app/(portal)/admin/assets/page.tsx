@@ -53,12 +53,13 @@ export default async function AdminAssetsPage() {
         }
       />
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 grid-cols-[repeat(auto-fit,minmax(min(380px,100%),1fr))]">
         <Card>
           <CardHeader>
             <CardTitle>Asset Registry ({assets.length})</CardTitle>
           </CardHeader>
           <CardContent>
+            <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -83,6 +84,7 @@ export default async function AdminAssetsPage() {
                 ))}
               </TableBody>
             </Table>
+            </div>
           </CardContent>
         </Card>
 
@@ -91,6 +93,7 @@ export default async function AdminAssetsPage() {
             <CardTitle>Active Assignments</CardTitle>
           </CardHeader>
           <CardContent>
+            <div className="overflow-x-auto">
             {assignments.length > 0 ? (
               <Table>
                 <TableHeader>
@@ -117,6 +120,7 @@ export default async function AdminAssetsPage() {
             ) : (
               <p className="text-sm text-muted-foreground">No active assignments</p>
             )}
+            </div>
           </CardContent>
         </Card>
       </div>

@@ -29,7 +29,7 @@ export default async function AssetsPage() {
       />
 
       {active.length > 0 ? (
-        <div className="mb-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mb-8 grid gap-3 sm:gap-4 grid-cols-[repeat(auto-fit,minmax(240px,1fr))]">
           {active.map((assignment) => (
             <Card key={assignment.id}>
               <CardHeader>
@@ -71,7 +71,7 @@ export default async function AssetsPage() {
       {history.length > 0 && (
         <div>
           <h3 className="mb-4 text-lg font-semibold">Assignment History</h3>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 sm:gap-4 grid-cols-[repeat(auto-fit,minmax(240px,1fr))]">
             {history.map((assignment) => (
               <Card key={assignment.id} className="opacity-75">
                 <CardHeader>

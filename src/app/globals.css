@@ -354,13 +354,13 @@
 .pm-stagger-7 { animation-delay: 0.28s; }
 
 .pm-chart-card {
-  @apply rounded-xl border border-border/50 bg-card/75 backdrop-blur-md overflow-hidden;
+  @apply rounded-xl border border-border/50 bg-card/75 backdrop-blur-md overflow-x-auto;
   @apply transition-all duration-300 hover:border-primary/15 hover:shadow-lg hover:shadow-primary/5;
   box-shadow: 0 2px 12px -2px rgba(0, 0, 0, 0.04);
 }
 
 .pm-table-card {
-  @apply rounded-xl border border-border/50 bg-card/85 backdrop-blur-md overflow-hidden;
+  @apply rounded-xl border border-border/50 bg-card/85 backdrop-blur-md overflow-x-auto;
   box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.06);
 }
 .dark .pm-table-card {

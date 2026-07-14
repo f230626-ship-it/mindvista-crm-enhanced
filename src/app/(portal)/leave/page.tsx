@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { requireAuth } from "@/lib/auth";
+import { requireAuth, isAdmin } from "@/lib/auth";
 import { PageHeader } from "@/components/ui/page-header";
 import { LeaveForm } from "@/components/leave/leave-form";
 import { PendingLeaveApprovals } from "@/components/leave/pending-approvals";
@@ -16,12 +16,13 @@ import {
 import { LEAVE_TYPE_LABELS, LEAVE_STATUS_LABELS, STATUS_COLORS } from "@/lib/constants";
 import { formatDate } from "@/lib/utils/date";
 import { getPendingLeavesForLead } from "@/actions/leaves";
+import { LeaveQuotaEditor } from "@/components/admin/leave-quota-editor";
 
 export default async function LeavePage() {
   const employee = await requireAuth();
   const supabase = createAdminClient();
 
-  const [{ data: leaves }, { data: balance }, pendingForLead] = await Promise.all([
+  const [{ data: leaves }, { data: balance }, pendingForLead, admin] = await Promise.all([
     supabase
       .from("leaves")
       .select("*")
@@ -29,6 +30,7 @@ export default async function LeavePage() {
       .order("created_at", { ascending: false }),
     supabase.from("leave_balances").select("*").eq("employee_id", employee.id).maybeSingle(),
     getPendingLeavesForLead(),
+    isAdmin(employee.role),
   ]);
 
   return (
@@ -50,7 +52,22 @@ export default async function LeavePage() {
         </Card>
       )}
 
-      <div className="mb-6 grid gap-4 md:grid-cols-3">
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-semibold">Leave Balance</h2>
+          {admin && (
+            <p className="text-xs text-muted-foreground">Editing quotas applies to all employees</p>
+          )}
+        </div>
+        {admin && (
+          <LeaveQuotaEditor
+            annualQuota={balance?.annual_quota ?? 5}
+            sickQuota={balance?.sick_quota ?? 5}
+            casualQuota={balance?.casual_quota ?? 3}
+          />
+        )}
+      </div>
+      <div className="mb-6 grid gap-3 sm:gap-4 grid-cols-[repeat(auto-fit,minmax(180px,1fr))]">
         {[
           {
             label: "Annual",
@@ -85,6 +102,7 @@ export default async function LeavePage() {
           <CardTitle>Leave History</CardTitle>
         </CardHeader>
         <CardContent>
+          <div className="overflow-x-auto">
           {leaves && leaves.length > 0 ? (
             <Table>
               <TableHeader>
@@ -117,6 +135,7 @@ export default async function LeavePage() {
           ) : (
             <p className="text-sm text-muted-foreground">No leave requests yet</p>
           )}
+          </div>
         </CardContent>
       </Card>
     </div>

@@ -128,9 +128,8 @@ export async function requireAdminAccess() {
 export async function requireManagerOrAdminAccess() {
   const employee = await requireAuth();
   
-  // Allow admin, manager roles OR legacy "developer" role
+  // Allow admin, hr roles OR legacy "developer" role
   const hasAccess = employee.role === "admin" || 
-                   employee.role === "manager" || 
                    employee.role === "hr" ||
                    employee.role === "developer" ||
                    employee.pm_role === "admin";
@@ -147,7 +146,7 @@ export function isAdmin(role: Employee["role"]) {
 }
 
 export function isManagerOrAdmin(role: Employee["role"]) {
-  return role === "admin" || role === "manager";
+  return role === "admin";
 }
 
 export function isHrOrAdmin(role: Employee["role"]) {

@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentEmployee, requireSalesOwner, requireSalesAccess } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { todayISO, weekStart, sumLogs, performanceScore } from "@/lib/sales/stats";
@@ -12,18 +13,25 @@ export async function submitDailyLog(formData: FormData) {
   const profileId = formData.get("profile_id") as string;
   const logDate = (formData.get("log_date") as string) || todayISO();
 
+  if (!profileId) return { error: "Profile ID is required" };
+
+  const safeInt = (val: string | null, min = 0, max = 99999) => {
+    const n = parseInt(val ?? "", 10) || 0;
+    return Math.max(min, Math.min(max, n));
+  };
+
   const payload = {
     employee_id: employee.id,
     profile_id: profileId,
     log_date: logDate,
-    connections_sent: parseInt(formData.get("connections_sent") as string, 10) || 0,
-    connections_accepted: parseInt(formData.get("connections_accepted") as string, 10) || 0,
-    messages_sent: parseInt(formData.get("messages_sent") as string, 10) || 0,
-    replies_received: parseInt(formData.get("replies_received") as string, 10) || 0,
-    follow_ups_done: parseInt(formData.get("follow_ups_done") as string, 10) || 0,
-    meetings_booked: parseInt(formData.get("meetings_booked") as string, 10) || 0,
-    leads_added: parseInt(formData.get("leads_added") as string, 10) || 0,
-    proposals_sent: parseInt(formData.get("proposals_sent") as string, 10) || 0,
+    connections_sent: safeInt(formData.get("connections_sent") as string, 0, 9999),
+    connections_accepted: safeInt(formData.get("connections_accepted") as string, 0, 9999),
+    messages_sent: safeInt(formData.get("messages_sent") as string, 0, 9999),
+    replies_received: safeInt(formData.get("replies_received") as string, 0, 9999),
+    follow_ups_done: safeInt(formData.get("follow_ups_done") as string, 0, 9999),
+    meetings_booked: safeInt(formData.get("meetings_booked") as string, 0, 9999),
+    leads_added: safeInt(formData.get("leads_added") as string, 0, 9999),
+    proposals_sent: safeInt(formData.get("proposals_sent") as string, 0, 9999),
     notes: (formData.get("notes") as string) || null,
   };
 
@@ -43,13 +51,24 @@ export async function createSalesProfile(formData: FormData) {
   await requireSalesOwner();
   const supabase = await createClient();
 
+  const name = (formData.get("name") as string)?.trim();
+  const employeeId = formData.get("employee_id") as string;
+
+  if (!name) return { error: "Profile name is required" };
+  if (!employeeId) return { error: "Select an employee for this profile" };
+
   const { error } = await supabase.from("sales_profiles").insert({
-    name: formData.get("name") as string,
-    employee_id: formData.get("employee_id") as string,
+    name,
+    employee_id: employeeId,
     platform: (formData.get("platform") as string) || "linkedin",
     google_sheet_id: (formData.get("google_sheet_id") as string) || null,
     sheet_tab_name: (formData.get("sheet_tab_name") as string) || null,
     is_active: formData.get("is_active") !== "false",
+    linkedin_email: (formData.get("linkedin_email") as string) || null,
+    linkedin_username: (formData.get("linkedin_username") as string) || null,
+    linkedin_url: (formData.get("linkedin_url") as string) || null,
+    assigned_team_id: (formData.get("assigned_team_id") as string) || null,
+    notes: (formData.get("notes") as string) || null,
   });
 
   if (error) return { error: error.message };
@@ -66,12 +85,17 @@ export async function updateSalesProfile(profileId: string, formData: FormData) 
   const { error } = await supabase
     .from("sales_profiles")
     .update({
-      name: formData.get("name") as string,
+      name: (formData.get("name") as string)?.trim(),
       employee_id: formData.get("employee_id") as string,
       platform: (formData.get("platform") as string) || "linkedin",
       google_sheet_id: (formData.get("google_sheet_id") as string) || null,
       sheet_tab_name: (formData.get("sheet_tab_name") as string) || null,
       is_active: formData.get("is_active") === "true",
+      linkedin_email: (formData.get("linkedin_email") as string) || null,
+      linkedin_username: (formData.get("linkedin_username") as string) || null,
+      linkedin_url: (formData.get("linkedin_url") as string) || null,
+      assigned_team_id: (formData.get("assigned_team_id") as string) || null,
+      notes: (formData.get("notes") as string) || null,
     })
     .eq("id", profileId);
 
@@ -88,13 +112,22 @@ export async function upsertSalesTarget(formData: FormData) {
   const supabase = await createClient();
 
   const employeeId = formData.get("employee_id") as string;
+  if (!employeeId) return { error: "Employee ID is required" };
+
+  const safeInt = (val: string | null, min = 0, max = 9999) => {
+    const n = parseInt(val ?? "", 10) || 0;
+    return Math.max(min, Math.min(max, n));
+  };
+
   const { error } = await supabase.from("sales_targets").upsert(
     {
       employee_id: employeeId,
-      connections_daily: parseInt(formData.get("connections_daily") as string, 10) || 50,
-      messages_daily: parseInt(formData.get("messages_daily") as string, 10) || 20,
-      follow_ups_daily: parseInt(formData.get("follow_ups_daily") as string, 10) || 10,
-      meetings_weekly: parseInt(formData.get("meetings_weekly") as string, 10) || 5,
+      connections_daily: safeInt(formData.get("connections_daily") as string, 1, 500),
+      messages_daily: safeInt(formData.get("messages_daily") as string, 1, 500),
+      follow_ups_daily: safeInt(formData.get("follow_ups_daily") as string, 1, 500),
+      meetings_weekly: safeInt(formData.get("meetings_weekly") as string, 1, 100),
+      monthly_goal: safeInt(formData.get("monthly_goal") as string, 0, 100000),
+      updated_by: employeeId,
     },
     { onConflict: "employee_id" }
   );
@@ -262,6 +295,117 @@ export async function getMyProgressData() {
   }));
 
   return { weekTotals, target: t, score, trend, profiles: profiles ?? [], snapshots: snapshots ?? [], logs: logs ?? [] };
+}
+
+export async function deleteSalesProfile(profileId: string) {
+  await requireSalesOwner();
+  const supabase = await createClient();
+  const { error } = await supabase.from("sales_profiles").delete().eq("id", profileId);
+  if (error) return { error: error.message };
+  revalidatePath("/sales/admin/profiles");
+  revalidatePath("/sales/command");
+  return { success: true };
+}
+
+export async function deleteSalesTarget(targetId: string) {
+  await requireSalesOwner();
+  const supabase = await createClient();
+  const { error } = await supabase.from("sales_targets").delete().eq("id", targetId);
+  if (error) return { error: error.message };
+  revalidatePath("/sales/admin/targets");
+  revalidatePath("/sales/command");
+  return { success: true };
+}
+
+export async function getLogHistory(filters?: { employeeId?: string; startDate?: string; endDate?: string }) {
+  const employee = await requireSalesAccess();
+  const supabase = createAdminClient();
+  const isAdmin = employee.role === "admin";
+
+  let query = supabase
+    .from("sales_daily_logs")
+    .select("*, profile:sales_profiles(name, platform), employee:employees(full_name)")
+    .order("log_date", { ascending: false })
+    .order("created_at", { ascending: false });
+
+  if (!isAdmin) {
+    query = query.eq("employee_id", employee.id);
+  } else if (filters?.employeeId) {
+    query = query.eq("employee_id", filters.employeeId);
+  }
+
+  if (filters?.startDate) {
+    query = query.gte("log_date", filters.startDate);
+  }
+  if (filters?.endDate) {
+    query = query.lte("log_date", filters.endDate);
+  }
+
+  const { data, error } = await query.limit(200);
+  if (error) return { logs: [], error: error.message };
+  return { logs: data ?? [], error: null };
+}
+
+export async function getCommandCenterDataWithSnapshots() {
+  await requireSalesOwner();
+  const supabase = createAdminClient();
+  const today = todayISO();
+  const week = weekStart();
+
+  const [
+    { data: logs },
+    { data: profiles },
+    { data: snapshots },
+    { data: targets },
+    { data: reps },
+  ] = await Promise.all([
+    supabase.from("sales_daily_logs").select("*, employee:employees(id, full_name, email)").gte("log_date", week),
+    supabase.from("sales_profiles").select("*, employee:employees(id, full_name, email)").eq("is_active", true).order("name"),
+    supabase.from("sales_sheet_snapshots").select("*, profile:sales_profiles(id, name, employee_id)").eq("snapshot_date", today),
+    supabase.from("sales_targets").select("*"),
+    supabase.from("employees").select("id, full_name, email, pm_role").eq("pm_role", "bd").eq("status", "active"),
+  ]);
+
+  const todayLogs = logs?.filter((l) => l.log_date === today) ?? [];
+  const teamToday = sumLogs(todayLogs);
+
+  const repStats = (reps ?? []).map((rep) => {
+    const repWeekLogs = logs?.filter((l) => l.employee_id === rep.id) ?? [];
+    const repToday = logs?.find((l) => l.employee_id === rep.id && l.log_date === today);
+    const target = targets?.find((t) => t.employee_id === rep.id) ?? {
+      connections_daily: 50,
+      messages_daily: 20,
+      follow_ups_daily: 10,
+      meetings_weekly: 5,
+    };
+    const weekTotals = sumLogs(repWeekLogs);
+    const daysLogged = new Set(repWeekLogs.map((l) => l.log_date)).size;
+
+    return {
+      ...rep,
+      target,
+      weekTotals,
+      todayLogged: !!repToday,
+      todayTotals: repToday ? sumLogs([repToday]) : null,
+      score: performanceScore(weekTotals, target, daysLogged || 1),
+      connectionsPct: target.connections_daily
+        ? Math.round(((repToday?.connections_sent ?? 0) / target.connections_daily) * 100)
+        : 0,
+    };
+  });
+
+  const profilesWithSnapshots = (profiles ?? []).map((p) => ({
+    ...p,
+    snapshot: snapshots?.find((s) => s.profile_id === p.id) ?? null,
+  }));
+
+  return {
+    teamToday,
+    repStats,
+    profiles: profilesWithSnapshots,
+    snapshots: snapshots ?? [],
+    targets: targets ?? [],
+  };
 }
 
 export async function getWeeklyReportData() {

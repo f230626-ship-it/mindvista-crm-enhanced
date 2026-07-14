@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/table";
 import { Plus, Pencil, Link2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DeleteProfileButton } from "@/components/sales/delete-profile-button";
 
 export default async function AdminProfilesPage() {
   await requireSalesOwner();
@@ -29,7 +30,7 @@ export default async function AdminProfilesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold">Outreach profiles</h2>
-          <p className="text-sm text-muted-foreground">7 LinkedIn accounts · map each to a Google Sheet</p>
+          <p className="text-sm text-muted-foreground">Map each LinkedIn/email account to a rep</p>
         </div>
         <Link href="/sales/admin/profiles/new" className={cn(buttonVariants(), "gap-2")}>
           <Plus className="h-4 w-4" />
@@ -51,6 +52,7 @@ export default async function AdminProfilesPage() {
               </Link>
             </div>
           ) : (
+            <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -59,7 +61,7 @@ export default async function AdminProfilesPage() {
                   <TableHead>Platform</TableHead>
                   <TableHead>Sheet</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="w-12" />
+                  <TableHead className="w-24" />
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -77,17 +79,21 @@ export default async function AdminProfilesPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Link
-                        href={`/sales/admin/profiles/${p.id}`}
-                        className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Link>
+                      <div className="flex items-center gap-1">
+                        <Link
+                          href={`/sales/admin/profiles/${p.id}`}
+                          className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Link>
+                        <DeleteProfileButton profileId={p.id} profileName={p.name} />
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
+            </div>
           )}
         </CardContent>
       </Card>

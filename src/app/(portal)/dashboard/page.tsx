@@ -113,7 +113,7 @@ export default async function DashboardPage() {
         </Card>
       )}
 
-      <div className="mt-6 grid gap-6 grid-cols-1 lg:grid-cols-2">
+      <div className="mt-6 grid gap-4 sm:gap-6 grid-cols-[repeat(auto-fit,minmax(min(340px,100%),1fr))]">
         <Card className="overflow-hidden pt-0">
           <CardHeader className="flex flex-row items-center justify-between bg-orange-50 dark:bg-transparent border-b border-orange-100 dark:border-border py-(--card-spacing)">
             <CardTitle className="text-base text-orange-900 dark:text-foreground">Recent Leave Requests</CardTitle>

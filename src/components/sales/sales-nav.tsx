@@ -11,18 +11,32 @@ import {
   Settings2,
   Users,
   Target,
+  History,
+  UserCheck,
+  CalendarDays,
+  BarChart3,
+  Bell,
+  Shield,
 } from "lucide-react";
 
 const repLinks = [
   { href: "/sales/my-day", label: "Daily Log", icon: ClipboardList },
   { href: "/sales/my-progress", label: "My Progress", icon: TrendingUp },
+  { href: "/sales/leads", label: "My Leads", icon: UserCheck },
+  { href: "/sales/meetings", label: "Meetings", icon: CalendarDays },
+  { href: "/sales/history", label: "Log History", icon: History },
 ];
 
 const ownerLinks = [
   { href: "/sales/command", label: "Command Center", icon: LayoutDashboard },
-  { href: "/sales/weekly", label: "Weekly Report", icon: FileBarChart },
-  { href: "/sales/admin/profiles", label: "Profiles", icon: Users },
+  { href: "/sales/teams", label: "Teams", icon: Users },
+  { href: "/sales/leads", label: "Leads", icon: UserCheck },
+  { href: "/sales/meetings", label: "Meetings", icon: CalendarDays },
+  { href: "/sales/analytics", label: "Analytics", icon: BarChart3 },
+  { href: "/sales/admin/profiles", label: "Profiles", icon: Shield },
   { href: "/sales/admin/targets", label: "Targets", icon: Target },
+  { href: "/sales/weekly", label: "Weekly Report", icon: FileBarChart },
+  { href: "/sales/history", label: "Log History", icon: History },
   { href: "/sales/my-day", label: "Daily Log", icon: ClipboardList },
 ];
 

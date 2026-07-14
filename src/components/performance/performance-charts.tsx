@@ -65,7 +65,7 @@ export function PerformanceCharts({ goals, reviews }: PerformanceChartsProps) {
   ];
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
+    <div className="grid gap-4 sm:gap-6 grid-cols-[repeat(auto-fit,minmax(min(380px,100%),1fr))]">
       {/* Goal Progress Chart */}
       {goalCompletionData.length > 0 && (
         <motion.div
