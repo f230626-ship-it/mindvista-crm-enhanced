@@ -167,6 +167,73 @@ export async function upsertSheetSnapshot(profileId: string, data: {
   return { success: true };
 }
 
+export async function testProfileSheetConnection(profileId: string): Promise<{ success?: boolean; error?: string; preview?: string[][] }> {
+  await requireSalesOwner();
+  const supabase = await createAdminClient();
+
+  const { data: profile, error } = await supabase
+    .from("sales_profiles")
+    .select("google_sheet_id, sheet_tab_name, name")
+    .eq("id", profileId)
+    .single();
+
+  if (error || !profile) return { error: "Profile not found" };
+  if (!profile.google_sheet_id)
+    return { error: "No Google Sheet ID configured for this profile" };
+
+  const { testSheetAccess } = await import("@/lib/google/sheets");
+  return testSheetAccess(
+    profile.google_sheet_id,
+    profile.sheet_tab_name ?? undefined
+  );
+}
+
+export async function fetchAndSyncProfileSheet(profileId: string) {
+  await requireSalesOwner();
+  const supabase = await createAdminClient();
+
+  const { data: profile, error } = await supabase
+    .from("sales_profiles")
+    .select("google_sheet_id, sheet_tab_name, name")
+    .eq("id", profileId)
+    .single();
+
+  if (error || !profile) return { error: "Profile not found" };
+  if (!profile.google_sheet_id)
+    return { error: "No Google Sheet ID configured for this profile" };
+
+  const { fetchSheetData } = await import("@/lib/google/sheets");
+  const sheetData = await fetchSheetData(
+    profile.google_sheet_id,
+    profile.sheet_tab_name ?? ""
+  );
+
+  const { error: upsertError } = await supabase
+    .from("sales_sheet_snapshots")
+    .upsert(
+      {
+        profile_id: profileId,
+        snapshot_date: todayISO(),
+        active_leads: sheetData.active_leads,
+        follow_up: sheetData.follow_up,
+        intro_call: sheetData.intro_call,
+        trying_to_call: sheetData.trying_to_call,
+        won_mtd: sheetData.won_mtd,
+        status_breakdown: sheetData.status_breakdown,
+      },
+      { onConflict: "profile_id,snapshot_date" }
+    );
+
+  if (upsertError) return { error: upsertError.message };
+
+  revalidatePath("/sales/command");
+  return {
+    success: true,
+    data: sheetData,
+    profileName: profile.name,
+  };
+}
+
 export async function getMyProfiles() {
   const employee = await getCurrentEmployee();
   if (!employee) return [];
