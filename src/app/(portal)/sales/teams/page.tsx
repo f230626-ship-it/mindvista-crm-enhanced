@@ -12,6 +12,7 @@ export default async function SalesTeamsPage() {
     .from("employees")
     .select("id, full_name, email, designation, employee_code, pm_role")
     .eq("status", "active")
+    .eq("pm_role", "bd")
     .order("full_name");
 
   return <SalesTeamsClient teams={teams} employees={employees ?? []} error={error} />;
