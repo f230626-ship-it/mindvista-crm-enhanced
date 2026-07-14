@@ -214,8 +214,14 @@ export function isSalesOwner(role: Employee["role"]) {
   return role === "admin";
 }
 
-export function canAccessSales(employee: Pick<Employee, "role" | "pm_role">) {
-  return employee.role === "admin" || employee.pm_role === "bd";
+export function isBdEmployee(employee: Pick<Employee, "pm_role" | "designation">) {
+  if (employee.pm_role === "bd") return true;
+  const d = (employee.designation || "").toLowerCase();
+  return d.includes("business developer") || d.includes("bd ");
+}
+
+export function canAccessSales(employee: Pick<Employee, "role" | "pm_role" | "designation">) {
+  return employee.role === "admin" || isBdEmployee(employee);
 }
 
 export async function requireSalesAccess() {
