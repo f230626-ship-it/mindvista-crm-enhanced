@@ -214,7 +214,7 @@ export async function getCommandCenterData() {
     supabase.from("sales_profiles").select("*, employee:employees(id, full_name, email)").eq("is_active", true).order("name"),
     supabase.from("sales_sheet_snapshots").select("*, profile:sales_profiles(id, name, employee_id)").eq("snapshot_date", today),
     supabase.from("sales_targets").select("*"),
-    supabase.from("employees").select("id, full_name, email, pm_role").or("pm_role.eq.bd,designation.ilike.%BD%,designation.ilike.%Business Development%").eq("status", "active"),
+    supabase.from("employees").select("id, full_name, email, pm_role").or("pm_role.eq.bd,designation.ilike.%Business Developer%,designation.ilike.%BD%").eq("status", "active"),
   ]);
 
   const todayLogs = logs?.filter((l) => l.log_date === today) ?? [];
@@ -363,7 +363,7 @@ export async function getCommandCenterDataWithSnapshots() {
     supabase.from("sales_profiles").select("*, employee:employees(id, full_name, email)").eq("is_active", true).order("name"),
     supabase.from("sales_sheet_snapshots").select("*, profile:sales_profiles(id, name, employee_id)").eq("snapshot_date", today),
     supabase.from("sales_targets").select("*"),
-    supabase.from("employees").select("id, full_name, email, pm_role").or("pm_role.eq.bd,designation.ilike.%BD%,designation.ilike.%Business Development%").eq("status", "active"),
+    supabase.from("employees").select("id, full_name, email, pm_role").or("pm_role.eq.bd,designation.ilike.%Business Developer%,designation.ilike.%BD%").eq("status", "active"),
   ]);
 
   const todayLogs = logs?.filter((l) => l.log_date === today) ?? [];
