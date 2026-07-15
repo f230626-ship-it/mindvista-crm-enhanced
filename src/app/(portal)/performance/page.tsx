@@ -48,65 +48,65 @@ export default async function PerformancePage() {
 
       {/* Performance Overview Cards */}
       <div className="grid gap-3 sm:gap-4 grid-cols-[repeat(auto-fit,minmax(220px,1fr))]">
-        <Card className="overflow-hidden bg-gradient-to-br from-blue-500/10 to-blue-600/5">
-          <CardContent className="p-6">
+        <Card className="overflow-hidden border-border/40 bg-card/80 backdrop-blur-sm">
+          <CardContent className="p-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Goals</p>
-                <p className="text-3xl font-bold">{totalGoals}</p>
-                <p className="text-xs text-muted-foreground mt-1">Active objectives</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Total Goals</p>
+                <p className="mt-1 text-3xl font-extrabold tracking-tight">{totalGoals}</p>
+                <p className="mt-1 text-xs text-muted-foreground">Active objectives</p>
               </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-500 text-white">
-                <Target className="h-6 w-6" />
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-500/10 ring-1 ring-blue-500/20">
+                <Target className="h-5 w-5 text-blue-500" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="overflow-hidden bg-gradient-to-br from-green-500/10 to-green-600/5">
-          <CardContent className="p-6">
+        <Card className="overflow-hidden border-border/40 bg-card/80 backdrop-blur-sm">
+          <CardContent className="p-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Completed</p>
-                <p className="text-3xl font-bold">{completedGoals}</p>
-                <p className="text-xs text-muted-foreground mt-1">Goals achieved</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Completed</p>
+                <p className="mt-1 text-3xl font-extrabold tracking-tight">{completedGoals}</p>
+                <p className="mt-1 text-xs text-muted-foreground">Goals achieved</p>
               </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-500 text-white">
-                <CheckCircle className="h-6 w-6" />
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500/10 ring-1 ring-emerald-500/20">
+                <CheckCircle className="h-5 w-5 text-emerald-500" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="overflow-hidden bg-gradient-to-br from-purple-500/10 to-purple-600/5">
-          <CardContent className="p-6">
+        <Card className="overflow-hidden border-border/40 bg-card/80 backdrop-blur-sm">
+          <CardContent className="p-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Avg Progress</p>
-                <p className="text-3xl font-bold">{averageCompletion}%</p>
-                <p className="text-xs text-muted-foreground mt-1">Overall completion</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Avg Progress</p>
+                <p className="mt-1 text-3xl font-extrabold tracking-tight">{averageCompletion}%</p>
+                <p className="mt-1 text-xs text-muted-foreground">Overall completion</p>
               </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-500 text-white">
-                <TrendingUp className="h-6 w-6" />
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-500/10 ring-1 ring-violet-500/20">
+                <TrendingUp className="h-5 w-5 text-violet-500" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="overflow-hidden bg-gradient-to-br from-amber-500/10 to-amber-600/5">
-          <CardContent className="p-6">
+        <Card className="overflow-hidden border-border/40 bg-card/80 backdrop-blur-sm">
+          <CardContent className="p-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Latest Rating</p>
-                <p className="text-3xl font-bold">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Latest Rating</p>
+                <p className="mt-1 text-3xl font-extrabold tracking-tight">
                   {latestReview?.rating ? `${latestReview.rating}/5` : '—'}
                 </p>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="mt-1 text-xs text-muted-foreground">
                   {latestReview ? latestReview.review_period : 'No reviews yet'}
                 </p>
               </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-500 text-white">
-                <Award className="h-6 w-6" />
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-500/10 ring-1 ring-amber-500/20">
+                <Award className="h-5 w-5 text-amber-500" />
               </div>
             </div>
           </CardContent>
