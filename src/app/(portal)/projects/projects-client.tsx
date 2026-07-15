@@ -921,7 +921,7 @@ export default function ProjectsClient({
 
           {/* Table Card */}
           <Card className="pm-table-card overflow-hidden">
-            <div className="overflow-x-auto">
+            <div className="px-3 py-1">
               <Table className="pm-table" style={{ tableLayout: 'fixed', width: '100%' }}>
                   <TableHeader>
                     <TableRow className="hover:bg-transparent border-b border-border/50">

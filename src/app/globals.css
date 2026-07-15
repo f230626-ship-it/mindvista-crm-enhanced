@@ -305,54 +305,6 @@
   background: linear-gradient(90deg, var(--primary), color-mix(in oklch, var(--primary), white 30%));
 }
 
-.pm-kpi {
-  @apply relative overflow-hidden rounded-xl border border-border/50 bg-card/80 backdrop-blur-md;
-  @apply transition-all duration-300 ease-out cursor-default;
-  box-shadow: 0 2px 12px -2px rgba(0, 0, 0, 0.04);
-  animation: pmKpiEnter 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards;
-}
-.dark .pm-kpi {
-  box-shadow: 0 2px 16px -2px rgba(0, 0, 0, 0.25);
-}
-.pm-kpi::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(135deg, transparent 40%, rgba(229, 161, 88, 0.25) 100%);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  opacity: 0;
-  transition: opacity 0.35s ease;
-}
-.pm-kpi:hover {
-  transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 12px 32px -8px rgba(229, 161, 88, 0.18), 0 4px 12px -4px rgba(0, 0, 0, 0.08);
-  border-color: rgba(229, 161, 88, 0.25);
-}
-.pm-kpi:hover::before { opacity: 1; }
-
-@keyframes pmKpiEnter {
-  from { opacity: 0; transform: translateY(16px) scale(0.97); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-.pm-kpi-icon {
-  @apply flex h-8 w-8 items-center justify-center rounded-lg transition-transform duration-300;
-}
-.pm-kpi:hover .pm-kpi-icon { transform: scale(1.1); }
-
-.pm-stagger-1 { animation-delay: 0.04s; }
-.pm-stagger-2 { animation-delay: 0.08s; }
-.pm-stagger-3 { animation-delay: 0.12s; }
-.pm-stagger-4 { animation-delay: 0.16s; }
-.pm-stagger-5 { animation-delay: 0.20s; }
-.pm-stagger-6 { animation-delay: 0.24s; }
-.pm-stagger-7 { animation-delay: 0.28s; }
-
 .pm-chart-card {
   @apply rounded-xl border border-border/50 bg-card/75 backdrop-blur-md overflow-x-auto;
   @apply transition-all duration-300 hover:border-primary/15 hover:shadow-lg hover:shadow-primary/5;
@@ -360,7 +312,7 @@
 }
 
 .pm-table-card {
-  @apply rounded-xl border border-border/50 bg-card/85 backdrop-blur-md overflow-x-auto;
+  @apply rounded-xl border border-border/50 bg-card/85 backdrop-blur-md;
   box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.06);
 }
 .dark .pm-table-card {
@@ -372,11 +324,11 @@
   background: color-mix(in oklch, var(--muted), transparent 30%);
 }
 .pm-table tbody tr {
-  @apply transition-all duration-200 border-b border-border/30;
+  @apply border-b border-border/30;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
 }
 .pm-table tbody tr:hover {
   @apply bg-muted/50;
-  transform: scale(1.002);
   box-shadow: inset 3px 0 0 var(--primary);
 }
 
