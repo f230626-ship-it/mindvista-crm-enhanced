@@ -81,6 +81,10 @@ const STATUS_COLORS: Record<string, string> = {
 const getStatusBadge = (status: string) => {
   const baseClass = "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold border transition-all duration-200";
   switch (status) {
+    case "Active":
+      return <span className={`${baseClass} bg-green-500/10 text-green-600 border-green-500/20 dark:text-green-400 dark:bg-green-500/5`}><Play className="h-3 w-3" /> Active</span>;
+    case "Ended":
+      return <span className={`${baseClass} bg-slate-500/10 text-slate-600 border-slate-500/20 dark:text-slate-400 dark:bg-slate-500/5`}><Check className="h-3 w-3" /> Ended</span>;
     case "Lead Won":
       return <span className={`${baseClass} bg-blue-500/10 text-blue-600 border-blue-500/20 dark:text-blue-400 dark:bg-blue-500/5`}><TrendingUp className="h-3 w-3" /> Lead Won</span>;
     case "Onboarding":
@@ -922,14 +926,19 @@ export default function ProjectsClient({
                 <Table className="pm-table" style={{ tableLayout: 'fixed' }}>
                   <TableHeader>
                     <TableRow className="hover:bg-transparent border-b border-border/50">
-                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[26%]">Project Name</TableHead>
-                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[17%]">Client & BD</TableHead>
-                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[11%]">Status</TableHead>
-                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[9%]">Priority</TableHead>
-                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[12%]">Progress</TableHead>
-                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[12%]">Team</TableHead>
-                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 text-right w-[8%]">Value</TableHead>
-                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[5%]">Due</TableHead>
+                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[11%]">Client Name</TableHead>
+                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[11%]">Project Name</TableHead>
+                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[8%]">Project Type</TableHead>
+                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[9%] text-right">Value</TableHead>
+                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[9%]">Payment</TableHead>
+                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[8%]">Start</TableHead>
+                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[8%]">Rate</TableHead>
+                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[9%]">Status</TableHead>
+                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[8%] text-right">MRR</TableHead>
+                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[8%]">Resource</TableHead>
+                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[7%]">Profile</TableHead>
+                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[7%]">BD</TableHead>
+                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[5%]">End</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -940,74 +949,36 @@ export default function ProjectsClient({
                           onClick={() => router.push(`/projects/${p.id}`)}
                           className="cursor-pointer group"
                         >
-                          <TableCell className="py-2.5 px-3">
-                            <div className="truncate font-semibold text-foreground text-sm group-hover:text-primary transition-colors">{p.name}</div>
-                            {p.company_name && (
-                              <div className="truncate text-[11px] text-muted-foreground/70 mt-0.5">{p.company_name}</div>
-                            )}
+                          <TableCell className="py-2.5 px-3 truncate text-sm font-medium group-hover:text-primary transition-colors">{p.client_name}</TableCell>
+                          <TableCell className="py-2.5 px-3 truncate text-sm">{p.name}</TableCell>
+                          <TableCell className="py-2.5 px-3 truncate text-xs text-muted-foreground">{p.project_type || "—"}</TableCell>
+                          <TableCell className="py-2.5 px-3 text-right font-semibold font-mono text-foreground tabular-nums text-sm">
+                            ${Number(p.value || 0).toLocaleString()}
                           </TableCell>
-                          <TableCell className="py-2.5 px-3">
-                            <div className="truncate text-sm text-foreground">{p.client_name}</div>
-                            <div className="truncate text-[11px] text-muted-foreground/70 mt-0.5">BD: {p.bd?.full_name || "—"}</div>
+                          <TableCell className="py-2.5 px-3 truncate text-xs text-muted-foreground">{p.payment_structure || "—"}</TableCell>
+                          <TableCell className="py-2.5 px-3 text-xs tabular-nums text-muted-foreground">
+                            {p.start_date ? new Date(p.start_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "2-digit" }) : "—"}
                           </TableCell>
+                          <TableCell className="py-2.5 px-3 truncate text-xs text-muted-foreground">{p.project_rate || "—"}</TableCell>
                           <TableCell className="py-2.5 px-3">
                             {getStatusBadge(p.status)}
                           </TableCell>
-                          <TableCell className="py-2.5 px-3">
-                            {getPriorityBadge(p.priority)}
+                          <TableCell className="py-2.5 px-3 text-right font-mono tabular-nums text-sm">
+                            {p.expected_monthly_revenue ? `$${Number(p.expected_monthly_revenue).toLocaleString()}` : "—"}
                           </TableCell>
-                          <TableCell className="py-2.5 px-3">
-                            <div className="flex items-center gap-2">
-                              <div className="h-1.5 w-12 overflow-hidden rounded-full bg-muted">
-                                <div
-                                  className="h-full rounded-full bg-primary transition-all"
-                                  style={{ width: `${p.progress_percentage || 0}%` }}
-                                />
-                              </div>
-                              <span className="text-[11px] font-mono font-semibold text-muted-foreground tabular-nums">{p.progress_percentage || 0}%</span>
-                            </div>
+                          <TableCell className="py-2.5 px-3 truncate text-xs text-muted-foreground">
+                            {p.resources.length > 0 ? p.resources.map((r) => r.employee.full_name).join(", ") : "—"}
                           </TableCell>
-                          <TableCell className="py-2.5 px-3">
-                            <div className="flex -space-x-1.5 overflow-hidden">
-                              {p.resources.length > 0 ? (
-                                p.resources.slice(0, 3).map((res) => {
-                                  const initials = res.employee.full_name
-                                    .split(" ")
-                                    .map((n) => n[0])
-                                    .join("")
-                                    .toUpperCase()
-                                    .slice(0, 2);
-                                  return (
-                                    <div
-                                      key={res.id}
-                                      title={`${res.employee.full_name} (${res.role} · ${res.allocation_percentage}%)`}
-                                      className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-[10px] font-semibold text-muted-foreground ring-2 ring-card"
-                                    >
-                                      {initials}
-                                    </div>
-                                  );
-                                })
-                              ) : (
-                                <span className="text-[11px] text-muted-foreground/50">—</span>
-                              )}
-                              {p.resources.length > 3 && (
-                                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-[10px] font-semibold text-muted-foreground ring-2 ring-card">
-                                  +{p.resources.length - 3}
-                                </div>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell className="py-2.5 px-3 text-right font-semibold font-mono text-foreground tabular-nums text-sm">
-                            ${Number(p.value).toLocaleString()}
-                          </TableCell>
-                          <TableCell className="py-2.5 px-3 text-[12px] text-muted-foreground tabular-nums">
-                            {p.expected_delivery_date ? new Date(p.expected_delivery_date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "—"}
+                          <TableCell className="py-2.5 px-3 truncate text-xs text-muted-foreground">{p.profile_name || "—"}</TableCell>
+                          <TableCell className="py-2.5 px-3 truncate text-xs text-muted-foreground">{p.bd?.full_name || "—"}</TableCell>
+                          <TableCell className="py-2.5 px-3 text-xs tabular-nums text-muted-foreground">
+                            {p.expected_delivery_date ? new Date(p.expected_delivery_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "2-digit" }) : "—"}
                           </TableCell>
                         </TableRow>
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={8} className="h-40 text-center">
+                        <TableCell colSpan={13} className="h-40 text-center">
                           <div className="pm-empty-state">
                             <FolderOpen className="pm-empty-icon" />
                             <p className="text-sm font-medium text-muted-foreground">No projects found</p>

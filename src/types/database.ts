@@ -237,6 +237,11 @@ export interface Project {
   status: "Lead Won" | "Onboarding" | "In Progress" | "On Hold" | "Completed" | "Maintenance" | "Paused" | "Cancelled" | "Archived";
   priority?: "Low" | "Medium" | "High";
   progress_percentage?: number;
+  project_type?: string | null;
+  payment_structure?: string | null;
+  project_rate?: string | null;
+  expected_monthly_revenue?: number | null;
+  profile_name?: string | null;
   created_at: string;
   updated_at: string;
   created_by: string | null;
