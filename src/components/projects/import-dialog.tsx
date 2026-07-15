@@ -33,6 +33,11 @@ interface ParsedRow {
     team_members_raw?: string;
     bd_name?: string;
     dev_name?: string;
+    project_type?: string | null;
+    payment_structure?: string | null;
+    project_rate?: string | null;
+    expected_monthly_revenue?: number | null;
+    profile_name?: string | null;
   };
   errors: string[];
   warnings: string[];
@@ -52,6 +57,7 @@ const COLUMN_MAP_RULES: {
 }[] = [
   { field: "name", fieldLabel: "Project Name", keywords: ["project name", "project", "name", "title", "project title", "project_name"] },
   { field: "client_name", fieldLabel: "Client Name", keywords: ["client name", "client", "customer", "customer name", "client_name"] },
+  { field: "project_type", fieldLabel: "Project Type", keywords: ["project type", "type", "engagement", "employment type"] },
   { field: "client_email", fieldLabel: "Client Email", keywords: ["client email", "email", "customer email", "client_email"] },
   { field: "client_contact_number", fieldLabel: "Client Contact", keywords: ["contact", "phone", "client contact", "client phone", "mobile", "telephone", "client_contact"] },
   { field: "company_name", fieldLabel: "Company Name", keywords: ["company", "company name", "organization", "org", "firm", "company_name"] },
@@ -60,16 +66,20 @@ const COLUMN_MAP_RULES: {
   { field: "lead_source", fieldLabel: "Lead Source", keywords: ["lead source", "source", "how did", "referred", "origin", "lead_source"] },
   { field: "start_date", fieldLabel: "Start Date", keywords: ["start date", "start", "begin", "begins", "commencement", "start_date", "project start"] },
   { field: "expected_delivery_date", fieldLabel: "End Date", keywords: ["end date", "end", "deadline", "due date", "delivery date", "finish", "expected_delivery", "target date", "completion date"] },
-  { field: "status", fieldLabel: "Status", keywords: ["status", "state", "phase", "stage"] },
+  { field: "status", fieldLabel: "Status", keywords: ["status", "state", "phase", "stage", "project status"] },
   { field: "priority", fieldLabel: "Priority", keywords: ["priority", "importance", "urgency", "level"] },
-  { field: "value", fieldLabel: "Budget/Value", keywords: ["budget", "value", "cost", "price", "amount", "revenue", "fee", "total", "project value", "project budget"] },
+  { field: "value", fieldLabel: "Total Contract Value", keywords: ["budget", "value", "cost", "price", "amount", "revenue", "fee", "total", "project value", "project budget", "total contract value", "contract value"] },
+  { field: "payment_structure", fieldLabel: "Payment Structure", keywords: ["payment structure", "payment type", "billing", "milestones", "monthly", "weekly", "payment plan"] },
+  { field: "project_rate", fieldLabel: "Project Rate", keywords: ["project rate", "rate", "hourly rate", "rate per hour", "pricing"] },
+  { field: "expected_monthly_revenue", fieldLabel: "Expected Monthly Revenue", keywords: ["mrr", "monthly revenue", "expected monthly", "recurring revenue", "monthly income"] },
   { field: "currency", fieldLabel: "Currency", keywords: ["currency", "curr", "money"] },
   { field: "progress_percentage", fieldLabel: "Progress %", keywords: ["progress", "completion", "%", "percentage", "done", "completed %"] },
   { field: "manager_name", fieldLabel: "Project Manager", keywords: ["manager", "pm", "project manager", "lead", "project lead", "handled by"] },
-  { field: "bd_name", fieldLabel: "BD Rep", keywords: ["bd", "business development", "bd rep", "bd representative", "sales rep"] },
-  { field: "dev_name", fieldLabel: "Front Face", keywords: ["developer", "dev", "front face", "frontface", "engineer", "dev rep", "resource"] },
+  { field: "bd_name", fieldLabel: "Assigned BD", keywords: ["bd", "business development", "bd rep", "bd representative", "sales rep", "assigned bd"] },
+  { field: "dev_name", fieldLabel: "Front Face", keywords: ["developer", "dev", "front face", "frontface", "engineer", "dev rep", "resource", "assigned resource"] },
   { field: "team_members_raw", fieldLabel: "Team Members", keywords: ["team", "team members", "members", "resources", "assignees", "staff", "team member"] },
   { field: "payment_status", fieldLabel: "Payment Status", keywords: ["payment", "payment status", "paid", "billing status"] },
+  { field: "profile_name", fieldLabel: "Profile Name", keywords: ["profile", "profile name", "outreach profile", "sales profile"] },
   { field: "is_monthly_retainer", fieldLabel: "Monthly Retainer", keywords: ["retainer", "monthly", "recurring", "monthly retainer"] },
   { field: "retainer_amount", fieldLabel: "Retainer Amount", keywords: ["retainer amount", "monthly amount", "recurring amount"] },
   { field: "expected_profit", fieldLabel: "Expected Profit", keywords: ["profit", "expected profit", "margin", "net profit"] },
@@ -184,57 +194,45 @@ export function ImportDialog({
   const handleDownloadTemplate = () => {
     try {
       const headers = [
-        "Project Name", "Client Name", "Client Email", "Company Name",
-        "Description", "Industry", "Lead Source", "Start Date", "End Date",
-        "Project Manager", "Team Members", "Priority", "Status", "Budget",
-        "Currency", "Payment Status", "Progress %",
+        "Client Name", "Project Name", "Project Type", "Total Contract Value",
+        "Payment Structure", "Start Date", "Project Rate", "Project Status",
+        "Expected Monthly Revenue (MRR)", "Assigned Resource", "Profile Name",
+        "Assigned BD", "End Date",
       ];
 
-      const pm = allEmployees.find((e) => e.pm_role === "admin" || e.pm_role === "coordinator")?.full_name || "Admin User";
-      const devs = allEmployees
-        .filter((e) => e.pm_role === "developer" || e.pm_role === "bd")
-        .slice(0, 2)
-        .map((e) => e.full_name)
-        .join(", ") || "Arjun Mehta, Sophie Laurent";
+      const bd = allEmployees.find((e) => e.pm_role === "bd")?.full_name || "Reference";
+      const resource = allEmployees.find((e) => e.pm_role === "developer")?.full_name || "Fatima";
 
       const sampleData = [
         {
-          "Project Name": "Acme Web App Redesign",
-          "Client Name": "Acme Corp",
-          "Client Email": "billing@acme.com",
-          "Company Name": "Acme Corporation",
-          "Description": "Modernizing the customer-facing web portal.",
-          "Industry": "E-commerce",
-          "Lead Source": "Referral",
-          "Start Date": "2026-07-01",
-          "End Date": "2026-10-31",
-          "Project Manager": pm,
-          "Team Members": devs,
-          "Priority": "High",
-          "Status": "In Progress",
-          "Budget": 45000,
-          "Currency": "USD",
-          "Payment Status": "Pending",
-          "Progress %": 15,
+          "Client Name": "Ember-AI",
+          "Project Name": "Snap Dev",
+          "Project Type": "Full Time",
+          "Total Contract Value": 50000,
+          "Payment Structure": "Weekly",
+          "Start Date": "2026-03-24",
+          "Project Rate": "1500RS/h",
+          "Project Status": "Active",
+          "Expected Monthly Revenue (MRR)": 8000,
+          "Assigned Resource": resource,
+          "Profile Name": "Fiza",
+          "Assigned BD": bd,
+          "End Date": "2026-07-04",
         },
         {
-          "Project Name": "Nexus Billing API",
-          "Client Name": "Nexus Global",
-          "Client Email": "api@nexus-global.io",
-          "Company Name": "Nexus Global Inc",
-          "Description": "Backend API integration with Stripe.",
-          "Industry": "Healthcare",
-          "Lead Source": "LinkedIn",
-          "Start Date": "2026-08-15",
-          "End Date": "2026-12-15",
-          "Project Manager": pm,
-          "Team Members": devs,
-          "Priority": "Medium",
-          "Status": "Onboarding",
-          "Budget": 32000,
-          "Currency": "USD",
-          "Payment Status": "Partial",
-          "Progress %": 0,
+          "Client Name": "Zenith Retailers",
+          "Project Name": "Zenith Mobile App",
+          "Project Type": "Full Time",
+          "Total Contract Value": 29000,
+          "Payment Structure": "Milestones",
+          "Start Date": "2026-06-01",
+          "Project Rate": "1000RS/h",
+          "Project Status": "In Progress",
+          "Expected Monthly Revenue (MRR)": 5000,
+          "Assigned Resource": resource,
+          "Profile Name": "Fiza",
+          "Assigned BD": bd,
+          "End Date": "2026-09-30",
         },
       ];
 
@@ -330,6 +328,11 @@ export function ImportDialog({
           const rawExpectedProfit = fuzzyExtractNumber(row, "expected_profit");
           const rawPaymentStatus = fuzzyExtract(row, "payment_status");
           const rawProgress = parseInt(fuzzyExtract(row, "progress_percentage") || "0", 10);
+          const rawProjectType = fuzzyExtract(row, "project_type");
+          const rawPaymentStructure = fuzzyExtract(row, "payment_structure");
+          const rawProjectRate = fuzzyExtract(row, "project_rate");
+          const rawExpectedMRR = fuzzyExtractNumber(row, "expected_monthly_revenue");
+          const rawProfileName = fuzzyExtract(row, "profile_name");
 
           if (!rawName) errors.push("Project Name is required.");
           if (!rawClientName) warnings.push("Client Name not detected — will be empty.");
@@ -402,7 +405,7 @@ export function ImportDialog({
 
           const validStatuses = [
             "Lead Won", "Onboarding", "In Progress", "On Hold", "Completed",
-            "Maintenance", "Paused", "Cancelled", "Archived",
+            "Maintenance", "Paused", "Cancelled", "Archived", "Active", "Ended",
           ];
           let status = "Lead Won";
           if (rawStatus) {
@@ -520,6 +523,11 @@ export function ImportDialog({
               expected_profit: rawExpectedProfit || null,
               payment_status: paymentStatus as Project["payment_status"],
               progress_percentage: isNaN(rawProgress) ? 0 : Math.min(Math.max(rawProgress, 0), 100),
+              project_type: rawProjectType || null,
+              payment_structure: rawPaymentStructure || null,
+              project_rate: rawProjectRate || null,
+              expected_monthly_revenue: rawExpectedMRR || null,
+              profile_name: rawProfileName || null,
               manager_name: rawPM || undefined,
               bd_name: rawBD || undefined,
               dev_name: rawDev || undefined,
@@ -670,17 +678,17 @@ export function ImportDialog({
             )}
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="pm-kpi pm-stagger-1 border-l-4 border-l-slate-400 p-3 text-center">
+              <div className="rounded-xl border border-border/60 bg-card p-3 text-center">
                 <p className="text-[10px] uppercase font-semibold text-muted-foreground">Total Rows</p>
-                <p className="text-lg font-black">{stats.total}</p>
+                <p className="text-lg font-bold">{stats.total}</p>
               </div>
-              <div className="pm-kpi pm-stagger-2 border-l-4 border-l-green-500 p-3 text-center">
-                <p className="text-[10px] uppercase font-semibold text-green-600 dark:text-green-400">Ready to Import</p>
-                <p className="text-lg font-black text-green-600 dark:text-green-400">{stats.valid}</p>
+              <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3 text-center">
+                <p className="text-[10px] uppercase font-semibold text-emerald-600 dark:text-emerald-400">Ready to Import</p>
+                <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{stats.valid}</p>
               </div>
-              <div className="pm-kpi pm-stagger-3 border-l-4 border-l-red-500 p-3 text-center">
+              <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-3 text-center">
                 <p className="text-[10px] uppercase font-semibold text-red-600 dark:text-red-400">Skipped (Errors)</p>
-                <p className="text-lg font-black text-red-600 dark:text-red-400">{stats.invalid}</p>
+                <p className="text-lg font-bold text-red-600 dark:text-red-400">{stats.invalid}</p>
               </div>
             </div>
 
@@ -691,11 +699,15 @@ export function ImportDialog({
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
                       <TableHead className="w-16 text-center">Row</TableHead>
-                      <TableHead>Status / Validation</TableHead>
-                      <TableHead>Project Name</TableHead>
-                      <TableHead>Client Name</TableHead>
-                      <TableHead>Budget</TableHead>
-                      <TableHead>Manager</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Client</TableHead>
+                      <TableHead>Project</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Value</TableHead>
+                      <TableHead>Payment</TableHead>
+                      <TableHead>Rate</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>BD</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -725,18 +737,22 @@ export function ImportDialog({
                               </span>
                               {row.warnings.map((warn, i) => (
                                 <span key={i} className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">
-                                  ⚠ {warn}
+                                  {warn}
                                 </span>
                               ))}
                             </div>
                           )}
                         </TableCell>
-                        <TableCell className="font-semibold text-xs">{row.data.name || "—"}</TableCell>
                         <TableCell className="text-xs">{row.data.client_name || "—"}</TableCell>
+                        <TableCell className="font-semibold text-xs">{row.data.name || "—"}</TableCell>
+                        <TableCell className="text-xs">{row.data.project_type || "—"}</TableCell>
                         <TableCell className="font-mono text-xs">
                           {row.data.value ? `${row.data.currency || "$"}${row.data.value.toLocaleString()}` : "—"}
                         </TableCell>
-                        <TableCell className="text-xs">{row.data.manager_name || "—"}</TableCell>
+                        <TableCell className="text-xs">{row.data.payment_structure || "—"}</TableCell>
+                        <TableCell className="text-xs font-mono">{row.data.project_rate || "—"}</TableCell>
+                        <TableCell className="text-xs">{row.data.status || "—"}</TableCell>
+                        <TableCell className="text-xs">{row.data.bd_name || "—"}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
