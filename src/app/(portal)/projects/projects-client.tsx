@@ -169,6 +169,8 @@ export default function ProjectsClient({
   const [startDateTo, setStartDateTo] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [kpiFilter, setKpiFilter] = useState<string | null>(null);
+  const [timeFilter, setTimeFilter] = useState<string>("all");
+  const [timeFilterYear, setTimeFilterYear] = useState<number>(new Date().getFullYear());
 
   // --- Pagination State ---
   const [currentPage, setCurrentPage] = useState(1);
@@ -258,12 +260,37 @@ export default function ProjectsClient({
 
   // --- Reset Pagination when filters change is handled inline with handlers ---
 
+  // --- Time-based filtered projects ---
+  const filteredProjectsByTime = useMemo(() => {
+    if (timeFilter === "all") return initialProjects;
+
+    return initialProjects.filter((p) => {
+      if (!p.start_date) return false;
+      const d = new Date(p.start_date);
+      const year = d.getFullYear();
+      if (year !== timeFilterYear) return false;
+
+      if (timeFilter === "year") return true;
+
+      const month = d.getMonth(); // 0-indexed
+      if (timeFilter === "q1") return month >= 0 && month <= 2;
+      if (timeFilter === "q2") return month >= 3 && month <= 5;
+      if (timeFilter === "q3") return month >= 6 && month <= 8;
+      if (timeFilter === "q4") return month >= 9 && month <= 11;
+      if (timeFilter === "month") {
+        const now = new Date();
+        return year === now.getFullYear() && month === now.getMonth();
+      }
+      return true;
+    });
+  }, [initialProjects, timeFilter, timeFilterYear]);
+
   // ==========================================
   // --- METRIC CALCULATIONS FOR DASHBOARD ---
   // ==========================================
 
   const metrics = useMemo(() => {
-    const projects = initialProjects; // dashboard represents all projects user has access to
+    const projects = filteredProjectsByTime;
     const total = projects.length;
     
     let active = 0;
@@ -307,16 +334,16 @@ export default function ProjectsClient({
       totalValue,
       totalActiveResources: activeResourceIds.size,
     };
-  }, [initialProjects]);
+  }, [filteredProjectsByTime]);
 
   // 1. Project Status Chart Data
   const statusChartData = useMemo(() => {
     const counts: Record<string, number> = {};
-    initialProjects.forEach((p) => {
+    filteredProjectsByTime.forEach((p) => {
       counts[p.status] = (counts[p.status] || 0) + 1;
     });
     return Object.entries(counts).map(([name, value]) => ({ name, value }));
-  }, [initialProjects]);
+  }, [filteredProjectsByTime]);
 
   // 2. Revenue Dashboard Calculations
   const revenueMetrics = useMemo(() => {
@@ -325,7 +352,7 @@ export default function ProjectsClient({
     const bySource: Record<string, number> = {};
     const byBD: Record<string, number> = {};
 
-    initialProjects.forEach((p) => {
+    filteredProjectsByTime.forEach((p) => {
       const val = Number(p.value || 0);
       totalRevenue += val;
 
@@ -355,7 +382,7 @@ export default function ProjectsClient({
       sourceData: Object.entries(bySource).map(([name, value]) => ({ name, value })),
       bdData: Object.entries(byBD).map(([name, value]) => ({ name, value })),
     };
-  }, [initialProjects]);
+  }, [filteredProjectsByTime]);
 
   // 3. Resource Utilization Calculations
   const resourceMetrics = useMemo(() => {
@@ -372,7 +399,7 @@ export default function ProjectsClient({
       }
     });
 
-    initialProjects.forEach((p) => {
+    filteredProjectsByTime.forEach((p) => {
       if (["Onboarding", "In Progress", "Maintenance"].includes(p.status)) {
         p.resources.forEach((r) => {
           if (workloads[r.employee_id]) {
@@ -396,13 +423,13 @@ export default function ProjectsClient({
       availableCount: totalResources - assignedCount,
       workloads: workloadList,
     };
-  }, [initialProjects, allEmployees]);
+  }, [filteredProjectsByTime, allEmployees]);
 
   // 4. BD Performance Calculations
   const bdPerformanceData = useMemo(() => {
     const stats: Record<string, { name: string; closed: number; revenue: number; active: number; completed: number }> = {};
 
-    initialProjects.forEach((p) => {
+    filteredProjectsByTime.forEach((p) => {
       if (!p.bd_id) return;
       const bdName = p.bd?.full_name || "Unknown";
       
@@ -423,7 +450,7 @@ export default function ProjectsClient({
     });
 
     return Object.values(stats).sort((a, b) => b.revenue - a.revenue);
-  }, [initialProjects]);
+  }, [filteredProjectsByTime]);
 
   return (
     <div className="projects-module space-y-6">
@@ -486,6 +513,55 @@ export default function ProjectsClient({
       {/* ========================================================== */}
       {activeTab === "dashboard" && (
         <div className="space-y-6">
+          {/* Time Period Filter */}
+          <Card className="pm-section-card">
+            <CardContent className="py-3 px-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Period:</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {[
+                    { value: "all", label: "All Time" },
+                    { value: "month", label: "This Month" },
+                    { value: "q1", label: "Q1" },
+                    { value: "q2", label: "Q2" },
+                    { value: "q3", label: "Q3" },
+                    { value: "q4", label: "Q4" },
+                    { value: "year", label: "Full Year" },
+                  ].map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => setTimeFilter(opt.value)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                        timeFilter === opt.value
+                          ? "bg-primary text-primary-foreground shadow-sm"
+                          : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+                {timeFilter !== "all" && (
+                  <div className="flex items-center gap-2 ml-2">
+                    <button
+                      onClick={() => setTimeFilterYear((y) => y - 1)}
+                      className="h-7 w-7 rounded-lg bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground flex items-center justify-center text-xs font-bold transition-colors"
+                    >
+                      <ChevronLeft className="h-3.5 w-3.5" />
+                    </button>
+                    <span className="text-sm font-bold tabular-nums min-w-[50px] text-center">{timeFilterYear}</span>
+                    <button
+                      onClick={() => setTimeFilterYear((y) => y + 1)}
+                      className="h-7 w-7 rounded-lg bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground flex items-center justify-center text-xs font-bold transition-colors"
+                    >
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
           {/* 1. Metric Strip */}
           <MetricStrip
             activeFilter={kpiFilter}
