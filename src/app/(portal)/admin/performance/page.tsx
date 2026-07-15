@@ -7,10 +7,17 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDate } from "@/lib/utils/date";
+import { recalculateAllGoals } from "@/lib/performance/goal-calculator";
+import { RefreshCw, Trash2, Activity } from "lucide-react";
+import { DeleteGoalButton } from "@/components/performance/delete-goal-button";
+import { AdminRefreshButton } from "@/components/performance/admin-refresh-button";
 
 export default async function AdminPerformancePage() {
   await requireRole("admin");
   const supabase = createAdminClient();
+
+  // Auto-calculate all goals
+  await recalculateAllGoals();
 
   const [{ data: goals }, { data: reviews }, { data: employeesList }] = await Promise.all([
     supabase
@@ -35,9 +42,10 @@ export default async function AdminPerformancePage() {
     <div>
       <PageHeader
         title="Performance Management"
-        description="Set goals and submit performance reviews"
+        description="Set goals and submit performance reviews — goal progress updates automatically from sales, projects, and attendance data"
         action={
           <div className="flex gap-2">
+            <AdminRefreshButton />
             <GoalForm employees={employees} />
             <ReviewForm employees={employees} />
           </div>
@@ -53,7 +61,10 @@ export default async function AdminPerformancePage() {
         <TabsContent value="goals">
           <Card>
             <CardHeader>
-              <CardTitle>Employee Goals</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="h-5 w-5 text-primary" />
+                Employee Goals
+              </CardTitle>
             </CardHeader>
             <CardContent>
               {goals && goals.length > 0 ? (
@@ -61,20 +72,38 @@ export default async function AdminPerformancePage() {
                   {goals.map((goal) => (
                     <div key={goal.id} className="rounded-lg border p-4">
                       <div className="mb-2 flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">{goal.title}</p>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium">{goal.title}</p>
+                            <Badge variant="outline" className="text-[10px]">
+                              Auto-tracked
+                            </Badge>
+                          </div>
                           <p className="text-sm text-muted-foreground">
                             {employeeMap[goal.employee_id] ?? "Employee"}
                           </p>
                         </div>
-                        <span className="text-sm font-medium">{goal.completion_status}%</span>
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm font-medium">{goal.completion_status}%</span>
+                          <DeleteGoalButton goalId={goal.id} />
+                        </div>
                       </div>
-                      <Progress value={goal.completion_status} className="h-2" />
-                      {goal.target_date && (
-                        <p className="mt-2 text-xs text-muted-foreground">
-                          Target: {formatDate(goal.target_date)}
-                        </p>
+                      {goal.description && (
+                        <p className="mb-3 text-sm text-muted-foreground">{goal.description}</p>
                       )}
+                      <Progress value={goal.completion_status} className="h-2" />
+                      <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+                        <span>
+                          {goal.completion_status >= 100
+                            ? "Completed"
+                            : goal.completion_status > 0
+                              ? "In progress"
+                              : "Not started"}
+                        </span>
+                        {goal.target_date && (
+                          <span>Target: {formatDate(goal.target_date)}</span>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>

@@ -5,12 +5,17 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { formatDate } from "@/lib/utils/date";
-import { Star, Target, TrendingUp, Award, Calendar, CheckCircle } from "lucide-react";
+import { Star, Target, TrendingUp, Award, Calendar, CheckCircle, Activity, RefreshCw } from "lucide-react";
 import { PerformanceCharts } from "@/components/performance/performance-charts";
+import { recalculateAllGoals } from "@/lib/performance/goal-calculator";
+import { RefreshButton } from "@/components/performance/refresh-button";
 
 export default async function PerformancePage() {
   const employee = await requireAuth();
   const supabase = createAdminClient();
+
+  // Auto-calculate goal progress from real data
+  await recalculateAllGoals(employee.id);
 
   const [{ data: goals }, { data: reviews }] = await Promise.all([
     supabase
@@ -120,10 +125,13 @@ export default async function PerformancePage() {
         {/* Goals & KPIs */}
         <Card className="overflow-hidden pt-0">
           <CardHeader className="bg-gradient-to-r from-muted/50 to-muted/30 py-(--card-spacing)">
-            <CardTitle className="flex items-center gap-2">
-              <Target className="h-5 w-5 text-primary" />
-              Goals & KPIs
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <Target className="h-5 w-5 text-primary" />
+                Goals & KPIs
+              </CardTitle>
+              <RefreshButton />
+            </div>
           </CardHeader>
           <CardContent className="p-0">
             {goals && goals.length > 0 ? (
