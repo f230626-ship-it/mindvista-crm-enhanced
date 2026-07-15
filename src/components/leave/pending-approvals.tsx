@@ -53,35 +53,35 @@ export function PendingLeaveApprovals({ leaves }: { leaves: PendingLeave[] }) {
         <Badge variant="secondary">{leaves.length}</Badge>
       </div>
       <div className="overflow-x-auto">
-      <Table>
+      <Table style={{ tableLayout: 'fixed' }}>
         <TableHeader>
-          <TableRow>
-            <TableHead>Employee</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead>Dates</TableHead>
-            <TableHead>Days</TableHead>
-            <TableHead>Reason</TableHead>
-            <TableHead>Actions</TableHead>
+          <TableRow className="hover:bg-transparent border-b border-border/50">
+            <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[22%]">Employee</TableHead>
+            <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[13%]">Type</TableHead>
+            <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[22%]">Dates</TableHead>
+            <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[10%] text-right">Days</TableHead>
+            <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[20%]">Reason</TableHead>
+            <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[13%]">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {leaves.map((leave) => (
-            <TableRow key={leave.id}>
-              <TableCell>
+            <TableRow key={leave.id} className="border-b border-border/30">
+              <TableCell className="py-2.5 px-3">
                 <div>
-                  <p className="font-medium">{leave.employee?.full_name}</p>
+                  <p className="font-medium text-sm">{leave.employee?.full_name}</p>
                   <p className="text-xs text-muted-foreground">
                     {leave.employee?.employee_code ?? leave.employee?.designation}
                   </p>
                 </div>
               </TableCell>
-              <TableCell>{LEAVE_TYPE_LABELS[leave.leave_type]}</TableCell>
-              <TableCell>
+              <TableCell className="py-2.5 px-3 text-sm">{LEAVE_TYPE_LABELS[leave.leave_type]}</TableCell>
+              <TableCell className="py-2.5 px-3 text-sm whitespace-nowrap">
                 {formatDate(leave.start_date)} – {formatDate(leave.end_date)}
               </TableCell>
-              <TableCell>{leave.days_count}</TableCell>
-              <TableCell className="max-w-[160px] truncate">{leave.reason}</TableCell>
-              <TableCell>
+              <TableCell className="py-2.5 px-3 text-right tabular-nums font-semibold">{leave.days_count}</TableCell>
+              <TableCell className="py-2.5 px-3 max-w-[160px] truncate text-sm text-muted-foreground">{leave.reason}</TableCell>
+              <TableCell className="py-2.5 px-3">
                 <div className="flex gap-1">
                   <Button
                     size="sm"

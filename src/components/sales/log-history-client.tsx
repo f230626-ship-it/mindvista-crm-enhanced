@@ -130,47 +130,47 @@ export function LogHistoryClient({
             </div>
           ) : (
             <div className="overflow-x-auto">
-            <Table>
+            <Table style={{ tableLayout: 'fixed' }}>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Rep</TableHead>
-                  <TableHead>Profile</TableHead>
-                  <TableHead className="text-right">Conn.</TableHead>
-                  <TableHead className="text-right">Accepted</TableHead>
-                  <TableHead className="text-right">Messages</TableHead>
-                  <TableHead className="text-right">Replies</TableHead>
-                  <TableHead className="text-right">Follow-ups</TableHead>
-                  <TableHead className="text-right">Meetings</TableHead>
-                  <TableHead className="text-right">Leads</TableHead>
-                  <TableHead className="text-right">Proposals</TableHead>
+                <TableRow className="hover:bg-transparent border-b border-border/50">
+                  <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[12%]">Date</TableHead>
+                  <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[12%]">Rep</TableHead>
+                  <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[14%]">Profile</TableHead>
+                  <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[8%] text-right">Conn.</TableHead>
+                  <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[8%] text-right">Accept</TableHead>
+                  <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[8%] text-right">Msg</TableHead>
+                  <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[8%] text-right">Reply</TableHead>
+                  <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[8%] text-right">F/Up</TableHead>
+                  <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[8%] text-right">Meet</TableHead>
+                  <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[7%] text-right">Leads</TableHead>
+                  <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[7%] text-right">Prop.</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {logs.map((log) => (
-                  <TableRow key={log.id}>
-                    <TableCell className="font-medium whitespace-nowrap">
+                  <TableRow key={log.id} className="border-b border-border/30">
+                    <TableCell className="py-2.5 px-3 font-medium whitespace-nowrap text-sm">
                       {formatDate(log.log_date)}
                     </TableCell>
-                    <TableCell>{log.employee?.full_name ?? "—"}</TableCell>
-                    <TableCell>
+                    <TableCell className="py-2.5 px-3 text-sm truncate">{log.employee?.full_name ?? <span className="text-muted-foreground">—</span>}</TableCell>
+                    <TableCell className="py-2.5 px-3">
                       <div className="flex items-center gap-1.5">
-                        <span>{log.profile?.name ?? "—"}</span>
+                        <span className="text-sm truncate">{log.profile?.name ?? <span className="text-muted-foreground">—</span>}</span>
                         {log.profile?.platform && (
-                          <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                          <Badge variant="outline" className="text-[10px] px-1.5 py-0 shrink-0">
                             {log.profile.platform}
                           </Badge>
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="text-right tabular-nums font-semibold">{log.connections_sent}</TableCell>
-                    <TableCell className="text-right tabular-nums">{log.connections_accepted}</TableCell>
-                    <TableCell className="text-right tabular-nums">{log.messages_sent}</TableCell>
-                    <TableCell className="text-right tabular-nums">{log.replies_received}</TableCell>
-                    <TableCell className="text-right tabular-nums">{log.follow_ups_done}</TableCell>
-                    <TableCell className="text-right tabular-nums">{log.meetings_booked}</TableCell>
-                    <TableCell className="text-right tabular-nums">{log.leads_added}</TableCell>
-                    <TableCell className="text-right tabular-nums">{log.proposals_sent}</TableCell>
+                    <TableCell className="py-2.5 px-3 text-right tabular-nums font-semibold">{log.connections_sent}</TableCell>
+                    <TableCell className="py-2.5 px-3 text-right tabular-nums">{log.connections_accepted}</TableCell>
+                    <TableCell className="py-2.5 px-3 text-right tabular-nums">{log.messages_sent}</TableCell>
+                    <TableCell className="py-2.5 px-3 text-right tabular-nums">{log.replies_received}</TableCell>
+                    <TableCell className="py-2.5 px-3 text-right tabular-nums">{log.follow_ups_done}</TableCell>
+                    <TableCell className="py-2.5 px-3 text-right tabular-nums">{log.meetings_booked}</TableCell>
+                    <TableCell className="py-2.5 px-3 text-right tabular-nums">{log.leads_added}</TableCell>
+                    <TableCell className="py-2.5 px-3 text-right tabular-nums">{log.proposals_sent}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

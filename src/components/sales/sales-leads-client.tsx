@@ -158,32 +158,32 @@ export function SalesLeadsClient({
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <Table>
+              <Table style={{ tableLayout: 'fixed' }}>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Lead</TableHead>
-                    <TableHead>Company</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Source</TableHead>
-                    <TableHead>Assigned to</TableHead>
-                    <TableHead className="w-32" />
+                  <TableRow className="hover:bg-transparent border-b border-border/50">
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[22%]">Lead</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[20%]">Company</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[14%]">Status</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[12%]">Source</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[18%]">Assigned to</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[14%]" />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filtered.map((lead) => (
-                    <TableRow key={lead.id}>
-                      <TableCell className="font-medium">{lead.lead_name}</TableCell>
-                      <TableCell className="text-muted-foreground">{lead.company_name ?? "—"}</TableCell>
-                      <TableCell>
+                    <TableRow key={lead.id} className="border-b border-border/30">
+                      <TableCell className="py-2.5 px-3 font-medium truncate">{lead.lead_name}</TableCell>
+                      <TableCell className="py-2.5 px-3 text-muted-foreground text-sm truncate">{lead.company_name ?? <span className="text-muted-foreground">—</span>}</TableCell>
+                      <TableCell className="py-2.5 px-3">
                         <Badge className={`capitalize ${STATUS_COLORS[lead.status]}`}>
                           {lead.status.replace("_", " ")}
                         </Badge>
                       </TableCell>
-                      <TableCell className="capitalize text-muted-foreground">{lead.source}</TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {lead.employee?.full_name ?? "—"}
+                      <TableCell className="py-2.5 px-3 capitalize text-muted-foreground text-sm">{lead.source}</TableCell>
+                      <TableCell className="py-2.5 px-3 text-muted-foreground text-sm truncate">
+                        {lead.employee?.full_name ?? <span className="text-muted-foreground">—</span>}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="py-2.5 px-3">
                         <div className="flex items-center gap-1">
                           {STATUS_FLOW.indexOf(lead.status) < STATUS_FLOW.length - 1 && (
                             <Button

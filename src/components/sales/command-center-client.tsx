@@ -295,32 +295,32 @@ export function CommandCenterClient({ data }: { data: CommandData }) {
           {profiles.length === 0 ? (
             <p className="text-sm text-muted-foreground">No profiles configured.</p>
           ) : (
-            <Table>
+            <Table style={{ tableLayout: 'fixed' }}>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Profile</TableHead>
-                  <TableHead>Rep</TableHead>
-                  <TableHead className="text-right">Active</TableHead>
-                  <TableHead className="text-right">Follow-up</TableHead>
-                  <TableHead className="text-right">Intro</TableHead>
-                  <TableHead className="text-right">Won MTD</TableHead>
+                <TableRow className="hover:bg-transparent border-b border-border/50">
+                  <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[30%]">Profile</TableHead>
+                  <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[20%]">Rep</TableHead>
+                  <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[15%] text-right">Active</TableHead>
+                  <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[15%] text-right">Follow-up</TableHead>
+                  <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[10%] text-right">Intro</TableHead>
+                  <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[10%] text-right">Won MTD</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {profiles.map((p) => {
                   const snap = snapshots.find((s) => s.profile_id === p.id);
                   return (
-                    <TableRow key={p.id}>
-                      <TableCell className="font-medium">{p.name}</TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {(p.employee as { full_name: string })?.full_name ?? "—"}
+                    <TableRow key={p.id} className="border-b border-border/30">
+                      <TableCell className="py-2.5 px-3 font-medium truncate">{p.name}</TableCell>
+                      <TableCell className="py-2.5 px-3 text-muted-foreground text-sm truncate">
+                        {(p.employee as { full_name: string })?.full_name ?? <span className="text-muted-foreground">—</span>}
                       </TableCell>
-                      <TableCell className="text-right font-semibold text-primary">
-                        {snap?.active_leads ?? "—"}
+                      <TableCell className="py-2.5 px-3 text-right font-semibold text-primary tabular-nums">
+                        {snap?.active_leads ?? <span className="text-muted-foreground">—</span>}
                       </TableCell>
-                      <TableCell className="text-right">{snap?.follow_up ?? "—"}</TableCell>
-                      <TableCell className="text-right">{snap?.intro_call ?? "—"}</TableCell>
-                      <TableCell className="text-right">{snap?.won_mtd ?? "—"}
+                      <TableCell className="py-2.5 px-3 text-right tabular-nums">{snap?.follow_up ?? <span className="text-muted-foreground">—</span>}</TableCell>
+                      <TableCell className="py-2.5 px-3 text-right tabular-nums">{snap?.intro_call ?? <span className="text-muted-foreground">—</span>}</TableCell>
+                      <TableCell className="py-2.5 px-3 text-right tabular-nums">{snap?.won_mtd ?? <span className="text-muted-foreground">—</span>}
                       </TableCell>
                     </TableRow>
                   );

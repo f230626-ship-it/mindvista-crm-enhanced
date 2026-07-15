@@ -53,46 +53,46 @@ export default async function AdminProfilesPage() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Profile</TableHead>
-                  <TableHead>Rep</TableHead>
-                  <TableHead>Platform</TableHead>
-                  <TableHead>Sheet</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="w-24" />
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {profiles.map((p) => (
-                  <TableRow key={p.id}>
-                    <TableCell className="font-medium">{p.name}</TableCell>
-                    <TableCell>{(p.employee as { full_name: string })?.full_name ?? "—"}</TableCell>
-                    <TableCell className="capitalize">{p.platform}</TableCell>
-                    <TableCell className="max-w-[140px] truncate font-mono text-xs text-muted-foreground">
-                      {p.google_sheet_id ?? "—"}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={p.is_active ? "default" : "outline"}>
-                        {p.is_active ? "Active" : "Inactive"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <Link
-                          href={`/sales/admin/profiles/${p.id}`}
-                          className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Link>
-                        <DeleteProfileButton profileId={p.id} profileName={p.name} />
-                      </div>
-                    </TableCell>
+            <Table style={{ tableLayout: 'fixed' }}>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent border-b border-border/50">
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[22%]">Profile</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[20%]">Rep</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[13%]">Platform</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[22%]">Sheet</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[13%]">Status</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[10%]" />
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {profiles.map((p) => (
+                    <TableRow key={p.id} className="border-b border-border/30">
+                      <TableCell className="py-2.5 px-3 font-medium truncate">{p.name}</TableCell>
+                      <TableCell className="py-2.5 px-3 text-sm truncate">{(p.employee as { full_name: string })?.full_name ?? <span className="text-muted-foreground">—</span>}</TableCell>
+                      <TableCell className="py-2.5 px-3 capitalize text-sm">{p.platform}</TableCell>
+                      <TableCell className="py-2.5 px-3 truncate font-mono text-xs text-muted-foreground">
+                        {p.google_sheet_id ?? <span className="text-muted-foreground">—</span>}
+                      </TableCell>
+                      <TableCell className="py-2.5 px-3">
+                        <Badge variant={p.is_active ? "default" : "outline"}>
+                          {p.is_active ? "Active" : "Inactive"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="py-2.5 px-3">
+                        <div className="flex items-center gap-1">
+                          <Link
+                            href={`/sales/admin/profiles/${p.id}`}
+                            className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Link>
+                          <DeleteProfileButton profileId={p.id} profileName={p.name} />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           )}
         </CardContent>

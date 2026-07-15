@@ -78,35 +78,35 @@ export default async function AdminLeavesPage() {
             <CardContent>
               {pending.length > 0 ? (
                 <div className="overflow-x-auto">
-                  <Table>
+                  <Table style={{ tableLayout: 'fixed' }}>
                     <TableHeader>
-                      <TableRow>
-                        <TableHead>Employee</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead>Dates</TableHead>
-                        <TableHead>Days</TableHead>
-                        <TableHead>Reason</TableHead>
-                        <TableHead>Actions</TableHead>
+                      <TableRow className="hover:bg-transparent border-b border-border/50">
+                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[22%]">Employee</TableHead>
+                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[13%]">Type</TableHead>
+                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[22%]">Dates</TableHead>
+                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[10%] text-right">Days</TableHead>
+                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[20%]">Reason</TableHead>
+                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[13%]">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {pending.map((leave) => (
-                        <TableRow key={leave.id}>
-                          <TableCell>
+                        <TableRow key={leave.id} className="border-b border-border/30">
+                          <TableCell className="py-2.5 px-3">
                             <div>
-                              <p className="font-medium">{leave.employee?.full_name}</p>
+                              <p className="font-medium text-sm">{leave.employee?.full_name}</p>
                               <p className="text-xs text-muted-foreground">
                                 {leave.employee?.employee_code ?? leave.employee?.designation}
                               </p>
                             </div>
                           </TableCell>
-                          <TableCell>{LEAVE_TYPE_LABELS[leave.leave_type]}</TableCell>
-                          <TableCell>
+                          <TableCell className="py-2.5 px-3 text-sm">{LEAVE_TYPE_LABELS[leave.leave_type]}</TableCell>
+                          <TableCell className="py-2.5 px-3 text-sm whitespace-nowrap">
                             {formatDate(leave.start_date)} – {formatDate(leave.end_date)}
                           </TableCell>
-                          <TableCell>{leave.days_count}</TableCell>
-                          <TableCell className="max-w-[200px] truncate">{leave.reason}</TableCell>
-                          <TableCell>
+                          <TableCell className="py-2.5 px-3 text-right tabular-nums font-semibold">{leave.days_count}</TableCell>
+                          <TableCell className="py-2.5 px-3 max-w-[200px] truncate text-sm text-muted-foreground">{leave.reason}</TableCell>
+                          <TableCell className="py-2.5 px-3">
                             <LeaveActions leaveId={leave.id} />
                           </TableCell>
                         </TableRow>
@@ -129,26 +129,26 @@ export default async function AdminLeavesPage() {
               </CardHeader>
               <CardContent>
                 <div className="overflow-x-auto">
-                  <Table>
+                  <Table style={{ tableLayout: 'fixed' }}>
                     <TableHeader>
-                      <TableRow>
-                        <TableHead>Employee</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead>Dates</TableHead>
-                        <TableHead>Days</TableHead>
-                        <TableHead>Status</TableHead>
+                      <TableRow className="hover:bg-transparent border-b border-border/50">
+                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[28%]">Employee</TableHead>
+                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[16%]">Type</TableHead>
+                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[25%]">Dates</TableHead>
+                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[13%] text-right">Days</TableHead>
+                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[18%]">Status</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {processed.map((leave) => (
-                        <TableRow key={leave.id}>
-                          <TableCell>{leave.employee?.full_name}</TableCell>
-                          <TableCell>{LEAVE_TYPE_LABELS[leave.leave_type]}</TableCell>
-                          <TableCell>
+                        <TableRow key={leave.id} className="border-b border-border/30">
+                          <TableCell className="py-2.5 px-3 font-medium text-sm">{leave.employee?.full_name}</TableCell>
+                          <TableCell className="py-2.5 px-3 text-sm">{LEAVE_TYPE_LABELS[leave.leave_type]}</TableCell>
+                          <TableCell className="py-2.5 px-3 text-sm whitespace-nowrap">
                             {formatDate(leave.start_date)} – {formatDate(leave.end_date)}
                           </TableCell>
-                          <TableCell>{leave.days_count}</TableCell>
-                          <TableCell>
+                          <TableCell className="py-2.5 px-3 text-right tabular-nums font-semibold">{leave.days_count}</TableCell>
+                          <TableCell className="py-2.5 px-3">
                             <Badge className={STATUS_COLORS[leave.status]} variant="secondary">
                               {LEAVE_STATUS_LABELS[leave.status]}
                             </Badge>
@@ -172,46 +172,46 @@ export default async function AdminLeavesPage() {
               <CardContent>
                 {leaveBalances.length > 0 ? (
                   <div className="overflow-x-auto">
-                    <Table>
+                    <Table style={{ tableLayout: 'fixed' }}>
                       <TableHeader>
-                        <TableRow>
-                          <TableHead>Employee</TableHead>
-                          <TableHead>Annual</TableHead>
-                          <TableHead>Sick</TableHead>
-                          <TableHead>Casual</TableHead>
-                          <TableHead>Action</TableHead>
+                        <TableRow className="hover:bg-transparent border-b border-border/50">
+                          <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[28%]">Employee</TableHead>
+                          <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[18%] text-right">Annual</TableHead>
+                          <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[18%] text-right">Sick</TableHead>
+                          <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[18%] text-right">Casual</TableHead>
+                          <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[18%]">Action</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {leaveBalances.map((balance: any) => (
-                          <TableRow key={balance.id}>
-                            <TableCell>
+                          <TableRow key={balance.id} className="border-b border-border/30">
+                            <TableCell className="py-2.5 px-3">
                               <div>
-                                <p className="font-medium">{balance.employee?.full_name}</p>
+                                <p className="font-medium text-sm">{balance.employee?.full_name}</p>
                                 <p className="text-xs text-muted-foreground">
                                   {balance.employee?.employee_code ?? balance.employee?.designation}
                                 </p>
                               </div>
                             </TableCell>
-                            <TableCell>
-                              <span className="font-mono text-sm">{balance.annual_quota}</span>
+                            <TableCell className="py-2.5 px-3 text-right">
+                              <span className="font-mono text-sm font-semibold">{balance.annual_quota}</span>
                               <span className="text-xs text-muted-foreground ml-1">
                                 ({balance.annual_used} used)
                               </span>
                             </TableCell>
-                            <TableCell>
-                              <span className="font-mono text-sm">{balance.sick_quota}</span>
+                            <TableCell className="py-2.5 px-3 text-right">
+                              <span className="font-mono text-sm font-semibold">{balance.sick_quota}</span>
                               <span className="text-xs text-muted-foreground ml-1">
                                 ({balance.sick_used} used)
                               </span>
                             </TableCell>
-                            <TableCell>
-                              <span className="font-mono text-sm">{balance.casual_quota}</span>
+                            <TableCell className="py-2.5 px-3 text-right">
+                              <span className="font-mono text-sm font-semibold">{balance.casual_quota}</span>
                               <span className="text-xs text-muted-foreground ml-1">
                                 ({balance.casual_used} used)
                               </span>
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="py-2.5 px-3">
                               <LeaveQuotaAdjuster balance={balance} />
                             </TableCell>
                           </TableRow>

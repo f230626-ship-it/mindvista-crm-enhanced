@@ -60,30 +60,30 @@ export default async function AdminAssetsPage() {
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Serial</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {assets.map((asset) => (
-                  <TableRow key={asset.id}>
-                    <TableCell className="font-medium">{asset.name}</TableCell>
-                    <TableCell>{ASSET_TYPE_LABELS[asset.asset_type]}</TableCell>
-                    <TableCell>{asset.serial_number ?? "—"}</TableCell>
-                    <TableCell>
-                      <Badge variant={asset.status === "available" ? "default" : "secondary"}>
-                        {ASSET_STATUS_LABELS[asset.status]}
-                      </Badge>
-                    </TableCell>
+            <Table style={{ tableLayout: 'fixed' }}>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent border-b border-border/50">
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[35%]">Name</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[25%]">Type</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[22%] text-right">Serial</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[18%]">Status</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {assets.map((asset) => (
+                    <TableRow key={asset.id} className="border-b border-border/30">
+                      <TableCell className="py-2.5 px-3 font-medium truncate">{asset.name}</TableCell>
+                      <TableCell className="py-2.5 px-3 text-sm">{ASSET_TYPE_LABELS[asset.asset_type]}</TableCell>
+                      <TableCell className="py-2.5 px-3 text-right tabular-nums font-mono text-sm">{asset.serial_number ?? <span className="text-muted-foreground">—</span>}</TableCell>
+                      <TableCell className="py-2.5 px-3">
+                        <Badge variant={asset.status === "available" ? "default" : "secondary"}>
+                          {ASSET_STATUS_LABELS[asset.status]}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           </CardContent>
         </Card>
@@ -95,22 +95,22 @@ export default async function AdminAssetsPage() {
           <CardContent>
             <div className="overflow-x-auto">
             {assignments.length > 0 ? (
-              <Table>
+              <Table style={{ tableLayout: 'fixed' }}>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Asset</TableHead>
-                    <TableHead>Employee</TableHead>
-                    <TableHead>Since</TableHead>
-                    <TableHead>Action</TableHead>
+                  <TableRow className="hover:bg-transparent border-b border-border/50">
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[30%]">Asset</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[30%]">Employee</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[22%]">Since</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[18%]">Action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {assignments.map((a) => (
-                    <TableRow key={a.id}>
-                      <TableCell>{a.asset?.name}</TableCell>
-                      <TableCell>{a.employee?.full_name}</TableCell>
-                      <TableCell>{formatDate(a.assigned_date)}</TableCell>
-                      <TableCell>
+                    <TableRow key={a.id} className="border-b border-border/30">
+                      <TableCell className="py-2.5 px-3 font-medium truncate">{a.asset?.name}</TableCell>
+                      <TableCell className="py-2.5 px-3">{a.employee?.full_name}</TableCell>
+                      <TableCell className="py-2.5 px-3 text-sm">{formatDate(a.assigned_date)}</TableCell>
+                      <TableCell className="py-2.5 px-3">
                         <ReturnAssetButton assignmentId={a.id} assetId={a.asset_id} />
                       </TableCell>
                     </TableRow>

@@ -104,34 +104,34 @@ export default async function LeavePage() {
         <CardContent>
           <div className="overflow-x-auto">
           {leaves && leaves.length > 0 ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Type</TableHead>
-                  <TableHead>From</TableHead>
-                  <TableHead>To</TableHead>
-                  <TableHead>Days</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Applied</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {leaves.map((leave) => (
-                  <TableRow key={leave.id}>
-                    <TableCell>{LEAVE_TYPE_LABELS[leave.leave_type]}</TableCell>
-                    <TableCell>{formatDate(leave.start_date)}</TableCell>
-                    <TableCell>{formatDate(leave.end_date)}</TableCell>
-                    <TableCell>{leave.days_count}</TableCell>
-                    <TableCell>
-                      <Badge className={STATUS_COLORS[leave.status]} variant="secondary">
-                        {LEAVE_STATUS_LABELS[leave.status]}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{formatDate(leave.created_at)}</TableCell>
+            <Table style={{ tableLayout: 'fixed' }}>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent border-b border-border/50">
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[16%]">Type</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[18%]">From</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[18%]">To</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[10%] text-right">Days</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[18%]">Status</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[20%]">Applied</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {leaves.map((leave) => (
+                    <TableRow key={leave.id} className="border-b border-border/30">
+                      <TableCell className="py-2.5 px-3 text-sm">{LEAVE_TYPE_LABELS[leave.leave_type]}</TableCell>
+                      <TableCell className="py-2.5 px-3 text-sm whitespace-nowrap">{formatDate(leave.start_date)}</TableCell>
+                      <TableCell className="py-2.5 px-3 text-sm whitespace-nowrap">{formatDate(leave.end_date)}</TableCell>
+                      <TableCell className="py-2.5 px-3 text-right tabular-nums font-semibold">{leave.days_count}</TableCell>
+                      <TableCell className="py-2.5 px-3">
+                        <Badge className={STATUS_COLORS[leave.status]} variant="secondary">
+                          {LEAVE_STATUS_LABELS[leave.status]}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="py-2.5 px-3 text-sm text-muted-foreground">{formatDate(leave.created_at)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
           ) : (
             <p className="text-sm text-muted-foreground">No leave requests yet</p>
           )}

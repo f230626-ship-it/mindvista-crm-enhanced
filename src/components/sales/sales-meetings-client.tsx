@@ -149,39 +149,39 @@ export function SalesMeetingsClient({
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <Table>
+              <Table style={{ tableLayout: 'fixed' }}>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Date & Time</TableHead>
-                    <TableHead>Lead</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Link</TableHead>
-                    <TableHead>Rep</TableHead>
-                    <TableHead className="w-32" />
+                  <TableRow className="hover:bg-transparent border-b border-border/50">
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[22%]">Date & Time</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[22%]">Lead</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[12%]">Status</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[12%]">Link</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[16%]">Rep</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[16%]" />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {meetings.map((meeting) => (
-                    <TableRow key={meeting.id}>
-                      <TableCell className="font-medium whitespace-nowrap">
+                    <TableRow key={meeting.id} className="border-b border-border/30">
+                      <TableCell className="py-2.5 px-3 font-medium whitespace-nowrap text-sm">
                         {formatDate(meeting.meeting_date)}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="py-2.5 px-3">
                         {meeting.lead ? (
                           <div>
-                            <p className="font-medium">{meeting.lead.lead_name}</p>
+                            <p className="font-medium text-sm">{meeting.lead.lead_name}</p>
                             <p className="text-xs text-muted-foreground">{meeting.lead.company_name}</p>
                           </div>
                         ) : (
-                          <span className="text-muted-foreground">—</span>
+                          <span className="text-muted-foreground text-sm">—</span>
                         )}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="py-2.5 px-3">
                         <Badge className={`capitalize ${STATUS_COLORS[meeting.status]}`}>
                           {meeting.status}
                         </Badge>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="py-2.5 px-3">
                         {meeting.meeting_link ? (
                           <a
                             href={meeting.meeting_link}
@@ -196,10 +196,10 @@ export function SalesMeetingsClient({
                           <span className="text-muted-foreground text-sm">—</span>
                         )}
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {meeting.employee?.full_name ?? "—"}
+                      <TableCell className="py-2.5 px-3 text-muted-foreground text-sm">
+                        {meeting.employee?.full_name ?? <span className="text-muted-foreground">—</span>}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="py-2.5 px-3">
                         <div className="flex items-center gap-1">
                           {meeting.status === "pending" && (
                             <>
