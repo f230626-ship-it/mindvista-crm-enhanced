@@ -2,12 +2,59 @@ import { Card, CardContent } from "@/components/ui/card";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+const ACCENT_CONFIG = {
+  primary: {
+    iconBg: "bg-primary/15",
+    iconRing: "ring-primary/20",
+    iconText: "text-primary",
+    glow: "shadow-primary/8",
+    barColor: "bg-primary",
+  },
+  emerald: {
+    iconBg: "bg-emerald-500/15",
+    iconRing: "ring-emerald-500/20",
+    iconText: "text-emerald-500",
+    glow: "shadow-emerald-500/8",
+    barColor: "bg-emerald-500",
+  },
+  blue: {
+    iconBg: "bg-blue-500/15",
+    iconRing: "ring-blue-500/20",
+    iconText: "text-blue-500",
+    glow: "shadow-blue-500/8",
+    barColor: "bg-blue-500",
+  },
+  violet: {
+    iconBg: "bg-violet-500/15",
+    iconRing: "ring-violet-500/20",
+    iconText: "text-violet-500",
+    glow: "shadow-violet-500/8",
+    barColor: "bg-violet-500",
+  },
+  amber: {
+    iconBg: "bg-amber-500/15",
+    iconRing: "ring-amber-500/20",
+    iconText: "text-amber-500",
+    glow: "shadow-amber-500/8",
+    barColor: "bg-amber-500",
+  },
+  rose: {
+    iconBg: "bg-rose-500/15",
+    iconRing: "ring-rose-500/20",
+    iconText: "text-rose-500",
+    glow: "shadow-rose-500/8",
+    barColor: "bg-rose-500",
+  },
+} as const;
+
 export function MetricGlowCard({
   title,
   value,
   subtitle,
   icon: Icon,
   trend,
+  trendUp,
+  progress,
   className,
   accent = "primary",
 }: {
@@ -16,37 +63,73 @@ export function MetricGlowCard({
   subtitle?: string;
   icon: LucideIcon;
   trend?: string;
+  trendUp?: boolean;
+  progress?: number;
   className?: string;
-  accent?: "primary" | "emerald" | "blue" | "violet";
+  accent?: keyof typeof ACCENT_CONFIG;
 }) {
-  const accents = {
-    primary: "from-primary/20 to-primary/5 border-primary/25 shadow-primary/10",
-    emerald: "from-emerald-500/20 to-emerald-500/5 border-emerald-500/25 shadow-emerald-500/10",
-    blue: "from-blue-500/20 to-blue-500/5 border-blue-500/25 shadow-blue-500/10",
-    violet: "from-violet-500/20 to-violet-500/5 border-violet-500/25 shadow-violet-500/10",
-  };
+  const a = ACCENT_CONFIG[accent] || ACCENT_CONFIG.primary;
 
   return (
     <Card
       className={cn(
-        "relative overflow-hidden border bg-gradient-to-br shadow-lg backdrop-blur-sm transition-transform hover:-translate-y-0.5",
-        accents[accent],
+        "group relative overflow-hidden border border-border/40 bg-card/80 shadow-md backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg",
+        a.glow,
         className
       )}
     >
-      <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/5 blur-2xl" />
+      {/* Decorative corner gradient */}
+      <div className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full bg-gradient-to-br from-white/[0.04] to-transparent blur-xl transition-all duration-500 group-hover:scale-150 group-hover:opacity-100 opacity-60" />
+      <div className="pointer-events-none absolute -bottom-6 -left-6 h-20 w-20 rounded-full bg-gradient-to-tr from-white/[0.02] to-transparent blur-lg" />
+
       <CardContent className="relative p-5">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{title}</p>
-            <p className="mt-2 text-3xl font-bold tracking-tight tabular-nums">{value}</p>
-            {subtitle && <p className="mt-1 text-xs text-muted-foreground">{subtitle}</p>}
-            {trend && <p className="mt-2 text-xs font-medium text-primary">{trend}</p>}
+        <div className="flex items-start justify-between">
+          {/* Left: Title + Value */}
+          <div className="min-w-0 flex-1 space-y-1.5">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+              {title}
+            </p>
+            <p className="text-3xl font-extrabold tracking-tight tabular-nums leading-none">
+              {value}
+            </p>
+            {subtitle && (
+              <p className="pt-0.5 text-[12px] text-muted-foreground/80">{subtitle}</p>
+            )}
+            {trend && (
+              <p
+                className={cn(
+                  "pt-1 text-xs font-semibold",
+                  trendUp === false ? "text-rose-400" : "text-emerald-400"
+                )}
+              >
+                {trendUp === false ? "\u2193" : "\u2191"} {trend}
+              </p>
+            )}
           </div>
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-background/50 ring-1 ring-white/10">
-            <Icon className="h-5 w-5 text-primary" />
+
+          {/* Right: Icon */}
+          <div
+            className={cn(
+              "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ring-1 transition-all duration-300 group-hover:scale-110 group-hover:shadow-md",
+              a.iconBg,
+              a.iconRing
+            )}
+          >
+            <Icon className={cn("h-5 w-5", a.iconText)} />
           </div>
         </div>
+
+        {/* Optional progress bar at bottom */}
+        {progress !== undefined && (
+          <div className="mt-4">
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
+              <div
+                className={cn("h-full rounded-full transition-all duration-700 ease-out", a.barColor)}
+                style={{ width: `${Math.min(progress, 100)}%` }}
+              />
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
