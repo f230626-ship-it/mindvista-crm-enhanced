@@ -25,10 +25,10 @@ import {
 } from "@/components/ui/table";
 import {
   Briefcase,
-  CheckCircle,
-  Clock,
+  CircleCheck,
+  Zap,
   TrendingUp,
-  DollarSign,
+  Banknote,
   Plus,
   Search,
   SlidersHorizontal,
@@ -44,9 +44,11 @@ import {
   Activity,
   HelpCircle,
   Filter,
+  RefreshCcw,
 } from "lucide-react";
 import { ImportDialog } from "@/components/projects/import-dialog";
-import { AnimatedNumber, KpiCard } from "@/components/projects/premium-ui";
+import { AnimatedNumber } from "@/components/projects/premium-ui";
+import { MetricStrip } from "@/components/projects/metric-strip";
 import {
   ResponsiveContainer,
   PieChart,
@@ -480,85 +482,19 @@ export default function ProjectsClient({
       {/* ========================================================== */}
       {activeTab === "dashboard" && (
         <div className="space-y-6">
-          {/* 1. Summary Cards */}
-          <div className="grid gap-3 sm:gap-4 grid-cols-[repeat(auto-fit,minmax(140px,1fr))]">
-            <KpiCard
-              label="Total Projects"
-              value={<AnimatedNumber value={metrics.total} />}
-              description="All logged leads & projects"
-              icon={<Briefcase className="h-4 w-4" />}
-              borderClass="border-l-primary/80"
-              accentClass="text-primary"
-              staggerClass="pm-stagger-1"
-              active={kpiFilter === null}
-              onClick={() => { setKpiFilter(null); setActiveTab("list"); }}
-            />
-            <KpiCard
-              label="Active Projects"
-              value={<AnimatedNumber value={metrics.active} />}
-              description="In dev or onboarding"
-              icon={<Clock className="h-4 w-4" />}
-              borderClass="border-l-blue-500"
-              accentClass="text-blue-500"
-              valueClassName="text-blue-600 dark:text-blue-400"
-              staggerClass="pm-stagger-2"
-              active={kpiFilter === "active"}
-              onClick={() => { setKpiFilter("active"); setActiveTab("list"); }}
-            />
-            <KpiCard
-              label="On Hold"
-              value={<AnimatedNumber value={metrics.onHold} />}
-              description="Blocked or paused"
-              icon={<Pause className="h-4 w-4" />}
-              borderClass="border-l-orange-500"
-              accentClass="text-orange-500"
-              valueClassName="text-orange-600 dark:text-orange-400"
-              staggerClass="pm-stagger-3"
-              active={kpiFilter === "on_hold"}
-              onClick={() => { setKpiFilter("on_hold"); setActiveTab("list"); }}
-            />
-            <KpiCard
-              label="Completed"
-              value={<AnimatedNumber value={metrics.completed} />}
-              description="Delivered projects"
-              icon={<CheckCircle className="h-4 w-4" />}
-              borderClass="border-l-green-500"
-              accentClass="text-green-500"
-              valueClassName="text-green-600 dark:text-green-400"
-              staggerClass="pm-stagger-4"
-              active={kpiFilter === "completed"}
-              onClick={() => { setKpiFilter("completed"); setActiveTab("list"); }}
-            />
-            <KpiCard
-              label="Monthly Retainers"
-              value={<AnimatedNumber value={metrics.monthlyRecurring} />}
-              description="Active recurring billing"
-              icon={<TrendingUp className="h-4 w-4" />}
-              borderClass="border-l-purple-500"
-              accentClass="text-purple-500"
-              valueClassName="text-purple-600 dark:text-purple-400"
-              staggerClass="pm-stagger-5"
-              active={kpiFilter === "retainers"}
-              onClick={() => { setKpiFilter("retainers"); setActiveTab("list"); }}
-            />
-            <KpiCard
-              label="Total Value"
-              value={
-                <AnimatedNumber
-                  value={metrics.totalValue}
-                  prefix="$"
-                  formatter={(n) => n.toLocaleString(undefined, { minimumFractionDigits: 0 })}
-                />
-              }
-              description="Combined valuation"
-              icon={<DollarSign className="h-4 w-4" />}
-              borderClass="border-l-amber-500"
-              accentClass="text-primary"
-              valueClassName="text-primary"
-              staggerClass="pm-stagger-6 col-span-1 sm:col-span-2"
-              onClick={() => { setKpiFilter(null); setActiveTab("list"); }}
-            />
-          </div>
+          {/* 1. Metric Strip */}
+          <MetricStrip
+            activeFilter={kpiFilter}
+            onFilterChange={(f) => { setKpiFilter(f); setActiveTab("list"); }}
+            metrics={[
+              { label: "Total Projects", value: metrics.total, icon: Briefcase, color: "primary" },
+              { label: "Active", value: metrics.active, icon: Zap, color: "blue" },
+              { label: "On Hold", value: metrics.onHold, icon: Pause, color: "amber" },
+              { label: "Completed", value: metrics.completed, icon: CircleCheck, color: "green" },
+              { label: "Retainers", value: metrics.monthlyRecurring, icon: RefreshCcw, color: "violet" },
+              { label: "Total Value", value: `$${metrics.totalValue.toLocaleString()}`, icon: Banknote, color: "primary" },
+            ]}
+          />
 
           {/* Charts grid */}
           <div className="grid gap-4 sm:gap-6 grid-cols-[repeat(auto-fit,minmax(min(420px,100%),1fr))]">
