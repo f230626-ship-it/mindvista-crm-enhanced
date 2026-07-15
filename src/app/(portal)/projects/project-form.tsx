@@ -50,6 +50,8 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
   
   const [isMonthlyRetainer, setIsMonthlyRetainer] = useState(project?.is_monthly_retainer || false);
   const [currency, setCurrency] = useState(project?.currency || "USD");
+  const [projectType, setProjectType] = useState(project?.project_type || "");
+  const [paymentStructure, setPaymentStructure] = useState(project?.payment_structure || "");
 
   const isEditing = !!project;
   const isAdmin = currentEmployee.pm_role === "admin";
@@ -66,6 +68,8 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
     formData.set("priority", priority || "Medium");
     formData.set("is_monthly_retainer", String(isMonthlyRetainer));
     formData.set("currency", currency);
+    formData.set("project_type", projectType);
+    formData.set("payment_structure", paymentStructure);
     
     if (bdId) formData.set("bd_id", bdId);
     if (closingDevId) formData.set("closing_developer_id", closingDevId);
@@ -186,6 +190,22 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
             </div>
 
             <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-muted-foreground">Project Type</Label>
+              <Select value={projectType} onValueChange={(val) => setProjectType(val ?? "")}>
+                <SelectTrigger className="pm-select-trigger">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Full Time">Full Time</SelectItem>
+                  <SelectItem value="Part Time">Part Time</SelectItem>
+                  <SelectItem value="One-time">One-time</SelectItem>
+                  <SelectItem value="Contract">Contract</SelectItem>
+                  <SelectItem value="Internship">Internship</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
               <Label htmlFor="description" className="text-xs font-semibold text-muted-foreground">Project Description</Label>
               <Textarea
                 id="description"
@@ -258,7 +278,7 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
 
               <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-muted-foreground">Front Face (Optional)</Label>
+                  <Label className="text-xs font-semibold text-muted-foreground">Front Face</Label>
                   <Select
                     value={closingDevId}
                     onValueChange={(val) => setClosingDevId(val || "")}
@@ -275,6 +295,17 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="profile_name" className="text-xs font-semibold text-muted-foreground">Profile Name</Label>
+                  <Input
+                    id="profile_name"
+                    name="profile_name"
+                    defaultValue={project?.profile_name || ""}
+                    placeholder="E.g. Fiza"
+                    className="pm-input"
+                  />
                 </div>
               </div>
 
@@ -374,6 +405,45 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
                       <SelectItem value="GBP">GBP (£)</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="project_rate" className="text-xs font-semibold text-muted-foreground">Project Rate</Label>
+                  <Input
+                    id="project_rate"
+                    name="project_rate"
+                    defaultValue={project?.project_rate || ""}
+                    placeholder="E.g. 1500RS/h"
+                    className="pm-input font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-muted-foreground">Payment Structure</Label>
+                  <Select value={paymentStructure} onValueChange={(val) => setPaymentStructure(val ?? "")}>
+                    <SelectTrigger className="pm-select-trigger">
+                      <SelectValue placeholder="Select structure" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Milestones">Milestones</SelectItem>
+                      <SelectItem value="Monthly">Monthly</SelectItem>
+                      <SelectItem value="Weekly">Weekly</SelectItem>
+                      <SelectItem value="Upfront">Upfront</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="expected_monthly_revenue" className="text-xs font-semibold text-muted-foreground">Expected Monthly Revenue (MRR)</Label>
+                  <Input
+                    id="expected_monthly_revenue"
+                    name="expected_monthly_revenue"
+                    type="number"
+                    step="0.01"
+                    defaultValue={project?.expected_monthly_revenue || ""}
+                    placeholder="E.g. 2000"
+                    className="pm-input font-mono"
+                  />
                 </div>
               </div>
 

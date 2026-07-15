@@ -25,8 +25,11 @@ export async function createProject(formData: FormData) {
   if (payload.progress_percentage) {
     payload.progress_percentage = Number(payload.progress_percentage);
   }
-  if (payload.total_value) {
-    payload.total_value = Number(payload.total_value);
+  if (payload.value) {
+    payload.value = Number(payload.value);
+  }
+  if (payload.expected_monthly_revenue) {
+    payload.expected_monthly_revenue = Number(payload.expected_monthly_revenue);
   }
   if (payload.is_monthly_retainer) {
     payload.is_monthly_retainer = payload.is_monthly_retainer === "true";
@@ -67,8 +70,11 @@ export async function updateProject(id: string, formData: FormData) {
   if (payload.progress_percentage) {
     payload.progress_percentage = Number(payload.progress_percentage);
   }
-  if (payload.total_value) {
-    payload.total_value = Number(payload.total_value);
+  if (payload.value) {
+    payload.value = Number(payload.value);
+  }
+  if (payload.expected_monthly_revenue) {
+    payload.expected_monthly_revenue = Number(payload.expected_monthly_revenue);
   }
   if (payload.is_monthly_retainer) {
     payload.is_monthly_retainer = payload.is_monthly_retainer === "true";
