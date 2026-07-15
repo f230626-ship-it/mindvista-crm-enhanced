@@ -79,32 +79,32 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 const getStatusBadge = (status: string) => {
-  const baseClass = "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold border transition-all duration-200";
+  const baseClass = "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border transition-all duration-200 whitespace-nowrap";
   switch (status) {
     case "Active":
-      return <span className={`${baseClass} bg-green-500/10 text-green-600 border-green-500/20 dark:text-green-400 dark:bg-green-500/5`}><Play className="h-3 w-3" /> Active</span>;
+      return <span className={`${baseClass} bg-green-500/10 text-green-600 border-green-500/20 dark:text-green-400 dark:bg-green-500/5`}>Active</span>;
     case "Ended":
-      return <span className={`${baseClass} bg-slate-500/10 text-slate-600 border-slate-500/20 dark:text-slate-400 dark:bg-slate-500/5`}><Check className="h-3 w-3" /> Ended</span>;
+      return <span className={`${baseClass} bg-slate-500/10 text-slate-600 border-slate-500/20 dark:text-slate-400 dark:bg-slate-500/5`}>Ended</span>;
     case "Lead Won":
-      return <span className={`${baseClass} bg-blue-500/10 text-blue-600 border-blue-500/20 dark:text-blue-400 dark:bg-blue-500/5`}><TrendingUp className="h-3 w-3" /> Lead Won</span>;
+      return <span className={`${baseClass} bg-blue-500/10 text-blue-600 border-blue-500/20 dark:text-blue-400 dark:bg-blue-500/5`}>Lead Won</span>;
     case "Onboarding":
-      return <span className={`${baseClass} bg-indigo-500/10 text-indigo-600 border-indigo-500/20 dark:text-indigo-400 dark:bg-indigo-500/5`}><FolderOpen className="h-3 w-3" /> Onboarding</span>;
+      return <span className={`${baseClass} bg-indigo-500/10 text-indigo-600 border-indigo-500/20 dark:text-indigo-400 dark:bg-indigo-500/5`}>Onboarding</span>;
     case "In Progress":
-      return <span className={`${baseClass} bg-amber-500/10 text-amber-600 border-amber-500/20 dark:text-amber-400 dark:bg-amber-500/5`}><Play className="h-3 w-3 fill-current" /> In Progress</span>;
+      return <span className={`${baseClass} bg-amber-500/10 text-amber-600 border-amber-500/20 dark:text-amber-400 dark:bg-amber-500/5`}>In Progress</span>;
     case "On Hold":
-      return <span className={`${baseClass} bg-orange-500/10 text-orange-600 border-orange-500/20 dark:text-orange-400 dark:bg-orange-500/5`}><Pause className="h-3 w-3 fill-current" /> On Hold</span>;
+      return <span className={`${baseClass} bg-orange-500/10 text-orange-600 border-orange-500/20 dark:text-orange-400 dark:bg-orange-500/5`}>On Hold</span>;
     case "Completed":
-      return <span className={`${baseClass} bg-green-500/10 text-green-600 border-green-500/20 dark:text-green-400 dark:bg-green-500/5`}><Check className="h-3 w-3" /> Completed</span>;
+      return <span className={`${baseClass} bg-green-500/10 text-green-600 border-green-500/20 dark:text-green-400 dark:bg-green-500/5`}>Completed</span>;
     case "Maintenance":
-      return <span className={`${baseClass} bg-teal-500/10 text-teal-600 border-teal-500/20 dark:text-teal-400 dark:bg-teal-500/5`}><Activity className="h-3 w-3" /> Maintenance</span>;
+      return <span className={`${baseClass} bg-teal-500/10 text-teal-600 border-teal-500/20 dark:text-teal-400 dark:bg-teal-500/5`}>Maintenance</span>;
     case "Paused":
-      return <span className={`${baseClass} bg-purple-500/10 text-purple-600 border-purple-500/20 dark:text-purple-400 dark:bg-purple-500/5`}><Pause className="h-3 w-3" /> Paused</span>;
+      return <span className={`${baseClass} bg-purple-500/10 text-purple-600 border-purple-500/20 dark:text-purple-400 dark:bg-purple-500/5`}>Paused</span>;
     case "Cancelled":
-      return <span className={`${baseClass} bg-red-500/10 text-red-600 border-red-500/20 dark:text-red-400 dark:bg-red-500/5`}><X className="h-3 w-3" /> Cancelled</span>;
+      return <span className={`${baseClass} bg-red-500/10 text-red-600 border-red-500/20 dark:text-red-400 dark:bg-red-500/5`}>Cancelled</span>;
     case "Archived":
-      return <span className={`${baseClass} bg-slate-500/10 text-slate-600 border-slate-500/20 dark:text-slate-400 dark:bg-slate-500/5`}><Lock className="h-3 w-3" /> Archived</span>;
+      return <span className={`${baseClass} bg-slate-500/10 text-slate-600 border-slate-500/20 dark:text-slate-400 dark:bg-slate-500/5`}>Archived</span>;
     default:
-      return <span className={`${baseClass} bg-slate-500/10 text-slate-600 border-slate-500/20`}><HelpCircle className="h-3 w-3" /> {status}</span>;
+      return <span className={`${baseClass} bg-slate-500/10 text-slate-600 border-slate-500/20`}>{status}</span>;
   }
 };
 
@@ -920,24 +920,24 @@ export default function ProjectsClient({
           </Card>
 
           {/* Table Card */}
-          <Card className="pm-table-card">
-            <div className="overflow-x-auto -mx-1 px-1">
-              <Table className="pm-table w-[1400px]">
+          <Card className="pm-table-card overflow-hidden">
+            <div className="overflow-x-auto">
+              <Table className="pm-table" style={{ tableLayout: 'fixed', width: '100%' }}>
                   <TableHeader>
                     <TableRow className="hover:bg-transparent border-b border-border/50">
-                      <TableHead className="font-semibold text-[11px] tracking-wider uppercase text-muted-foreground py-3 px-4 whitespace-nowrap">Client Name</TableHead>
-                      <TableHead className="font-semibold text-[11px] tracking-wider uppercase text-muted-foreground py-3 px-4 whitespace-nowrap">Project Name</TableHead>
-                      <TableHead className="font-semibold text-[11px] tracking-wider uppercase text-muted-foreground py-3 px-4 whitespace-nowrap">Project Type</TableHead>
-                      <TableHead className="font-semibold text-[11px] tracking-wider uppercase text-muted-foreground py-3 px-4 text-right whitespace-nowrap">Value</TableHead>
-                      <TableHead className="font-semibold text-[11px] tracking-wider uppercase text-muted-foreground py-3 px-4 whitespace-nowrap">Payment</TableHead>
-                      <TableHead className="font-semibold text-[11px] tracking-wider uppercase text-muted-foreground py-3 px-4 whitespace-nowrap">Start Date</TableHead>
-                      <TableHead className="font-semibold text-[11px] tracking-wider uppercase text-muted-foreground py-3 px-4 whitespace-nowrap">Rate</TableHead>
-                      <TableHead className="font-semibold text-[11px] tracking-wider uppercase text-muted-foreground py-3 px-4 whitespace-nowrap">Status</TableHead>
-                      <TableHead className="font-semibold text-[11px] tracking-wider uppercase text-muted-foreground py-3 px-4 text-right whitespace-nowrap">MRR</TableHead>
-                      <TableHead className="font-semibold text-[11px] tracking-wider uppercase text-muted-foreground py-3 px-4 whitespace-nowrap">Resource</TableHead>
-                      <TableHead className="font-semibold text-[11px] tracking-wider uppercase text-muted-foreground py-3 px-4 whitespace-nowrap">Profile</TableHead>
-                      <TableHead className="font-semibold text-[11px] tracking-wider uppercase text-muted-foreground py-3 px-4 whitespace-nowrap">BD</TableHead>
-                      <TableHead className="font-semibold text-[11px] tracking-wider uppercase text-muted-foreground py-3 px-4 whitespace-nowrap">End Date</TableHead>
+                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-2.5 whitespace-nowrap w-[12%]">Client</TableHead>
+                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-2.5 whitespace-nowrap w-[14%]">Project</TableHead>
+                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-2.5 whitespace-nowrap w-[8%]">Type</TableHead>
+                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-2.5 text-right whitespace-nowrap w-[8%]">Value</TableHead>
+                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-2.5 whitespace-nowrap w-[8%]">Payment</TableHead>
+                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-2.5 whitespace-nowrap w-[8%]">Start</TableHead>
+                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-2.5 whitespace-nowrap w-[7%]">Rate</TableHead>
+                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-2.5 whitespace-nowrap w-[10%]">Status</TableHead>
+                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-2.5 text-right whitespace-nowrap w-[7%]">MRR</TableHead>
+                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-2.5 whitespace-nowrap w-[8%]">Resource</TableHead>
+                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-2.5 whitespace-nowrap w-[6%]">Profile</TableHead>
+                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-2.5 whitespace-nowrap w-[5%]">BD</TableHead>
+                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-2.5 whitespace-nowrap w-[5%]">End</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -948,30 +948,30 @@ export default function ProjectsClient({
                           onClick={() => router.push(`/projects/${p.id}`)}
                           className="cursor-pointer group border-b border-border/20 hover:bg-muted/30"
                         >
-                          <TableCell className="py-3 px-4 truncate text-sm font-medium group-hover:text-primary transition-colors">{p.client_name}</TableCell>
-                          <TableCell className="py-3 px-4 truncate text-sm">{p.name}</TableCell>
-                          <TableCell className="py-3 px-4 truncate text-xs text-muted-foreground">{p.project_type || "—"}</TableCell>
-                          <TableCell className="py-3 px-4 text-right font-semibold font-mono text-foreground tabular-nums text-sm">
+                          <TableCell className="py-2.5 px-2.5 truncate text-[13px] font-medium group-hover:text-primary transition-colors">{p.client_name}</TableCell>
+                          <TableCell className="py-2.5 px-2.5 truncate text-[13px]">{p.name}</TableCell>
+                          <TableCell className="py-2.5 px-2.5 truncate text-xs text-muted-foreground">{p.project_type || "—"}</TableCell>
+                          <TableCell className="py-2.5 px-2.5 text-right font-semibold font-mono text-foreground tabular-nums text-[13px]">
                             ${Number(p.value || 0).toLocaleString()}
                           </TableCell>
-                          <TableCell className="py-3 px-4 truncate text-xs text-muted-foreground">{p.payment_structure || "—"}</TableCell>
-                          <TableCell className="py-3 px-4 text-xs tabular-nums text-muted-foreground whitespace-nowrap">
-                            {p.start_date ? new Date(p.start_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "2-digit" }) : "—"}
+                          <TableCell className="py-2.5 px-2.5 truncate text-xs text-muted-foreground">{p.payment_structure || "—"}</TableCell>
+                          <TableCell className="py-2.5 px-2.5 text-xs tabular-nums text-muted-foreground whitespace-nowrap">
+                            {p.start_date ? new Date(p.start_date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "—"}
                           </TableCell>
-                          <TableCell className="py-3 px-4 truncate text-xs text-muted-foreground">{p.project_rate || "—"}</TableCell>
-                          <TableCell className="py-3 px-4">
+                          <TableCell className="py-2.5 px-2.5 truncate text-xs text-muted-foreground">{p.project_rate || "—"}</TableCell>
+                          <TableCell className="py-2.5 px-2.5">
                             {getStatusBadge(p.status)}
                           </TableCell>
-                          <TableCell className="py-3 px-4 text-right font-mono tabular-nums text-sm">
+                          <TableCell className="py-2.5 px-2.5 text-right font-mono tabular-nums text-xs">
                             {p.expected_monthly_revenue ? `$${Number(p.expected_monthly_revenue).toLocaleString()}` : "—"}
                           </TableCell>
-                          <TableCell className="py-3 px-4 truncate text-xs text-muted-foreground max-w-[120px]">
-                            {p.resources.length > 0 ? p.resources.map((r) => r.employee.full_name).join(", ") : "—"}
+                          <TableCell className="py-2.5 px-2.5 truncate text-xs text-muted-foreground" title={p.resources.map((r) => r.employee.full_name).join(", ")}>
+                            {p.resources.length > 0 ? p.resources.map((r) => r.employee.full_name.split(" ")[0]).join(", ") : "—"}
                           </TableCell>
-                          <TableCell className="py-3 px-4 truncate text-xs text-muted-foreground">{p.profile_name || "—"}</TableCell>
-                          <TableCell className="py-3 px-4 truncate text-xs text-muted-foreground">{p.bd?.full_name || "—"}</TableCell>
-                          <TableCell className="py-3 px-4 text-xs tabular-nums text-muted-foreground whitespace-nowrap">
-                            {p.expected_delivery_date ? new Date(p.expected_delivery_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "2-digit" }) : "—"}
+                          <TableCell className="py-2.5 px-2.5 truncate text-xs text-muted-foreground">{p.profile_name || "—"}</TableCell>
+                          <TableCell className="py-2.5 px-2.5 truncate text-xs text-muted-foreground">{p.bd?.full_name || "—"}</TableCell>
+                          <TableCell className="py-2.5 px-2.5 text-xs tabular-nums text-muted-foreground whitespace-nowrap">
+                            {p.expected_delivery_date ? new Date(p.expected_delivery_date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "—"}
                           </TableCell>
                         </TableRow>
                       ))
