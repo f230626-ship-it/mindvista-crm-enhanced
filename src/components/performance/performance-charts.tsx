@@ -1,26 +1,30 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
+import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  LineChart, Line, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend
+  LineChart, Line, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
 } from "recharts";
 import { TrendingUp, Target, Award, Activity } from "lucide-react";
-import { motion } from "framer-motion";
 
 interface TooltipProps {
   active?: boolean;
   payload?: any[];
 }
 
-// Move CustomTooltip outside the component to prevent re-creation on each render
 const CustomTooltip = ({ active, payload }: TooltipProps) => {
   if (active && payload && payload.length) {
     return (
       <div className="rounded-lg border bg-background p-3 shadow-lg">
-        <p className="font-semibold">{payload[0].payload.name || payload[0].payload.period || payload[0].payload.category}</p>
-        <p className="text-sm text-muted-foreground">
-          {payload[0].name}: <span className="font-medium">{payload[0].value}{payload[0].name === 'rating' ? '/5' : '%'}</span>
+        <p className="font-semibold text-sm">
+          {payload[0].payload.name || payload[0].payload.period || payload[0].payload.category}
+        </p>
+        <p className="text-xs text-muted-foreground">
+          {payload[0].name}:{" "}
+          <span className="font-medium">
+            {payload[0].value}
+            {payload[0].name === "rating" ? "/5" : "%"}
+          </span>
         </p>
       </div>
     );
@@ -34,180 +38,177 @@ interface PerformanceChartsProps {
 }
 
 export function PerformanceCharts({ goals, reviews }: PerformanceChartsProps) {
-  // Goal completion data
-  const goalCompletionData = goals.map((goal, index) => ({
-    name: goal.title.length > 20 ? goal.title.substring(0, 20) + '...' : goal.title,
+  const goalCompletionData = goals.map((goal) => ({
+    name: goal.title.length > 18 ? goal.title.substring(0, 18) + "..." : goal.title,
     progress: goal.completion_status,
-    target: 100,
   }));
 
-  // Review ratings over time
-  const reviewRatingsData = reviews.map(review => ({
-    period: review.review_period,
-    rating: review.rating,
-  })).reverse();
+  const reviewRatingsData = reviews
+    .map((review) => ({
+      period: review.review_period,
+      rating: review.rating,
+    }))
+    .reverse();
 
-  // Performance radar chart data (latest review)
   const latestReview = reviews[0];
-  const radarData = latestReview ? [
-    { category: 'Overall', value: latestReview.rating * 20 },
-    { category: 'Quality', value: (latestReview.rating + 0.5) * 20 },
-    { category: 'Efficiency', value: latestReview.rating * 18 },
-    { category: 'Collaboration', value: (latestReview.rating + 0.3) * 19 },
-    { category: 'Innovation', value: latestReview.rating * 21 },
-  ] : [];
+  const radarData = latestReview
+    ? [
+        { category: "Overall", value: latestReview.rating * 20 },
+        { category: "Quality", value: (latestReview.rating + 0.5) * 20 },
+        { category: "Efficiency", value: latestReview.rating * 18 },
+        { category: "Collaboration", value: (latestReview.rating + 0.3) * 19 },
+        { category: "Innovation", value: latestReview.rating * 21 },
+      ]
+    : [];
 
-  // Goals by status
   const goalsByStatus = [
-    { status: 'Not Started', count: goals.filter(g => g.completion_status === 0).length, fill: '#ef4444' },
-    { status: 'In Progress', count: goals.filter(g => g.completion_status > 0 && g.completion_status < 100).length, fill: '#f59e0b' },
-    { status: 'Completed', count: goals.filter(g => g.completion_status === 100).length, fill: '#10b981' },
+    {
+      status: "Not Started",
+      count: goals.filter((g) => g.completion_status === 0).length,
+      fill: "#64748b",
+    },
+    {
+      status: "In Progress",
+      count: goals.filter((g) => g.completion_status > 0 && g.completion_status < 100).length,
+      fill: "#e5a158",
+    },
+    {
+      status: "Completed",
+      count: goals.filter((g) => g.completion_status === 100).length,
+      fill: "#22c55e",
+    },
   ];
 
+  const hasGoalData = goalCompletionData.length > 0;
+  const hasReviewData = reviewRatingsData.length > 0;
+  const hasRadarData = radarData.length > 0;
+
+  if (!hasGoalData && !hasReviewData) return null;
+
   return (
-    <div className="grid gap-4 sm:gap-6 grid-cols-[repeat(auto-fit,minmax(min(380px,100%),1fr))]">
-      {/* Goal Progress Chart */}
-      {goalCompletionData.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <Card className="overflow-hidden pt-0">
-            <CardHeader className="bg-gradient-to-r from-blue-500/5 to-blue-500/10 py-(--card-spacing)">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Target className="h-5 w-5 text-blue-600" />
-                Goal Completion Progress
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={goalCompletionData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis type="number" domain={[0, 100]} className="text-xs" />
-                  <YAxis dataKey="name" type="category" width={100} className="text-xs" />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Bar dataKey="progress" fill="#3b82f6" radius={[0, 8, 8, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </motion.div>
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      {/* Goal Progress */}
+      {hasGoalData && (
+        <Card className="overflow-hidden border-border/40 bg-card/80 pt-0 backdrop-blur-sm">
+          <CardHeader className="border-b border-border/40 bg-muted/20 py-4">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Target className="h-4 w-4 text-blue-500" />
+              Goal Completion Progress
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-5">
+            <ResponsiveContainer width="100%" height={240}>
+              <BarChart data={goalCompletionData} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" className="stroke-border/30" />
+                <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11 }} />
+                <YAxis dataKey="name" type="category" width={120} tick={{ fontSize: 11 }} />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar dataKey="progress" fill="#3b82f6" radius={[0, 6, 6, 0]} barSize={20} />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
       )}
 
       {/* Goal Status Distribution */}
-      {goals.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <Card className="overflow-hidden pt-0">
-            <CardHeader className="bg-gradient-to-r from-green-500/5 to-green-500/10 py-(--card-spacing)">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Activity className="h-5 w-5 text-green-600" />
-                Goal Status Overview
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={goalsByStatus}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis dataKey="status" className="text-xs" />
-                  <YAxis className="text-xs" />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Bar dataKey="count" radius={[8, 8, 0, 0]}>
-                    {goalsByStatus.map((entry, index) => (
-                      <rect key={`cell-${index}`} fill={entry.fill} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-              <div className="mt-4 flex justify-center gap-6">
-                {goalsByStatus.map((item) => (
-                  <div key={item.status} className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-full" style={{ backgroundColor: item.fill }} />
-                    <span className="text-sm font-medium">{item.status}</span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+      {hasGoalData && (
+        <Card className="overflow-hidden border-border/40 bg-card/80 pt-0 backdrop-blur-sm">
+          <CardHeader className="border-b border-border/40 bg-muted/20 py-4">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Activity className="h-4 w-4 text-emerald-500" />
+              Goal Status Overview
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-5">
+            <ResponsiveContainer width="100%" height={240}>
+              <BarChart data={goalsByStatus}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-border/30" />
+                <XAxis dataKey="status" tick={{ fontSize: 11 }} />
+                <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar dataKey="count" radius={[6, 6, 0, 0]} barSize={40}>
+                  {goalsByStatus.map((entry, index) => (
+                    <rect key={`cell-${index}`} fill={entry.fill} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+            <div className="mt-3 flex justify-center gap-5">
+              {goalsByStatus.map((item) => (
+                <div key={item.status} className="flex items-center gap-1.5">
+                  <div
+                    className="h-2.5 w-2.5 rounded-full"
+                    style={{ backgroundColor: item.fill }}
+                  />
+                  <span className="text-xs text-muted-foreground">{item.status}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       )}
 
-      {/* Review Ratings Timeline */}
-      {reviewRatingsData.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-        >
-          <Card className="overflow-hidden pt-0">
-            <CardHeader className="bg-gradient-to-r from-purple-500/5 to-purple-500/10 py-(--card-spacing)">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <TrendingUp className="h-5 w-5 text-purple-600" />
-                Performance Rating Trend
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={reviewRatingsData}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis dataKey="period" className="text-xs" />
-                  <YAxis domain={[0, 5]} className="text-xs" />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Line 
-                    type="monotone" 
-                    dataKey="rating" 
-                    stroke="#a855f7" 
-                    strokeWidth={3}
-                    dot={{ fill: '#a855f7', r: 6 }}
-                    activeDot={{ r: 8 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </motion.div>
+      {/* Rating Trend */}
+      {hasReviewData && (
+        <Card className="overflow-hidden border-border/40 bg-card/80 pt-0 backdrop-blur-sm">
+          <CardHeader className="border-b border-border/40 bg-muted/20 py-4">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <TrendingUp className="h-4 w-4 text-violet-500" />
+              Performance Rating Trend
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-5">
+            <ResponsiveContainer width="100%" height={240}>
+              <LineChart data={reviewRatingsData}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-border/30" />
+                <XAxis dataKey="period" tick={{ fontSize: 11 }} />
+                <YAxis domain={[0, 5]} tick={{ fontSize: 11 }} allowDecimals={false} />
+                <Tooltip content={<CustomTooltip />} />
+                <Line
+                  type="monotone"
+                  dataKey="rating"
+                  stroke="#a855f7"
+                  strokeWidth={2.5}
+                  dot={{ fill: "#a855f7", r: 5 }}
+                  activeDot={{ r: 7 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
       )}
 
-      {/* Performance Radar Chart */}
-      {radarData.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-        >
-          <Card className="overflow-hidden pt-0">
-            <CardHeader className="bg-gradient-to-r from-amber-500/5 to-amber-500/10 py-(--card-spacing)">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Award className="h-5 w-5 text-amber-600" />
-                Performance Dimensions
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-              <ResponsiveContainer width="100%" height={300}>
-                <RadarChart data={radarData}>
-                  <PolarGrid className="stroke-muted" />
-                  <PolarAngleAxis dataKey="category" className="text-xs" />
-                  <PolarRadiusAxis domain={[0, 100]} className="text-xs" />
-                  <Radar 
-                    name="Performance" 
-                    dataKey="value" 
-                    stroke="#f59e0b" 
-                    fill="#f59e0b" 
-                    fillOpacity={0.6} 
-                  />
-                  <Tooltip content={<CustomTooltip />} />
-                </RadarChart>
-              </ResponsiveContainer>
-              <p className="mt-4 text-center text-xs text-muted-foreground">
-                Based on latest review: {latestReview?.review_period}
-              </p>
-            </CardContent>
-          </Card>
-        </motion.div>
+      {/* Radar */}
+      {hasRadarData && (
+        <Card className="overflow-hidden border-border/40 bg-card/80 pt-0 backdrop-blur-sm">
+          <CardHeader className="border-b border-border/40 bg-muted/20 py-4">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Award className="h-4 w-4 text-amber-500" />
+              Performance Dimensions
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col items-center p-5">
+            <ResponsiveContainer width="100%" height={240}>
+              <RadarChart data={radarData}>
+                <PolarGrid className="stroke-border/30" />
+                <PolarAngleAxis dataKey="category" tick={{ fontSize: 10 }} />
+                <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
+                <Radar
+                  name="Performance"
+                  dataKey="value"
+                  stroke="#e5a158"
+                  fill="#e5a158"
+                  fillOpacity={0.25}
+                  strokeWidth={2}
+                />
+                <Tooltip content={<CustomTooltip />} />
+              </RadarChart>
+            </ResponsiveContainer>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Based on latest review: {latestReview?.review_period}
+            </p>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
