@@ -920,25 +920,24 @@ export default function ProjectsClient({
           </Card>
 
           {/* Table Card */}
-          <Card className="pm-table-card overflow-hidden">
-            <div className="overflow-x-auto">
-              <CardContent className="p-0">
-                <Table className="pm-table" style={{ tableLayout: 'fixed' }}>
+          <Card className="pm-table-card">
+            <div className="overflow-x-auto -mx-1 px-1">
+              <Table className="pm-table w-[1400px]">
                   <TableHeader>
                     <TableRow className="hover:bg-transparent border-b border-border/50">
-                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[11%]">Client Name</TableHead>
-                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[11%]">Project Name</TableHead>
-                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[8%]">Project Type</TableHead>
-                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[9%] text-right">Value</TableHead>
-                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[9%]">Payment</TableHead>
-                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[8%]">Start</TableHead>
-                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[8%]">Rate</TableHead>
-                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[9%]">Status</TableHead>
-                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[8%] text-right">MRR</TableHead>
-                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[8%]">Resource</TableHead>
-                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[7%]">Profile</TableHead>
-                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[7%]">BD</TableHead>
-                      <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[5%]">End</TableHead>
+                      <TableHead className="font-semibold text-[11px] tracking-wider uppercase text-muted-foreground py-3 px-4 whitespace-nowrap">Client Name</TableHead>
+                      <TableHead className="font-semibold text-[11px] tracking-wider uppercase text-muted-foreground py-3 px-4 whitespace-nowrap">Project Name</TableHead>
+                      <TableHead className="font-semibold text-[11px] tracking-wider uppercase text-muted-foreground py-3 px-4 whitespace-nowrap">Project Type</TableHead>
+                      <TableHead className="font-semibold text-[11px] tracking-wider uppercase text-muted-foreground py-3 px-4 text-right whitespace-nowrap">Value</TableHead>
+                      <TableHead className="font-semibold text-[11px] tracking-wider uppercase text-muted-foreground py-3 px-4 whitespace-nowrap">Payment</TableHead>
+                      <TableHead className="font-semibold text-[11px] tracking-wider uppercase text-muted-foreground py-3 px-4 whitespace-nowrap">Start Date</TableHead>
+                      <TableHead className="font-semibold text-[11px] tracking-wider uppercase text-muted-foreground py-3 px-4 whitespace-nowrap">Rate</TableHead>
+                      <TableHead className="font-semibold text-[11px] tracking-wider uppercase text-muted-foreground py-3 px-4 whitespace-nowrap">Status</TableHead>
+                      <TableHead className="font-semibold text-[11px] tracking-wider uppercase text-muted-foreground py-3 px-4 text-right whitespace-nowrap">MRR</TableHead>
+                      <TableHead className="font-semibold text-[11px] tracking-wider uppercase text-muted-foreground py-3 px-4 whitespace-nowrap">Resource</TableHead>
+                      <TableHead className="font-semibold text-[11px] tracking-wider uppercase text-muted-foreground py-3 px-4 whitespace-nowrap">Profile</TableHead>
+                      <TableHead className="font-semibold text-[11px] tracking-wider uppercase text-muted-foreground py-3 px-4 whitespace-nowrap">BD</TableHead>
+                      <TableHead className="font-semibold text-[11px] tracking-wider uppercase text-muted-foreground py-3 px-4 whitespace-nowrap">End Date</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -947,31 +946,31 @@ export default function ProjectsClient({
                         <TableRow
                           key={p.id}
                           onClick={() => router.push(`/projects/${p.id}`)}
-                          className="cursor-pointer group"
+                          className="cursor-pointer group border-b border-border/20 hover:bg-muted/30"
                         >
-                          <TableCell className="py-2.5 px-3 truncate text-sm font-medium group-hover:text-primary transition-colors">{p.client_name}</TableCell>
-                          <TableCell className="py-2.5 px-3 truncate text-sm">{p.name}</TableCell>
-                          <TableCell className="py-2.5 px-3 truncate text-xs text-muted-foreground">{p.project_type || "—"}</TableCell>
-                          <TableCell className="py-2.5 px-3 text-right font-semibold font-mono text-foreground tabular-nums text-sm">
+                          <TableCell className="py-3 px-4 truncate text-sm font-medium group-hover:text-primary transition-colors">{p.client_name}</TableCell>
+                          <TableCell className="py-3 px-4 truncate text-sm">{p.name}</TableCell>
+                          <TableCell className="py-3 px-4 truncate text-xs text-muted-foreground">{p.project_type || "—"}</TableCell>
+                          <TableCell className="py-3 px-4 text-right font-semibold font-mono text-foreground tabular-nums text-sm">
                             ${Number(p.value || 0).toLocaleString()}
                           </TableCell>
-                          <TableCell className="py-2.5 px-3 truncate text-xs text-muted-foreground">{p.payment_structure || "—"}</TableCell>
-                          <TableCell className="py-2.5 px-3 text-xs tabular-nums text-muted-foreground">
+                          <TableCell className="py-3 px-4 truncate text-xs text-muted-foreground">{p.payment_structure || "—"}</TableCell>
+                          <TableCell className="py-3 px-4 text-xs tabular-nums text-muted-foreground whitespace-nowrap">
                             {p.start_date ? new Date(p.start_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "2-digit" }) : "—"}
                           </TableCell>
-                          <TableCell className="py-2.5 px-3 truncate text-xs text-muted-foreground">{p.project_rate || "—"}</TableCell>
-                          <TableCell className="py-2.5 px-3">
+                          <TableCell className="py-3 px-4 truncate text-xs text-muted-foreground">{p.project_rate || "—"}</TableCell>
+                          <TableCell className="py-3 px-4">
                             {getStatusBadge(p.status)}
                           </TableCell>
-                          <TableCell className="py-2.5 px-3 text-right font-mono tabular-nums text-sm">
+                          <TableCell className="py-3 px-4 text-right font-mono tabular-nums text-sm">
                             {p.expected_monthly_revenue ? `$${Number(p.expected_monthly_revenue).toLocaleString()}` : "—"}
                           </TableCell>
-                          <TableCell className="py-2.5 px-3 truncate text-xs text-muted-foreground">
+                          <TableCell className="py-3 px-4 truncate text-xs text-muted-foreground max-w-[120px]">
                             {p.resources.length > 0 ? p.resources.map((r) => r.employee.full_name).join(", ") : "—"}
                           </TableCell>
-                          <TableCell className="py-2.5 px-3 truncate text-xs text-muted-foreground">{p.profile_name || "—"}</TableCell>
-                          <TableCell className="py-2.5 px-3 truncate text-xs text-muted-foreground">{p.bd?.full_name || "—"}</TableCell>
-                          <TableCell className="py-2.5 px-3 text-xs tabular-nums text-muted-foreground">
+                          <TableCell className="py-3 px-4 truncate text-xs text-muted-foreground">{p.profile_name || "—"}</TableCell>
+                          <TableCell className="py-3 px-4 truncate text-xs text-muted-foreground">{p.bd?.full_name || "—"}</TableCell>
+                          <TableCell className="py-3 px-4 text-xs tabular-nums text-muted-foreground whitespace-nowrap">
                             {p.expected_delivery_date ? new Date(p.expected_delivery_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "2-digit" }) : "—"}
                           </TableCell>
                         </TableRow>
@@ -1002,7 +1001,6 @@ export default function ProjectsClient({
                     )}
                   </TableBody>
                 </Table>
-              </CardContent>
             </div>
           </Card>
 
