@@ -84,8 +84,18 @@ export function LeaveForm() {
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="reason">Reason</Label>
-            <Textarea id="reason" name="reason" rows={3} required />
+            <Label htmlFor="reason" className="text-sm font-medium">
+              Reason <span className="text-destructive">*</span>
+            </Label>
+            <Textarea
+              id="reason"
+              name="reason"
+              rows={3}
+              required
+              placeholder="Briefly explain why you are requesting this leave..."
+              className="resize-none"
+            />
+            <p className="text-[11px] text-muted-foreground">Required. Your manager will see this when reviewing your request.</p>
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? (

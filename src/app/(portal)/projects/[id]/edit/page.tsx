@@ -3,6 +3,7 @@ import { requireRole } from "@/lib/auth";
 import { notFound } from "next/navigation";
 import { ProjectForm } from "../../project-form";
 import { PageHeader } from "@/components/ui/page-header";
+import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
 
 export default async function EditProjectPage({
   params,
@@ -23,7 +24,14 @@ export default async function EditProjectPage({
   }
 
   return (
-    <div className="space-y-6">
+    <div>
+      <PageBreadcrumb
+        segments={[
+          { label: "Projects", href: "/projects" },
+          { label: project.name, href: `/projects/${id}` }
+        ]}
+        current="Edit"
+      />
       <PageHeader
         title="Edit Project"
         description={`Editing ${project.name}`}

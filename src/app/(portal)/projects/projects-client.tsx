@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -24,27 +24,24 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  Briefcase,
-  CircleCheck,
-  Zap,
+  LayoutGrid,
   TrendingUp,
-  Banknote,
+  Clock,
+  CheckCircle2,
+  Repeat2,
+  DollarSign,
   Plus,
   Search,
   SlidersHorizontal,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Lock,
   FolderOpen,
   Upload,
-  Play,
-  Pause,
-  Check,
+  Calendar,
   X,
-  Activity,
-  HelpCircle,
   Filter,
-  RefreshCcw,
 } from "lucide-react";
 import { ImportDialog } from "@/components/projects/import-dialog";
 import { AnimatedNumber } from "@/components/projects/premium-ui";
@@ -123,15 +120,15 @@ const getPriorityBadge = (priority?: string) => {
 };
 
 const CHART_COLORS = [
-  "#e5a158", // Brand orange
-  "#3b82f6", // Blue
-  "#10b981", // Green
+  "#e5a158", // Brand orange (primary)
+  "#6366f1", // Indigo
+  "#10b981", // Emerald
+  "#f43f5e", // Rose
+  "#8b5cf6", // Violet
+  "#06b6d4", // Cyan
   "#f59e0b", // Amber
-  "#ef4444", // Red
-  "#8b5cf6", // Purple
-  "#ec4899", // Pink
   "#14b8a6", // Teal
-  "#6b7280", // Gray
+  "#64748b", // Slate
 ];
 
 interface ProjectsClientProps {
@@ -171,6 +168,9 @@ export default function ProjectsClient({
   const [kpiFilter, setKpiFilter] = useState<string | null>(null);
   const [timeFilter, setTimeFilter] = useState<string>("all");
   const [timeFilterYear, setTimeFilterYear] = useState<number>(new Date().getFullYear());
+  const [timeFilterMode, setTimeFilterMode] = useState<"quarter" | "month">("quarter");
+  const [isTimeDropdownOpen, setIsTimeDropdownOpen] = useState(false);
+  const timeDropdownRef = useRef<HTMLDivElement>(null);
 
   // --- Pagination State ---
   const [currentPage, setCurrentPage] = useState(1);
@@ -260,6 +260,36 @@ export default function ProjectsClient({
 
   // --- Reset Pagination when filters change is handled inline with handlers ---
 
+  // --- Close time dropdown on outside click ---
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (timeDropdownRef.current && !timeDropdownRef.current.contains(e.target as Node)) {
+        setIsTimeDropdownOpen(false);
+      }
+    }
+    if (isTimeDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [isTimeDropdownOpen]);
+
+  // --- Time filter label ---
+  const timeFilterLabel = useMemo(() => {
+    if (timeFilter === "all") return "All Time";
+    if (timeFilter === "month") return "Current Month";
+    if (timeFilter === "year") return `${timeFilterYear} Full Year`;
+    if (timeFilter === "q1") return `Q1 ${timeFilterYear}`;
+    if (timeFilter === "q2") return `Q2 ${timeFilterYear}`;
+    if (timeFilter === "q3") return `Q3 ${timeFilterYear}`;
+    if (timeFilter === "q4") return `Q4 ${timeFilterYear}`;
+    const monthNum = parseInt(timeFilter);
+    if (!isNaN(monthNum) && monthNum >= 1 && monthNum <= 12) {
+      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      return `${monthNames[monthNum - 1]} ${timeFilterYear}`;
+    }
+    return "All Time";
+  }, [timeFilter, timeFilterYear]);
+
   // --- Time-based filtered projects ---
   const filteredProjectsByTime = useMemo(() => {
     if (timeFilter === "all") return initialProjects;
@@ -273,17 +303,26 @@ export default function ProjectsClient({
       if (timeFilter === "year") return true;
 
       const month = d.getMonth(); // 0-indexed
-      if (timeFilter === "q1") return month >= 0 && month <= 2;
-      if (timeFilter === "q2") return month >= 3 && month <= 5;
-      if (timeFilter === "q3") return month >= 6 && month <= 8;
-      if (timeFilter === "q4") return month >= 9 && month <= 11;
+
+      if (timeFilterMode === "quarter") {
+        if (timeFilter === "q1") return month >= 0 && month <= 2;
+        if (timeFilter === "q2") return month >= 3 && month <= 5;
+        if (timeFilter === "q3") return month >= 6 && month <= 8;
+        if (timeFilter === "q4") return month >= 9 && month <= 11;
+      } else {
+        const monthNum = parseInt(timeFilter);
+        if (!isNaN(monthNum) && monthNum >= 1 && monthNum <= 12) {
+          return month === monthNum - 1;
+        }
+      }
+
       if (timeFilter === "month") {
         const now = new Date();
         return year === now.getFullYear() && month === now.getMonth();
       }
       return true;
     });
-  }, [initialProjects, timeFilter, timeFilterYear]);
+  }, [initialProjects, timeFilter, timeFilterYear, timeFilterMode]);
 
   // ==========================================
   // --- METRIC CALCULATIONS FOR DASHBOARD ---
@@ -342,13 +381,15 @@ export default function ProjectsClient({
     filteredProjectsByTime.forEach((p) => {
       counts[p.status] = (counts[p.status] || 0) + 1;
     });
-    return Object.entries(counts).map(([name, value]) => ({ name, value }));
+    return Object.entries(counts)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value);
   }, [filteredProjectsByTime]);
 
   // 2. Revenue Dashboard Calculations
   const revenueMetrics = useMemo(() => {
     let totalRevenue = 0;
-    const byMonth: Record<string, number> = {};
+    const byMonth: Record<string, { value: number; sortKey: number }> = {};
     const bySource: Record<string, number> = {};
     const byBD: Record<string, number> = {};
 
@@ -356,11 +397,17 @@ export default function ProjectsClient({
       const val = Number(p.value || 0);
       totalRevenue += val;
 
-      // Group by Month (using start_date)
+      // Group by Month (using start_date) — store sort key for chronological ordering
       if (p.start_date) {
         const date = new Date(p.start_date);
+        const year = date.getFullYear();
+        const month = date.getMonth();
         const monthName = date.toLocaleString("default", { month: "short", year: "2-digit" });
-        byMonth[monthName] = (byMonth[monthName] || 0) + val;
+        const sortKey = year * 12 + month;
+        if (!byMonth[monthName]) {
+          byMonth[monthName] = { value: 0, sortKey };
+        }
+        byMonth[monthName].value += val;
       }
 
       // Group by Lead Source
@@ -373,14 +420,21 @@ export default function ProjectsClient({
       byBD[bdName] = (byBD[bdName] || 0) + val;
     });
 
-    // Format byMonth to chronological order (simplistic sort for demo/display)
-    const monthData = Object.entries(byMonth).map(([name, value]) => ({ name, value }));
+    // Sort months chronologically
+    const monthData = Object.entries(byMonth)
+      .map(([name, { value, sortKey }]) => ({ name, value, sortKey }))
+      .sort((a, b) => a.sortKey - b.sortKey)
+      .map(({ name, value }) => ({ name, value }));
 
     return {
       totalRevenue,
       monthData,
-      sourceData: Object.entries(bySource).map(([name, value]) => ({ name, value })),
-      bdData: Object.entries(byBD).map(([name, value]) => ({ name, value })),
+      sourceData: Object.entries(bySource)
+        .map(([name, value]) => ({ name, value }))
+        .sort((a, b) => b.value - a.value),
+      bdData: Object.entries(byBD)
+        .map(([name, value]) => ({ name, value }))
+        .sort((a, b) => b.value - a.value),
     };
   }, [filteredProjectsByTime]);
 
@@ -453,26 +507,26 @@ export default function ProjectsClient({
   }, [filteredProjectsByTime]);
 
   return (
-    <div className="projects-module space-y-6">
+    <div className="projects-module space-y-4 sm:space-y-5 md:space-y-6">
       {/* Header and Controls */}
-      <div className="pm-hero flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="space-y-1.5 min-w-0">
-          <h1 className="text-3xl font-extrabold tracking-tight text-gradient-brand">Project Management</h1>
-          <p className="text-sm text-muted-foreground max-w-lg truncate">Manage client projects, resource allocations, and view performance insights.</p>
+      <div className="pm-hero flex flex-col gap-4 sm:gap-5 md:flex-row md:items-center md:justify-between">
+        <div className="space-y-1 sm:space-y-1.5 min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gradient-brand">Project Management</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground max-w-lg truncate">Manage client projects, resource allocations, and view performance insights.</p>
         </div>
         
-        <div className="flex flex-wrap sm:flex-nowrap items-center justify-end gap-3 shrink-0">
+        <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3 shrink-0">
           {/* Tabs */}
           <div className="pm-tabs">
             <button
               onClick={() => setActiveTab("dashboard")}
-              className={`pm-tab ${activeTab === "dashboard" ? "pm-tab-active" : ""}`}
+              className={`pm-tab text-xs sm:text-sm ${activeTab === "dashboard" ? "pm-tab-active" : ""}`}
             >
               Dashboard
             </button>
             <button
               onClick={() => setActiveTab("list")}
-              className={`pm-tab ${activeTab === "list" ? "pm-tab-active" : ""}`}
+              className={`pm-tab text-xs sm:text-sm ${activeTab === "list" ? "pm-tab-active" : ""}`}
             >
               Projects List ({filteredProjects.length})
             </button>
@@ -483,26 +537,26 @@ export default function ProjectsClient({
             <Button
               variant="outline"
               onClick={() => setIsImportOpen(true)}
-              className="pm-btn-outline text-primary border-primary/20"
+              className="pm-btn-outline text-primary border-primary/20 text-xs sm:text-sm"
             >
-              <Upload className="mr-2 h-4 w-4" /> Import Projects
+              <Upload className="mr-1.5 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" /> Import Projects
             </Button>
           )}
 
           {/* Create Button – admin only */}
           {isAdmin ? (
             <Link href="/projects/new" className="flex items-center">
-              <Button className="pm-btn-primary text-primary-foreground">
-                <Plus className="mr-2 h-4 w-4" /> Add Project
+              <Button className="pm-btn-primary text-primary-foreground text-xs sm:text-sm">
+                <Plus className="mr-1.5 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" /> Add Project
               </Button>
             </Link>
           ) : isWritable ? (
             <Button
               disabled
               title="Only Admins can create new projects"
-              className="pm-btn-primary opacity-50 cursor-not-allowed"
+              className="pm-btn-primary opacity-50 cursor-not-allowed text-xs sm:text-sm"
             >
-              <Lock className="mr-2 h-3.5 w-3.5" /> Add Project
+              <Lock className="mr-1.5 sm:mr-2 h-3 w-3 sm:h-3.5 sm:w-3.5" /> Add Project
             </Button>
           ) : null}
         </div>
@@ -512,216 +566,461 @@ export default function ProjectsClient({
       {/* --- DASHBOARD TAB VIEW --- */}
       {/* ========================================================== */}
       {activeTab === "dashboard" && (
-        <div className="space-y-6">
-          {/* Time Period Filter */}
-          <Card className="pm-section-card">
-            <CardContent className="py-3 px-4">
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Period:</span>
-                <div className="flex flex-wrap gap-1.5">
-                  {[
-                    { value: "all", label: "All Time" },
-                    { value: "month", label: "This Month" },
-                    { value: "q1", label: "Q1" },
-                    { value: "q2", label: "Q2" },
-                    { value: "q3", label: "Q3" },
-                    { value: "q4", label: "Q4" },
-                    { value: "year", label: "Full Year" },
-                  ].map((opt) => (
-                    <button
-                      key={opt.value}
-                      onClick={() => setTimeFilter(opt.value)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
-                        timeFilter === opt.value
-                          ? "bg-primary text-primary-foreground shadow-sm"
-                          : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
-                      }`}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-                {timeFilter !== "all" && (
-                  <div className="flex items-center gap-2 ml-2">
-                    <button
-                      onClick={() => setTimeFilterYear((y) => y - 1)}
-                      className="h-7 w-7 rounded-lg bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground flex items-center justify-center text-xs font-bold transition-colors"
-                    >
-                      <ChevronLeft className="h-3.5 w-3.5" />
-                    </button>
-                    <span className="text-sm font-bold tabular-nums min-w-[50px] text-center">{timeFilterYear}</span>
-                    <button
-                      onClick={() => setTimeFilterYear((y) => y + 1)}
-                      className="h-7 w-7 rounded-lg bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground flex items-center justify-center text-xs font-bold transition-colors"
-                    >
-                      <ChevronRight className="h-3.5 w-3.5" />
-                    </button>
+        <div className="space-y-4 sm:space-y-5 md:space-y-6">
+          {/* Time Period Filter — Compact Dropdown */}
+          <div className="flex items-center justify-end">
+            <div className="relative" ref={timeDropdownRef}>
+              <button
+                onClick={() => setIsTimeDropdownOpen((o) => !o)}
+                className="flex items-center gap-1.5 sm:gap-2 h-8 sm:h-9 px-2.5 sm:px-3.5 rounded-xl bg-card border border-border/40 hover:border-border/70 text-xs sm:text-sm font-medium text-foreground transition-all duration-200 hover:shadow-sm"
+              >
+                <Calendar className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-muted-foreground" />
+                <span className="text-muted-foreground text-[10px] sm:text-xs font-semibold">Period:</span>
+                <span className="font-bold text-[10px] sm:text-xs">{timeFilterLabel}</span>
+                <ChevronDown className={`h-3 w-3 sm:h-3.5 sm:w-3.5 text-muted-foreground transition-transform duration-200 ${isTimeDropdownOpen ? "rotate-180" : ""}`} />
+              </button>
+
+              {isTimeDropdownOpen && (
+                <div className="absolute right-0 top-full mt-2 w-64 sm:w-72 rounded-2xl bg-card border border-border/40 shadow-2xl z-50 overflow-hidden">
+                  <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 border-b border-border/30">
+                    <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-muted-foreground">Select Period</span>
+                    <div className="flex items-center gap-1 bg-muted/40 rounded-lg px-1">
+                      <button
+                        onClick={() => setTimeFilterYear((y) => y - 1)}
+                        className="h-5 w-5 sm:h-6 sm:w-6 rounded-md hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <ChevronLeft className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                      </button>
+                      <span className="text-[10px] sm:text-xs font-bold tabular-nums min-w-[32px] sm:min-w-[36px] text-center select-none">{timeFilterYear}</span>
+                      <button
+                        onClick={() => setTimeFilterYear((y) => y + 1)}
+                        className="h-5 w-5 sm:h-6 sm:w-6 rounded-md hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <ChevronRight className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                      </button>
+                    </div>
                   </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+
+                  <div className="px-2 sm:px-3 pt-2 sm:pt-3 pb-1">
+                    <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 px-1 mb-1 sm:mb-1.5">Quick Filters</p>
+                    <div className="grid grid-cols-3 gap-0.5 sm:gap-1">
+                      {[
+                        { value: "all", label: "All Time" },
+                        { value: "month", label: "Current Month" },
+                        { value: "year", label: "Full Year" },
+                      ].map((opt) => (
+                        <button
+                          key={opt.value}
+                          onClick={() => { setTimeFilter(opt.value); setIsTimeDropdownOpen(false); }}
+                          className={`px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-[11px] font-semibold transition-all duration-150 ${
+                            timeFilter === opt.value
+                              ? "bg-primary text-primary-foreground shadow-sm"
+                              : "bg-muted/30 text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="px-2 sm:px-3 pt-1.5 sm:pt-2 pb-1">
+                    <div className="flex items-center bg-muted/30 rounded-lg p-0.5">
+                      <button
+                        onClick={() => setTimeFilterMode("quarter")}
+                        className={`flex-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md text-[10px] sm:text-[11px] font-semibold transition-all duration-200 ${
+                          timeFilterMode === "quarter"
+                            ? "bg-primary text-primary-foreground shadow-sm"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        Quarters
+                      </button>
+                      <button
+                        onClick={() => setTimeFilterMode("month")}
+                        className={`flex-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md text-[10px] sm:text-[11px] font-semibold transition-all duration-200 ${
+                          timeFilterMode === "month"
+                            ? "bg-primary text-primary-foreground shadow-sm"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        Months
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="px-2 sm:px-3 pt-1.5 sm:pt-2 pb-2 sm:pb-3">
+                    {timeFilterMode === "quarter" ? (
+                      <>
+                        <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 px-1 mb-1 sm:mb-1.5">Quarters</p>
+                        <div className="grid grid-cols-2 gap-0.5 sm:gap-1">
+                          {[
+                            { value: "q1", label: "Q1", sub: "Jan – Mar" },
+                            { value: "q2", label: "Q2", sub: "Apr – Jun" },
+                            { value: "q3", label: "Q3", sub: "Jul – Sep" },
+                            { value: "q4", label: "Q4", sub: "Oct – Dec" },
+                          ].map((opt) => (
+                            <button
+                              key={opt.value}
+                              onClick={() => { setTimeFilter(opt.value); setIsTimeDropdownOpen(false); }}
+                              className={`flex items-center justify-between px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl text-left transition-all duration-150 ${
+                                timeFilter === opt.value
+                                  ? "bg-primary/10 border border-primary/20 text-primary"
+                                  : "bg-muted/20 hover:bg-muted/40 border border-transparent text-muted-foreground hover:text-foreground"
+                              }`}
+                            >
+                              <span className="text-[10px] sm:text-xs font-bold">{opt.label}</span>
+                              <span className="text-[9px] sm:text-[10px] font-medium opacity-60">{opt.sub}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 px-1 mb-1 sm:mb-1.5">Months</p>
+                        <div className="grid grid-cols-3 gap-0.5 sm:gap-1">
+                          {["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"].map((m, i) => (
+                            <button
+                              key={m}
+                              onClick={() => { setTimeFilter(String(i + 1)); setIsTimeDropdownOpen(false); }}
+                              className={`px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-[11px] font-semibold transition-all duration-150 ${
+                                timeFilter === String(i + 1)
+                                  ? "bg-primary text-primary-foreground shadow-sm"
+                                  : "bg-muted/20 text-muted-foreground hover:bg-muted/40 hover:text-foreground"
+                              }`}
+                            >
+                              {m}
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
 
           {/* 1. Metric Strip */}
           <MetricStrip
             activeFilter={kpiFilter}
             onFilterChange={(f) => { setKpiFilter(f); setActiveTab("list"); }}
             metrics={[
-              { label: "Total Projects", value: metrics.total, icon: Briefcase, color: "primary" },
-              { label: "Active", value: metrics.active, icon: Zap, color: "blue" },
-              { label: "On Hold", value: metrics.onHold, icon: Pause, color: "amber" },
-              { label: "Completed", value: metrics.completed, icon: CircleCheck, color: "green" },
-              { label: "Retainers", value: metrics.monthlyRecurring, icon: RefreshCcw, color: "violet" },
-              { label: "Total Value", value: `$${metrics.totalValue.toLocaleString()}`, icon: Banknote, color: "primary" },
+              { label: "Total Projects", value: metrics.total, icon: LayoutGrid, color: "primary" },
+              { label: "Active", value: metrics.active, icon: TrendingUp, color: "blue" },
+              { label: "On Hold", value: metrics.onHold, icon: Clock, color: "amber" },
+              { label: "Completed", value: metrics.completed, icon: CheckCircle2, color: "green" },
+              { label: "Retainers", value: metrics.monthlyRecurring, icon: Repeat2, color: "violet" },
+              { label: "Total Value", value: `$${metrics.totalValue.toLocaleString()}`, icon: DollarSign, color: "primary" },
             ]}
           />
 
           {/* Charts grid */}
-          <div className="grid gap-4 sm:gap-6 grid-cols-[repeat(auto-fit,minmax(min(420px,100%),1fr))]">
-            {/* Project Status breakdown chart */}
+          <div className="grid gap-3 sm:gap-4 md:gap-6 grid-cols-1 lg:grid-cols-[repeat(auto-fit,minmax(min(380px,100%),1fr))]">
+            {/* ── Donut: Project Status Breakdown ── */}
             <Card className="pm-chart-card">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base font-bold">Project Status Breakdown</CardTitle>
-                <CardDescription>Status share of all projects</CardDescription>
+              <CardHeader className="pb-1">
+                <CardTitle className="text-sm sm:text-base font-bold">Project Status Breakdown</CardTitle>
+                <CardDescription className="text-xs sm:text-sm">Status share of all projects</CardDescription>
               </CardHeader>
-              <CardContent className="min-h-[300px]">
+              <CardContent className="min-h-[280px] sm:min-h-[320px] pt-0">
                 {statusChartData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height={250}>
                     <PieChart>
                       <Pie
                         data={statusChartData}
                         cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={90}
-                        paddingAngle={3}
+                        cy="45%"
+                        innerRadius={50}
+                        outerRadius={80}
+                        paddingAngle={2}
                         dataKey="value"
+                        stroke="none"
+                        animationBegin={0}
+                        animationDuration={800}
+                        animationEasing="ease-out"
                       >
                         {statusChartData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={CHART_COLORS[index % CHART_COLORS.length]}
+                            style={{ filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.15))" }}
+                          />
                         ))}
                       </Pie>
                       <Tooltip
-                        contentStyle={{ backgroundColor: "var(--card)", borderColor: "var(--border)", color: "var(--foreground)" }}
-                        formatter={(value) => [`${value} projects`, 'Count']}
+                        contentStyle={{
+                          backgroundColor: "rgba(15,23,42,0.95)",
+                          border: "1px solid rgba(255,255,255,0.08)",
+                          borderRadius: "10px",
+                          color: "#e2e8f0",
+                          fontSize: "11px",
+                          padding: "8px 12px",
+                          backdropFilter: "blur(8px)",
+                          boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
+                        }}
+                        itemStyle={{ color: "#e2e8f0" }}
+                        formatter={(value, name) => [
+                          <span key="v" style={{ color: "#e5a158", fontWeight: 700 }}>
+                            {`${value} projects`}
+                          </span>,
+                          name,
+                        ]}
                       />
-                      <Legend verticalAlign="bottom" height={36} />
+                      {/* Center label */}
+                      <text x="50%" y="42%" textAnchor="middle" dominantBaseline="central" className="fill-foreground" fontSize="28" fontWeight="800">
+                        {filteredProjectsByTime.length}
+                      </text>
+                      <text x="50%" y="52%" textAnchor="middle" dominantBaseline="central" className="fill-muted-foreground" fontSize="11" fontWeight="500">
+                        Total Projects
+                      </text>
+                      <Legend
+                        verticalAlign="bottom"
+                        height={48}
+                        iconType="circle"
+                        iconSize={8}
+                        formatter={(value) => <span className="text-xs text-muted-foreground ml-1">{value}</span>}
+                      />
                     </PieChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div className="flex h-full items-center justify-center text-sm text-muted-foreground">No project data available</div>
+                  <div className="flex h-[300px] items-center justify-center text-sm text-muted-foreground">No project data available</div>
                 )}
               </CardContent>
             </Card>
 
-            {/* Revenue by month */}
+            {/* ── Area: Monthly Revenue Timeline ── */}
             <Card className="pm-chart-card">
-              <CardHeader className="pb-2">
+              <CardHeader className="pb-1">
                 <CardTitle className="text-base font-bold">Monthly Revenue Timeline</CardTitle>
                 <CardDescription>Revenue incoming grouped by project start date</CardDescription>
               </CardHeader>
-              <CardContent className="min-h-[300px]">
+              <CardContent className="min-h-[320px] pt-0">
                 {revenueMetrics.monthData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={revenueMetrics.monthData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <AreaChart data={revenueMetrics.monthData} margin={{ top: 15, right: 15, left: -10, bottom: 0 }}>
                       <defs>
-                        <linearGradient id="colorVal" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#e5a158" stopOpacity={0.8}/>
-                          <stop offset="95%" stopColor="#e5a158" stopOpacity={0}/>
+                        <linearGradient id="gradRevenue" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#e5a158" stopOpacity={0.35} />
+                          <stop offset="100%" stopColor="#e5a158" stopOpacity={0.02} />
                         </linearGradient>
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.2} />
-                      <XAxis dataKey="name" stroke="#94a3b8" fontSize={11} tickLine={false} />
-                      <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(val) => `$${val}`} />
-                      <Tooltip
-                        contentStyle={{ backgroundColor: "var(--card)", borderColor: "var(--border)", color: "var(--foreground)" }}
-                        formatter={(value) => [`$${Number(value).toLocaleString()}`, 'Revenue']}
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="rgba(148,163,184,0.08)"
+                        vertical={false}
                       />
-                      <Area type="monotone" dataKey="value" stroke="#e5a158" fillOpacity={1} fill="url(#colorVal)" />
+                      <XAxis
+                        dataKey="name"
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fill: "#64748b", fontSize: 11, fontWeight: 500 }}
+                        dy={8}
+                      />
+                      <YAxis
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fill: "#64748b", fontSize: 11, fontWeight: 500 }}
+                        tickFormatter={(val) => {
+                          const n = Number(val);
+                          if (n >= 1000) return `$${(n / 1000).toFixed(0)}k`;
+                          return `$${n}`;
+                        }}
+                        width={48}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "rgba(15,23,42,0.95)",
+                          border: "1px solid rgba(255,255,255,0.08)",
+                          borderRadius: "10px",
+                          color: "#e2e8f0",
+                          fontSize: "13px",
+                          padding: "10px 14px",
+                          backdropFilter: "blur(8px)",
+                          boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
+                        }}
+                        labelStyle={{ color: "#94a3b8", fontWeight: 600, marginBottom: 4 }}
+                        itemStyle={{ color: "#e2e8f0" }}
+                        formatter={(value) => [
+                          <span key="v" style={{ color: "#e5a158", fontWeight: 700 }}>
+                            ${Number(value).toLocaleString()}
+                          </span>,
+                          "Revenue",
+                        ]}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="value"
+                        stroke="#e5a158"
+                        strokeWidth={2.5}
+                        fill="url(#gradRevenue)"
+                        dot={false}
+                        activeDot={{
+                          r: 5,
+                          fill: "#e5a158",
+                          stroke: "#0f172a",
+                          strokeWidth: 2,
+                          style: { filter: "drop-shadow(0 0 6px rgba(229,161,88,0.5))" },
+                        }}
+                        animationDuration={1000}
+                        animationEasing="ease-out"
+                      />
                     </AreaChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div className="flex h-full items-center justify-center text-sm text-muted-foreground">No start date timeline available</div>
+                  <div className="flex h-[300px] items-center justify-center text-sm text-muted-foreground">No start date timeline available</div>
                 )}
               </CardContent>
             </Card>
           </div>
 
           <div className="grid gap-4 sm:gap-6 grid-cols-[repeat(auto-fit,minmax(min(420px,100%),1fr))]">
-            {/* Revenue by Lead Source */}
+            {/* ── Bar: Revenue by Lead Source ── */}
             <Card className="pm-chart-card">
-              <CardHeader className="pb-2">
+              <CardHeader className="pb-1">
                 <CardTitle className="text-base font-bold">Revenue by Lead Source</CardTitle>
                 <CardDescription>Financial volume generated by origin source</CardDescription>
               </CardHeader>
-              <CardContent className="min-h-[300px]">
+              <CardContent className="min-h-[320px] pt-0">
                 {revenueMetrics.sourceData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={revenueMetrics.sourceData}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.2} />
-                      <XAxis dataKey="name" stroke="#94a3b8" fontSize={11} tickLine={false} />
-                      <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(val) => `$${val}`} />
-                      <Tooltip
-                        contentStyle={{ backgroundColor: "var(--card)", borderColor: "var(--border)", color: "var(--foreground)" }}
-                        formatter={(value) => [`$${Number(value).toLocaleString()}`, 'Total Revenue']}
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={revenueMetrics.sourceData} margin={{ top: 15, right: 15, left: -10, bottom: 0 }}>
+                      <defs>
+                        {revenueMetrics.sourceData.map((_, index) => (
+                          <linearGradient key={`barGrad${index}`} id={`barGrad${index}`} x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor={CHART_COLORS[(index + 1) % CHART_COLORS.length]} stopOpacity={1} />
+                            <stop offset="100%" stopColor={CHART_COLORS[(index + 1) % CHART_COLORS.length]} stopOpacity={0.6} />
+                          </linearGradient>
+                        ))}
+                      </defs>
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="rgba(148,163,184,0.08)"
+                        vertical={false}
                       />
-                      <Bar dataKey="value" fill="#e5a158" radius={[4, 4, 0, 0]}>
+                      <XAxis
+                        dataKey="name"
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fill: "#64748b", fontSize: 11, fontWeight: 500 }}
+                        dy={8}
+                      />
+                      <YAxis
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fill: "#64748b", fontSize: 11, fontWeight: 500 }}
+                        tickFormatter={(val) => {
+                          const n = Number(val);
+                          if (n >= 1000) return `$${(n / 1000).toFixed(0)}k`;
+                          return `$${n}`;
+                        }}
+                        width={48}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "rgba(15,23,42,0.95)",
+                          border: "1px solid rgba(255,255,255,0.08)",
+                          borderRadius: "10px",
+                          color: "#e2e8f0",
+                          fontSize: "13px",
+                          padding: "10px 14px",
+                          backdropFilter: "blur(8px)",
+                          boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
+                        }}
+                        labelStyle={{ color: "#94a3b8", fontWeight: 600, marginBottom: 4 }}
+                        itemStyle={{ color: "#e2e8f0" }}
+                        cursor={{ fill: "rgba(148,163,184,0.06)" }}
+                        formatter={(value) => [
+                          <span key="v" style={{ color: "#e5a158", fontWeight: 700 }}>
+                            ${Number(value).toLocaleString()}
+                          </span>,
+                          "Revenue",
+                        ]}
+                      />
+                      <Bar
+                        dataKey="value"
+                        radius={[6, 6, 0, 0]}
+                        animationDuration={800}
+                        animationEasing="ease-out"
+                      >
                         {revenueMetrics.sourceData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={CHART_COLORS[(index + 1) % CHART_COLORS.length]} />
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={`url(#barGrad${index})`}
+                            style={{ filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.15))" }}
+                          />
                         ))}
                       </Bar>
                     </BarChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div className="flex h-full items-center justify-center text-sm text-muted-foreground">No lead source financial data</div>
+                  <div className="flex h-[300px] items-center justify-center text-sm text-muted-foreground">No lead source financial data</div>
                 )}
               </CardContent>
             </Card>
 
-            {/* Resource Utilization */}
+            {/* ── Resource Allocation ── */}
             <Card className="pm-chart-card">
-              <CardHeader className="pb-2">
+              <CardHeader className="pb-1">
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle className="text-base font-bold">Resource Allocation</CardTitle>
                     <CardDescription>Assigned workload vs remaining capacity</CardDescription>
                   </div>
-                  <div className="text-right">
-                    <span className="text-2xl font-bold">{resourceMetrics.assignedCount}</span>
-                    <span className="text-xs text-muted-foreground"> / {resourceMetrics.totalResources} active staff</span>
+                  <div className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5">
+                    <span className="text-lg font-bold text-primary">{resourceMetrics.assignedCount}</span>
+                    <span className="text-xs font-medium text-muted-foreground">/ {resourceMetrics.totalResources} staff</span>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="min-h-[300px] overflow-y-auto pr-2 space-y-4">
-                <div>
-                  <div className="mb-2 flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    <span>Employee Resource Workload (%)</span>
-                    <span>Projects</span>
-                  </div>
-                  <div className="space-y-3">
-                    {resourceMetrics.workloads.slice(0, 8).map((item) => {
-                      let barColor = "bg-green-500";
-                      if (item.workload > 100) barColor = "bg-red-500";
-                      else if (item.workload >= 70) barColor = "bg-amber-500";
+              <CardContent className="min-h-[300px] overflow-y-auto pr-2 pt-1">
+                <div className="space-y-3.5">
+                  {resourceMetrics.workloads.slice(0, 8).map((item) => {
+                    const pct = Math.min(item.workload, 100);
+                    let barColor = "#10b981";
+                    let bgColor = "rgba(16,185,129,0.12)";
+                    let textColor = "text-emerald-500";
+                    if (item.workload > 100) {
+                      barColor = "#ef4444";
+                      bgColor = "rgba(239,68,68,0.12)";
+                      textColor = "text-red-500";
+                    } else if (item.workload >= 70) {
+                      barColor = "#f59e0b";
+                      bgColor = "rgba(245,158,11,0.12)";
+                      textColor = "text-amber-500";
+                    }
 
-                      return (
-                        <div key={item.employee.id} className="space-y-1">
-                          <div className="flex justify-between text-sm">
-                            <span className="font-medium text-foreground">{item.employee.full_name}</span>
-                            <span className="text-xs font-semibold">
-                              {item.workload}% ({item.projectsCount} {item.projectsCount === 1 ? 'proj' : 'projs'})
+                    return (
+                      <div key={item.employee.id} className="group">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <div className="flex items-center gap-2">
+                            <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center text-[10px] font-bold text-muted-foreground">
+                              {item.employee.full_name?.split(" ").map((n: string) => n[0]).join("").slice(0, 2)}
+                            </div>
+                            <span className="text-sm font-medium text-foreground">{item.employee.full_name}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className={`text-xs font-bold tabular-nums ${textColor}`}>
+                              {item.workload}%
+                            </span>
+                            <span className="text-[10px] font-medium text-muted-foreground rounded-md bg-muted/60 px-1.5 py-0.5">
+                              {item.projectsCount} {item.projectsCount === 1 ? "proj" : "projs"}
                             </span>
                           </div>
-                          <div className="pm-progress-track">
-                            <div
-                              className={`h-full rounded-full transition-all duration-700 ease-out ${barColor}`}
-                              style={{ width: `${Math.min(item.workload, 100)}%` }}
-                            />
-                          </div>
                         </div>
-                      );
-                    })}
-                  </div>
+                        <div className="h-2 w-full rounded-full bg-muted/40 overflow-hidden">
+                          <div
+                            className="h-full rounded-full transition-all duration-700 ease-out"
+                            style={{
+                              width: `${pct}%`,
+                              background: `linear-gradient(90deg, ${barColor}, ${barColor}dd)`,
+                              boxShadow: `0 0 8px ${barColor}40`,
+                            }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>
@@ -997,23 +1296,26 @@ export default function ProjectsClient({
 
           {/* Table Card */}
           <Card className="pm-table-card overflow-hidden">
-            <div className="px-3 py-1">
+            <div className="overflow-x-auto">
+              <div className="px-4 py-1" style={{ minWidth: '900px' }}>
               <Table className="pm-table" style={{ tableLayout: 'fixed', width: '100%' }}>
                   <TableHeader>
                     <TableRow className="hover:bg-transparent border-b border-border/50">
-                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-2.5 whitespace-nowrap w-[12%]">Client</TableHead>
-                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-2.5 whitespace-nowrap w-[14%]">Project</TableHead>
-                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-2.5 whitespace-nowrap w-[8%]">Type</TableHead>
-                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-2.5 text-right whitespace-nowrap w-[8%]">Value</TableHead>
-                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-2.5 whitespace-nowrap w-[8%]">Payment</TableHead>
-                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-2.5 whitespace-nowrap w-[8%]">Start</TableHead>
-                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-2.5 whitespace-nowrap w-[7%]">Rate</TableHead>
-                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-2.5 whitespace-nowrap w-[10%]">Status</TableHead>
-                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-2.5 text-right whitespace-nowrap w-[7%]">MRR</TableHead>
-                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-2.5 whitespace-nowrap w-[8%]">Resource</TableHead>
-                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-2.5 whitespace-nowrap w-[6%]">Profile</TableHead>
-                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-2.5 whitespace-nowrap w-[5%]">BD</TableHead>
-                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-2.5 whitespace-nowrap w-[5%]">End</TableHead>
+                      {/* First col: extra left padding for edge clearance */}
+                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 pl-4 pr-3 whitespace-nowrap w-[11%]">Client</TableHead>
+                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-3 whitespace-nowrap w-[13%]">Project</TableHead>
+                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-3 whitespace-nowrap w-[7%]">Type</TableHead>
+                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-3 text-right whitespace-nowrap w-[8%]">Value</TableHead>
+                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-3 whitespace-nowrap w-[7%]">Payment</TableHead>
+                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-3 whitespace-nowrap w-[6%]">Start</TableHead>
+                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-3 whitespace-nowrap w-[6%]">Rate</TableHead>
+                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-3 whitespace-nowrap w-[11%]">Status</TableHead>
+                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-3 text-right whitespace-nowrap w-[6%]">MRR</TableHead>
+                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-3 whitespace-nowrap w-[9%]">Resource</TableHead>
+                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-3 whitespace-nowrap w-[7%]">Profile</TableHead>
+                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 px-3 whitespace-nowrap w-[6%]">BD</TableHead>
+                      {/* Last col: extra right padding for edge clearance */}
+                      <TableHead className="font-semibold text-[10px] tracking-wider uppercase text-muted-foreground py-2.5 pl-3 pr-4 whitespace-nowrap w-[7%]">End</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -1024,29 +1326,29 @@ export default function ProjectsClient({
                           onClick={() => router.push(`/projects/${p.id}`)}
                           className="cursor-pointer group border-b border-border/20 hover:bg-muted/30"
                         >
-                          <TableCell className="py-2.5 px-2.5 truncate text-[13px] font-medium group-hover:text-primary transition-colors">{p.client_name}</TableCell>
-                          <TableCell className="py-2.5 px-2.5 truncate text-[13px]">{p.name}</TableCell>
-                          <TableCell className="py-2.5 px-2.5 truncate text-xs text-muted-foreground">{p.project_type || "—"}</TableCell>
-                          <TableCell className="py-2.5 px-2.5 text-right font-semibold font-mono text-foreground tabular-nums text-[13px]">
+                          <TableCell className="py-2.5 pl-4 pr-3 max-w-0 truncate text-[13px] font-medium group-hover:text-primary transition-colors">{p.client_name}</TableCell>
+                          <TableCell className="py-2.5 px-3 max-w-0 truncate text-[13px]">{p.name}</TableCell>
+                          <TableCell className="py-2.5 px-3 max-w-0 truncate text-xs text-muted-foreground">{p.project_type || "—"}</TableCell>
+                          <TableCell className="py-2.5 px-3 text-right font-semibold font-mono text-foreground tabular-nums text-[13px] whitespace-nowrap">
                             ${Number(p.value || 0).toLocaleString()}
                           </TableCell>
-                          <TableCell className="py-2.5 px-2.5 truncate text-xs text-muted-foreground">{p.payment_structure || "—"}</TableCell>
-                          <TableCell className="py-2.5 px-2.5 text-xs tabular-nums text-muted-foreground whitespace-nowrap">
+                          <TableCell className="py-2.5 px-3 max-w-0 truncate text-xs text-muted-foreground">{p.payment_structure || "—"}</TableCell>
+                          <TableCell className="py-2.5 px-3 text-xs tabular-nums text-muted-foreground whitespace-nowrap">
                             {p.start_date ? new Date(p.start_date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "—"}
                           </TableCell>
-                          <TableCell className="py-2.5 px-2.5 truncate text-xs text-muted-foreground">{p.project_rate || "—"}</TableCell>
-                          <TableCell className="py-2.5 px-2.5">
+                          <TableCell className="py-2.5 px-3 max-w-0 truncate text-xs text-muted-foreground">{p.project_rate || "—"}</TableCell>
+                          <TableCell className="py-2.5 px-3 overflow-hidden">
                             {getStatusBadge(p.status)}
                           </TableCell>
-                          <TableCell className="py-2.5 px-2.5 text-right font-mono tabular-nums text-xs">
+                          <TableCell className="py-2.5 px-3 text-right font-mono tabular-nums text-xs whitespace-nowrap">
                             {p.expected_monthly_revenue ? `$${Number(p.expected_monthly_revenue).toLocaleString()}` : "—"}
                           </TableCell>
-                          <TableCell className="py-2.5 px-2.5 truncate text-xs text-muted-foreground" title={p.resources.map((r) => r.employee.full_name).join(", ")}>
+                          <TableCell className="py-2.5 px-3 max-w-0 truncate text-xs text-muted-foreground" title={p.resources.map((r) => r.employee.full_name).join(", ")}>
                             {p.resources.length > 0 ? p.resources.map((r) => r.employee.full_name.split(" ")[0]).join(", ") : "—"}
                           </TableCell>
-                          <TableCell className="py-2.5 px-2.5 truncate text-xs text-muted-foreground">{p.profile_name || "—"}</TableCell>
-                          <TableCell className="py-2.5 px-2.5 truncate text-xs text-muted-foreground">{p.bd?.full_name || "—"}</TableCell>
-                          <TableCell className="py-2.5 px-2.5 text-xs tabular-nums text-muted-foreground whitespace-nowrap">
+                          <TableCell className="py-2.5 px-3 max-w-0 truncate text-xs text-muted-foreground">{p.profile_name || "—"}</TableCell>
+                          <TableCell className="py-2.5 px-3 max-w-0 truncate text-xs text-muted-foreground">{p.bd?.full_name || "—"}</TableCell>
+                          <TableCell className="py-2.5 pl-3 pr-4 text-xs tabular-nums text-muted-foreground whitespace-nowrap">
                             {p.expected_delivery_date ? new Date(p.expected_delivery_date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "—"}
                           </TableCell>
                         </TableRow>
@@ -1077,6 +1379,7 @@ export default function ProjectsClient({
                     )}
                   </TableBody>
                 </Table>
+              </div>
             </div>
           </Card>
 

@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 const ACCENT_CONFIG = {
   primary: {
@@ -57,6 +58,8 @@ export function MetricGlowCard({
   progress,
   className,
   accent = "primary",
+  href,
+  onClick,
 }: {
   title: string;
   value: string | number;
@@ -67,70 +70,83 @@ export function MetricGlowCard({
   progress?: number;
   className?: string;
   accent?: keyof typeof ACCENT_CONFIG;
+  href?: string;
+  onClick?: () => void;
 }) {
   const a = ACCENT_CONFIG[accent] || ACCENT_CONFIG.primary;
 
+  const CardComponent = href ? Link : onClick ? "button" : "div";
+  const cardProps = href ? { href } : onClick ? { onClick, type: "button" } : {};
+
   return (
-    <Card
+    <CardComponent
+      {...cardProps}
       className={cn(
-        "group relative overflow-hidden border border-border/40 bg-card/80 shadow-md backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg",
-        a.glow,
-        className
+        href || onClick ? "cursor-pointer" : "cursor-default",
+        "block"
       )}
     >
-      {/* Decorative corner gradient */}
-      <div className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full bg-gradient-to-br from-white/[0.04] to-transparent blur-xl transition-all duration-500 group-hover:scale-150 group-hover:opacity-100 opacity-60" />
-      <div className="pointer-events-none absolute -bottom-6 -left-6 h-20 w-20 rounded-full bg-gradient-to-tr from-white/[0.02] to-transparent blur-lg" />
+      <Card
+        className={cn(
+          "group relative overflow-hidden border border-border/40 bg-card/80 shadow-md backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg",
+          a.glow,
+          className
+        )}
+      >
+        {/* Decorative corner gradient */}
+        <div className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full bg-gradient-to-br from-white/[0.04] to-transparent blur-xl transition-all duration-500 group-hover:scale-150 group-hover:opacity-100 opacity-60" />
+        <div className="pointer-events-none absolute -bottom-6 -left-6 h-20 w-20 rounded-full bg-gradient-to-tr from-white/[0.02] to-transparent blur-lg" />
 
-      <CardContent className="relative p-5">
-        <div className="flex items-start justify-between">
-          {/* Left: Title + Value */}
-          <div className="min-w-0 flex-1 space-y-1.5">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-              {title}
-            </p>
-            <p className="text-3xl font-extrabold tracking-tight tabular-nums leading-none">
-              {value}
-            </p>
-            {subtitle && (
-              <p className="pt-0.5 text-[12px] text-muted-foreground/80">{subtitle}</p>
-            )}
-            {trend && (
-              <p
-                className={cn(
-                  "pt-1 text-xs font-semibold",
-                  trendUp === false ? "text-rose-400" : "text-emerald-400"
-                )}
-              >
-                {trendUp === false ? "\u2193" : "\u2191"} {trend}
+        <CardContent className="relative p-5">
+          <div className="flex items-start justify-between">
+            {/* Left: Title + Value */}
+            <div className="min-w-0 flex-1 space-y-1.5">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                {title}
               </p>
-            )}
-          </div>
+              <p className="text-3xl font-extrabold tracking-tight tabular-nums leading-none">
+                {value}
+              </p>
+              {subtitle && (
+                <p className="pt-0.5 text-[12px] text-muted-foreground/80">{subtitle}</p>
+              )}
+              {trend && (
+                <p
+                  className={cn(
+                    "pt-1 text-xs font-semibold",
+                    trendUp === false ? "text-rose-400" : "text-emerald-400"
+                  )}
+                >
+                  {trendUp === false ? "\u2193" : "\u2191"} {trend}
+                </p>
+              )}
+            </div>
 
-          {/* Right: Icon */}
-          <div
-            className={cn(
-              "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ring-1 transition-all duration-300 group-hover:scale-110 group-hover:shadow-md",
-              a.iconBg,
-              a.iconRing
-            )}
-          >
-            <Icon className={cn("h-5 w-5", a.iconText)} />
-          </div>
-        </div>
-
-        {/* Optional progress bar at bottom */}
-        {progress !== undefined && (
-          <div className="mt-4">
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
-              <div
-                className={cn("h-full rounded-full transition-all duration-700 ease-out", a.barColor)}
-                style={{ width: `${Math.min(progress, 100)}%` }}
-              />
+            {/* Right: Icon */}
+            <div
+              className={cn(
+                "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ring-1 transition-all duration-300 group-hover:scale-110 group-hover:shadow-md",
+                a.iconBg,
+                a.iconRing
+              )}
+            >
+              <Icon className={cn("h-5 w-5", a.iconText)} />
             </div>
           </div>
-        )}
-      </CardContent>
-    </Card>
+
+          {/* Optional progress bar at bottom */}
+          {progress !== undefined && (
+            <div className="mt-4">
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                <div
+                  className={cn("h-full rounded-full transition-all duration-700 ease-out", a.barColor)}
+                  style={{ width: `${Math.min(progress, 100)}%` }}
+                />
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </CardComponent>
   );
 }

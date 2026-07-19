@@ -121,6 +121,7 @@ export function MyProgressClient({ data }: { data: ProgressData }) {
           icon={Link2}
           accent="emerald"
           progress={connPct}
+          href="/sales/history"
         />
         <MetricGlowCard
           title="Messages sent"
@@ -129,6 +130,7 @@ export function MyProgressClient({ data }: { data: ProgressData }) {
           icon={MessageSquare}
           accent="blue"
           progress={msgPct}
+          href="/sales/history"
         />
         <MetricGlowCard
           title="Meetings booked"
@@ -137,6 +139,7 @@ export function MyProgressClient({ data }: { data: ProgressData }) {
           icon={CalendarCheck}
           accent="violet"
           progress={pct(data.weekTotals.meetings_booked, data.target.meetings_weekly)}
+          href="/sales/meetings"
         />
         <MetricGlowCard
           title="Active leads"
@@ -144,6 +147,7 @@ export function MyProgressClient({ data }: { data: ProgressData }) {
           subtitle="Across your profiles"
           icon={Target}
           accent="amber"
+          href="/sales/leads"
         />
       </div>
 

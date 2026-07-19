@@ -14,6 +14,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ArrowLeft, Save } from "lucide-react";
 import { EmployeeTilePicker } from "@/components/sales/employee-tile-picker";
+import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
 
 export function ProfileFormPage({
   employees,
@@ -77,11 +78,11 @@ export function ProfileFormPage({
   ];
 
   return (
-    <div className="space-y-6">
-      <Link href="/sales/admin/profiles" className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "gap-2")}>
-        <ArrowLeft className="h-4 w-4" />
-        Back to profiles
-      </Link>
+    <div>
+      <PageBreadcrumb
+        segments={[{ label: "Outreach Profiles", href: "/sales/admin/profiles" }]}
+        current={profileId ? "Edit Profile" : "New Profile"}
+      />
 
       <Card className="border-primary/20 shadow-xl">
         <CardHeader>

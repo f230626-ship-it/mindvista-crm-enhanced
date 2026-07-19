@@ -34,7 +34,6 @@ import {
 } from "@/lib/constants";
 import {
   NONE_VALUE,
-  departmentLabel,
   formGridClass,
   formSelectTriggerClass,
   mergePersonOptions,
@@ -42,28 +41,33 @@ import {
   type PersonOption,
 } from "@/components/admin/employee-select-utils";
 import type {
-  Department,
   Employee,
   EmploymentType,
   UserRole,
   WorkLocation,
   EmployeeStatus,
   PaymentCycle,
+  Department,
 } from "@/types/database";
 
 export function EditEmployeeDialog({
   employee,
-  departments,
   managers,
+  departments,
 }: {
   employee: Employee & {
-    department?: Department;
     manager?: Pick<Employee, "id" | "full_name" | "employee_code">;
     lead?: Pick<Employee, "id" | "full_name" | "employee_code">;
   };
-  departments: Department[];
   managers: PersonOption[];
+  departments: Pick<Department, "id" | "name">[];
 }) {
+  const PAYMENT_CYCLE_LABELS: Record<string, string> = {
+    monthly: "Monthly",
+    bi_weekly: "Bi-Weekly",
+    weekly: "Weekly",
+  };
+
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [photoLoading, setPhotoLoading] = useState(false);
@@ -73,8 +77,9 @@ export function EditEmployeeDialog({
   const [status, setStatus] = useState<EmployeeStatus>(employee.status);
   const [employmentType, setEmploymentType] = useState<EmploymentType>(employee.employment_type);
   const [workLocation, setWorkLocation] = useState<WorkLocation>(employee.work_location);
-  const [departmentId, setDepartmentId] = useState(employee.department_id ?? "");
+  const [managerId, setManagerId] = useState(employee.manager_id ?? "");
   const [leadId, setLeadId] = useState(employee.lead_id ?? "");
+  const [departmentId, setDepartmentId] = useState(employee.department_id ?? "");
   const [paymentCycle, setPaymentCycle] = useState(employee.payment_cycle ?? "monthly");
 
   useEffect(() => {
@@ -84,8 +89,9 @@ export function EditEmployeeDialog({
         setStatus(employee.status);
         setEmploymentType(employee.employment_type);
         setWorkLocation(employee.work_location);
-        setDepartmentId(employee.department_id ?? "");
+        setManagerId(employee.manager_id ?? "");
         setLeadId(employee.lead_id ?? "");
+        setDepartmentId(employee.department_id ?? "");
         setPaymentCycle(employee.payment_cycle ?? "monthly");
         setPhotoPreview(employee.profile_photo_url);
       };
@@ -121,7 +127,7 @@ export function EditEmployeeDialog({
     [managers, employee]
   );
 
-  const selectedDepartment = departmentLabel(departments, departmentId);
+  const selectedManager = managerOptions.find((m) => m.id === managerId);
   const selectedLead = managerOptions.find((m) => m.id === leadId);
 
   const initials = employee.full_name
@@ -187,8 +193,9 @@ export function EditEmployeeDialog({
     formData.set("status", status);
     formData.set("employment_type", employmentType);
     formData.set("work_location", workLocation);
-    formData.set("department_id", departmentId);
+    formData.set("manager_id", managerId);
     formData.set("lead_id", leadId);
+    formData.set("department_id", departmentId);
     formData.set("payment_cycle", paymentCycle);
     const result = await updateEmployee(employee.id, formData);
     setLoading(false);
@@ -317,11 +324,10 @@ export function EditEmployeeDialog({
               <Select
                 value={departmentId || NONE_VALUE}
                 onValueChange={(v) => setDepartmentId(v === NONE_VALUE ? "" : (v ?? ""))}
-                items={[{ value: NONE_VALUE, label: "None" }, ...departments.map((d) => ({ value: d.id, label: d.name }))]}
               >
                 <SelectTrigger className={formSelectTriggerClass}>
                   <SelectValue placeholder="Select department">
-                    {selectedDepartment ?? "Select department"}
+                    {departments.find((d) => d.id === departmentId)?.name ?? "Select department"}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
@@ -329,6 +335,28 @@ export function EditEmployeeDialog({
                   {departments.map((d) => (
                     <SelectItem key={d.id} value={d.id}>
                       {d.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="min-w-0 space-y-2">
+              <Label>Reporting To</Label>
+              <Select
+                value={managerId || NONE_VALUE}
+                onValueChange={(v) => setManagerId(v === NONE_VALUE ? "" : (v ?? ""))}
+                items={[{ value: NONE_VALUE, label: "None" }, ...managerOptions.map((m) => ({ value: m.id, label: personLabel(m) }))]}
+              >
+                <SelectTrigger className={formSelectTriggerClass}>
+                  <SelectValue placeholder="Select manager">
+                    {selectedManager ? personLabel(selectedManager) : "Select manager"}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NONE_VALUE}>None</SelectItem>
+                  {managerOptions.map((m) => (
+                    <SelectItem key={m.id} value={m.id}>
+                      {personLabel(m)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -360,7 +388,7 @@ export function EditEmployeeDialog({
               <Label>Status</Label>
               <Select value={status} onValueChange={(v) => v && setStatus(v as EmployeeStatus)}>
                 <SelectTrigger className={formSelectTriggerClass}>
-                  <SelectValue />
+                  <SelectValue render={(props: any) => <span {...props}>{EMPLOYEE_STATUS_LABELS[status]}</span>} />
                 </SelectTrigger>
                 <SelectContent>
                   {Object.entries(EMPLOYEE_STATUS_LABELS).map(([value, label]) => (
@@ -375,7 +403,7 @@ export function EditEmployeeDialog({
               <Label>Role</Label>
               <Select value={role} onValueChange={(v) => v && setRole(v as UserRole)}>
                 <SelectTrigger className={formSelectTriggerClass}>
-                  <SelectValue />
+                  <SelectValue render={(props: any) => <span {...props}>{ROLE_LABELS[role]}</span>} />
                 </SelectTrigger>
                 <SelectContent>
                   {Object.entries(ROLE_LABELS).map(([value, label]) => (
@@ -393,7 +421,7 @@ export function EditEmployeeDialog({
                 onValueChange={(v) => v && setEmploymentType(v as EmploymentType)}
               >
                 <SelectTrigger className={formSelectTriggerClass}>
-                  <SelectValue />
+                  <SelectValue render={(props: any) => <span {...props}>{EMPLOYMENT_TYPE_LABELS[employmentType]}</span>} />
                 </SelectTrigger>
                 <SelectContent>
                   {Object.entries(EMPLOYMENT_TYPE_LABELS).map(([value, label]) => (
@@ -411,7 +439,7 @@ export function EditEmployeeDialog({
                 onValueChange={(v) => v && setWorkLocation(v as WorkLocation)}
               >
                 <SelectTrigger className={formSelectTriggerClass}>
-                  <SelectValue />
+                  <SelectValue render={(props: any) => <span {...props}>{WORK_LOCATION_LABELS[workLocation]}</span>} />
                 </SelectTrigger>
                 <SelectContent>
                   {Object.entries(WORK_LOCATION_LABELS).map(([value, label]) => (
@@ -460,7 +488,7 @@ export function EditEmployeeDialog({
                 <Label>Payment Cycle</Label>
                 <Select value={paymentCycle} onValueChange={(v) => v && setPaymentCycle(v as any)}>
                   <SelectTrigger className={formSelectTriggerClass}>
-                    <SelectValue />
+                    <SelectValue render={(props: any) => <span {...props}>{PAYMENT_CYCLE_LABELS[paymentCycle]}</span>} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="monthly">Monthly</SelectItem>
@@ -485,20 +513,8 @@ export function EditEmployeeDialog({
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Work Schedule</p>
             <div className={formGridClass}>
               <div className="min-w-0 space-y-2">
-                <Label htmlFor="edit_work_start">Work Start Time</Label>
-                <Input id="edit_work_start" name="work_start_time" type="time" defaultValue={employee.work_start_time ?? ""} />
-              </div>
-              <div className="min-w-0 space-y-2">
-                <Label htmlFor="edit_work_end">Work End Time</Label>
-                <Input id="edit_work_end" name="work_end_time" type="time" defaultValue={employee.work_end_time ?? ""} />
-              </div>
-              <div className="min-w-0 space-y-2">
                 <Label htmlFor="edit_weekly_days">Weekly Working Days</Label>
                 <Input id="edit_weekly_days" name="weekly_working_days" type="number" min={1} max={7} defaultValue={employee.weekly_working_days ?? ""} />
-              </div>
-              <div className="min-w-0 space-y-2">
-                <Label htmlFor="edit_probation_end">Probation End Date</Label>
-                <Input id="edit_probation_end" name="probation_end_date" type="date" defaultValue={employee.probation_end_date ?? ""} />
               </div>
             </div>
           </div>

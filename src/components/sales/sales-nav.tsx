@@ -29,7 +29,6 @@ const repLinks = [
 
 const ownerLinks = [
   { href: "/sales/command", label: "Command Center", icon: LayoutDashboard },
-  { href: "/sales/teams", label: "Teams", icon: Users },
   { href: "/sales/leads", label: "Leads", icon: UserCheck },
   { href: "/sales/meetings", label: "Meetings", icon: CalendarDays },
   { href: "/sales/analytics", label: "Analytics", icon: BarChart3 },

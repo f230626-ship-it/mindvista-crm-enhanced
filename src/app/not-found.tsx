@@ -1,20 +1,21 @@
-import Image from "next/image";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Home } from "lucide-react";
 import { BackButton } from "@/components/ui/back-button";
+import { BrandLogo } from "@/components/ui/brand-logo";
 
 export default function NotFound() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background p-6 text-center animate-fade-in">
-      <Image
-        src="/images/logo.png"
-        alt="MindVista"
-        width={160}
-        height={44}
-        className="opacity-80"
-      />
+      <div className="w-[6rem] sm:w-[7.5rem]">
+        <BrandLogo
+          lightLogoSrc="/images/mindvista-official-logo-light.png"
+          darkLogoSrc="/images/mindvista-official-logo-dark.png"
+          className="opacity-90"
+          sizes="(max-width: 640px) 6rem, 7.5rem"
+        />
+      </div>
       <div>
         <h1 className="text-6xl font-bold text-gradient-brand">404</h1>
         <h2 className="mt-2 text-xl font-semibold">Page not found</h2>

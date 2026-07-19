@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useTransition, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import { login } from "@/actions/auth";
@@ -18,6 +17,7 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Spinner } from "@/components/ui/spinner";
+import Image from "next/image";
 import { motion } from "framer-motion";
 
 function LoginForm() {
@@ -94,18 +94,30 @@ function LoginForm() {
         className="relative w-full max-w-md"
       >
         <Card className="border-border/60 bg-card/90 shadow-2xl shadow-primary/5 backdrop-blur-sm">
-          <CardHeader className="space-y-4 text-center">
-            <Image
-              src="/images/logo.png"
-              alt="MindVista"
-              width={180}
-              height={48}
-              className="mx-auto h-10 w-auto object-contain"
-              priority
-            />
-            <div>
-              <CardTitle className="text-xl">Welcome back</CardTitle>
-              <CardDescription>Sign in to your HRMS account</CardDescription>
+          <CardHeader className="space-y-0 text-center pt-0 dark:pt-4">
+            <div className="mx-auto mb-[-1.5rem] dark:mb-[-0.75rem] h-[10rem] flex items-center justify-center">
+              <div className="relative h-[10rem] w-auto">
+                <Image
+                  src="/images/mindvista-official-logo-light.png"
+                  alt="MindVista"
+                  height={268}
+                  width={358}
+                  priority
+                  className="h-[10rem] w-auto object-contain dark:hidden"
+                />
+                <Image
+                  src="/images/mindvista-official-logo-dark.png"
+                  alt="MindVista"
+                  height={268}
+                  width={358}
+                  priority
+                  className="h-[6rem] w-auto object-contain hidden dark:block"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <CardTitle className="text-2xl font-semibold tracking-tight">Welcome back</CardTitle>
+              <CardDescription className="text-base">Sign in to your HRMS account</CardDescription>
             </div>
           </CardHeader>
           <CardContent>

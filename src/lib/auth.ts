@@ -111,33 +111,31 @@ export async function requireRole(...roles: Employee["role"][]) {
 
 export async function requireAdminAccess() {
   const employee = await requireAuth();
-  
+
   // Allow admin, hr roles OR legacy "developer" role
-  const hasAccess = employee.role === "admin" || 
-                   employee.role === "hr" || 
-                   employee.role === "developer" ||
-                   employee.pm_role === "admin";
-                   
+  const hasAccess = employee.role === "admin" ||
+                   employee.role === "hr" ||
+                   employee.role === "developer";
+
   if (!hasAccess) {
     redirect("/dashboard");
   }
-  
+
   return employee;
 }
 
 export async function requireManagerOrAdminAccess() {
   const employee = await requireAuth();
-  
+
   // Allow admin, hr roles OR legacy "developer" role
-  const hasAccess = employee.role === "admin" || 
+  const hasAccess = employee.role === "admin" ||
                    employee.role === "hr" ||
-                   employee.role === "developer" ||
-                   employee.pm_role === "admin";
-                   
+                   employee.role === "developer";
+
   if (!hasAccess) {
     redirect("/dashboard");
   }
-  
+
   return employee;
 }
 
@@ -214,13 +212,12 @@ export function isSalesOwner(role: Employee["role"]) {
   return role === "admin";
 }
 
-export function isBdEmployee(employee: Pick<Employee, "pm_role" | "designation">) {
-  if (employee.pm_role === "bd") return true;
+export function isBdEmployee(employee: Pick<Employee, "designation">) {
   const d = (employee.designation || "").toLowerCase();
-  return d.includes("business developer") || d.includes("bd ");
+  return d.includes("business developer") || d.includes("bd");
 }
 
-export function canAccessSales(employee: Pick<Employee, "role" | "pm_role" | "designation">) {
+export function canAccessSales(employee: Pick<Employee, "role" | "designation">) {
   return employee.role === "admin" || isBdEmployee(employee);
 }
 

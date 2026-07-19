@@ -63,12 +63,12 @@ export default async function AdminHolidaysPage() {
   }, {});
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-5 md:space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Holiday Calendar</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Holiday Calendar</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
             Manage company holidays excluded from leave calculations
           </p>
         </div>
@@ -76,49 +76,49 @@ export default async function AdminHolidaysPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid gap-3 sm:gap-4 grid-cols-[repeat(auto-fit,minmax(180px,1fr))]">
+      <div className="grid gap-2 sm:gap-3 md:gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
         <Card className="pt-0 overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-500/10 to-blue-500/5 py-3 px-4">
-            <div className="flex items-center gap-2 text-sm font-medium text-blue-700 dark:text-blue-400">
-              <CalendarDays className="h-3.5 w-3.5" />
+          <div className="bg-gradient-to-r from-blue-500/10 to-blue-500/5 py-2 sm:py-3 px-3 sm:px-4">
+            <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-blue-700 dark:text-blue-400">
+              <CalendarDays className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
               Total Holidays
             </div>
           </div>
-          <CardContent className="pt-3 pb-4">
-            <p className="text-3xl font-bold">{allHolidays.length}</p>
+          <CardContent className="pt-2 sm:pt-3 pb-3 sm:pb-4">
+            <p className="text-2xl sm:text-3xl font-bold">{allHolidays.length}</p>
           </CardContent>
         </Card>
         <Card className="pt-0 overflow-hidden">
-          <div className="bg-gradient-to-r from-emerald-500/10 to-emerald-500/5 py-3 px-4">
-            <div className="flex items-center gap-2 text-sm font-medium text-emerald-700 dark:text-emerald-400">
-              <Trophy className="h-3.5 w-3.5" />
+          <div className="bg-gradient-to-r from-emerald-500/10 to-emerald-500/5 py-2 sm:py-3 px-3 sm:px-4">
+            <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-emerald-700 dark:text-emerald-400">
+              <Trophy className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
               Upcoming
             </div>
           </div>
-          <CardContent className="pt-3 pb-4">
-            <p className="text-3xl font-bold">{upcoming.length}</p>
+          <CardContent className="pt-2 sm:pt-3 pb-3 sm:pb-4">
+            <p className="text-2xl sm:text-3xl font-bold">{upcoming.length}</p>
           </CardContent>
         </Card>
         <Card className="pt-0 overflow-hidden">
-          <div className="bg-gradient-to-r from-amber-500/10 to-amber-500/5 py-3 px-4">
-            <div className="flex items-center gap-2 text-sm font-medium text-amber-700 dark:text-amber-400">
-              <PartyPopper className="h-3.5 w-3.5" />
+          <div className="bg-gradient-to-r from-amber-500/10 to-amber-500/5 py-2 sm:py-3 px-3 sm:px-4">
+            <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-amber-700 dark:text-amber-400">
+              <PartyPopper className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
               This Month
             </div>
           </div>
-          <CardContent className="pt-3 pb-4">
-            <p className="text-3xl font-bold">{thisMonth.length}</p>
+          <CardContent className="pt-2 sm:pt-3 pb-3 sm:pb-4">
+            <p className="text-2xl sm:text-3xl font-bold">{thisMonth.length}</p>
           </CardContent>
         </Card>
         <Card className="pt-0 overflow-hidden">
-          <div className="bg-gradient-to-r from-gray-500/10 to-gray-500/5 py-3 px-4">
-            <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-400">
-              <Clock className="h-3.5 w-3.5" />
+          <div className="bg-gradient-to-r from-gray-500/10 to-gray-500/5 py-2 sm:py-3 px-3 sm:px-4">
+            <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-400">
+              <Clock className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
               Past
             </div>
           </div>
-          <CardContent className="pt-3 pb-4">
-            <p className="text-3xl font-bold">{past.length}</p>
+          <CardContent className="pt-2 sm:pt-3 pb-3 sm:pb-4">
+            <p className="text-2xl sm:text-3xl font-bold">{past.length}</p>
           </CardContent>
         </Card>
       </div>
@@ -132,7 +132,7 @@ export default async function AdminHolidaysPage() {
           action={<HolidayForm />}
         />
       ) : (
-        <div className="space-y-8">
+        <div className="space-y-6 sm:space-y-8">
           {Object.entries(grouped).map(([month, items]) => {
             const monthName = month.split(" ")[0];
             const colorClass = MONTH_COLORS[monthName] ?? "from-gray-500/10 to-gray-500/5 border-gray-500/20";
@@ -140,14 +140,14 @@ export default async function AdminHolidaysPage() {
 
             return (
               <div key={month}>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className={`h-2.5 w-2.5 rounded-full ${dotColor}`} />
-                  <h2 className="text-lg font-bold">{month}</h2>
-                  <Badge variant="secondary" className="text-xs font-mono">
+                <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                  <div className={`h-2 sm:h-2.5 w-2 sm:w-2.5 rounded-full ${dotColor}`} />
+                  <h2 className="text-base sm:text-lg font-bold">{month}</h2>
+                  <Badge variant="secondary" className="text-[10px] sm:text-xs font-mono">
                     {items.length} {items.length === 1 ? "holiday" : "holidays"}
                   </Badge>
                 </div>
-                <div className="grid gap-3 sm:gap-4 grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))]">
+                <div className="grid gap-2 sm:gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-[repeat(auto-fit,minmax(min(280px,100%),1fr))]">
                   {items.map((holiday) => {
                     const holidayDate = parseISO(holiday.date);
                     const isPastDate = isPast(holidayDate) && !isToday(holidayDate);
@@ -161,36 +161,36 @@ export default async function AdminHolidaysPage() {
                         {/* Top accent line */}
                         <div className={`h-0.5 w-full ${dotColor}`} />
 
-                        <CardContent className="p-4">
-                          <div className="flex items-start justify-between gap-3">
+                        <CardContent className="p-3 sm:p-4">
+                          <div className="flex items-start justify-between gap-2 sm:gap-3">
                             {/* Left: Date badge */}
-                            <div className="flex items-center gap-3">
-                              <div className={`flex flex-col items-center justify-center rounded-xl ${dotColor} text-white min-w-[52px] h-[56px] shadow-sm`}>
-                                <span className="text-[10px] font-bold uppercase leading-none tracking-wider opacity-90">
+                            <div className="flex items-center gap-2 sm:gap-3">
+                              <div className={`flex flex-col items-center justify-center rounded-xl ${dotColor} text-white min-w-[44px] sm:min-w-[52px] h-[48px] sm:h-[56px] shadow-sm`}>
+                                <span className="text-[9px] sm:text-[10px] font-bold uppercase leading-none tracking-wider opacity-90">
                                   {format(holidayDate, "MMM")}
                                 </span>
-                                <span className="text-lg font-bold leading-none mt-0.5">
+                                <span className="text-base sm:text-lg font-bold leading-none mt-0.5">
                                   {format(holidayDate, "d")}
                                 </span>
                               </div>
                               <div className="min-w-0">
-                                <h3 className="font-semibold text-sm leading-tight">
+                                <h3 className="font-semibold text-xs sm:text-sm leading-tight">
                                   {holiday.name}
                                 </h3>
-                                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                                <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 line-clamp-2">
                                   {holiday.description || "No description"}
                                 </p>
-                                <div className="flex items-center gap-2 mt-2">
-                                  <span className="text-[11px] text-muted-foreground font-mono">
+                                <div className="flex items-center gap-1.5 sm:gap-2 mt-1.5 sm:mt-2">
+                                  <span className="text-[10px] sm:text-[11px] text-muted-foreground font-mono">
                                     {format(holidayDate, "EEEE")}
                                   </span>
                                   {isTodayDate && (
-                                    <Badge className="text-[10px] px-1.5 py-0 h-4 bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20">
+                                    <Badge className="text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0 h-3.5 sm:h-4 bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20">
                                       Today
                                     </Badge>
                                   )}
                                   {isPastDate && (
-                                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">
+                                    <Badge variant="secondary" className="text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0 h-3.5 sm:h-4">
                                       Past
                                     </Badge>
                                   )}

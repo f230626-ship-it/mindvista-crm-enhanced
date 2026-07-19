@@ -2,13 +2,13 @@ import { notFound } from 'next/navigation';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { EditEmployeeDialog } from '@/components/admin/edit-employee-dialog';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import {
   Mail,
   Phone,
   MapPin,
   Calendar,
   Briefcase,
-  Building2,
   UserCheck,
   Clock,
   Shield,
@@ -35,6 +35,12 @@ import {
   IdCard,
   ArrowLeft,
   Banknote,
+  GraduationCap,
+  Code2,
+  Award,
+  Crown,
+  ShieldCheck,
+  Hourglass,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -48,14 +54,14 @@ export default async function EmployeeDetailsPage({ params }: EmployeeDetailsPag
 
   const { data: employee, error } = await supabase
     .from('employees')
-    .select(`*, department:departments(name)`)
+    .select(`*`)
     .eq('id', id)
     .single();
 
   if (error || !employee) notFound();
 
   // Fetch related data in parallel
-  const [leadResult, managerResult, leaveBalanceResult, assetsResult, recentLeavesResult, departmentsResult, managersResult, goalsResult, reviewsResult] =
+  const [leadResult, managerResult, leaveBalanceResult, assetsResult, recentLeavesResult, managersResult, goalsResult, reviewsResult, departmentsResult] =
     await Promise.all([
       employee.lead_id
         ? supabase.from('employees').select('full_name, designation, email').eq('id', employee.lead_id).single()
@@ -74,11 +80,11 @@ export default async function EmployeeDetailsPage({ params }: EmployeeDetailsPag
         .select('*')
         .eq('employee_id', id)
         .order('created_at', { ascending: false })
-        .limit(5),
-      supabase.from('departments').select('*').order('name'),
-      supabase.from('employees').select('id, full_name, employee_code').eq('status', 'active').order('full_name'),
-      supabase.from('performance_goals').select('*').eq('employee_id', id).order('created_at', { ascending: false }),
-      supabase.from('performance_reviews').select('*').eq('employee_id', id).order('created_at', { ascending: false }),
+        .limit(10),
+      supabase.from('employees').select('id, full_name, employee_code').eq('status', 'active').order('full_name').limit(100),
+      supabase.from('performance_goals').select('*').eq('employee_id', id).order('created_at', { ascending: false }).limit(10),
+      supabase.from('performance_reviews').select('*').eq('employee_id', id).order('created_at', { ascending: false }).limit(10),
+      supabase.from('departments').select('id, name').order('name'),
     ]);
 
   const leadData = leadResult.data;
@@ -86,14 +92,11 @@ export default async function EmployeeDetailsPage({ params }: EmployeeDetailsPag
   const leaveBalance = leaveBalanceResult.data;
   const activeAssets = assetsResult.data ?? [];
   const recentLeaves = recentLeavesResult.data ?? [];
-  const departments = departmentsResult.data ?? [];
   const managers = managersResult.data ?? [];
+  const departments = departmentsResult.data ?? [];
   const goals = goalsResult.data ?? [];
   const reviews = reviewsResult.data ?? [];
   const avgRating = reviews.length > 0 ? (reviews.reduce((sum: number, r: any) => sum + (r.rating ?? 0), 0) / reviews.filter((r: any) => r.rating != null).length).toFixed(1) : null;
-  const goalsCompleted = goals.filter((g: any) => g.completion_status >= 100).length;
-
-  const deptName = (employee.department as { name: string } | null)?.name || null;
 
   const getInitials = (name: string) =>
     name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2);
@@ -179,13 +182,16 @@ export default async function EmployeeDetailsPage({ params }: EmployeeDetailsPag
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
         {/* ── Breadcrumb ── */}
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Link href="/admin/employees" className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors">
-            <ArrowLeft className="h-3.5 w-3.5" />
+        <div className="flex items-center gap-2">
+          <Link
+            href="/admin/employees"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-muted-foreground bg-muted/50 hover:bg-muted hover:text-foreground border border-border/40 hover:border-border/70 transition-all duration-150 group"
+          >
+            <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-150 group-hover:-translate-x-0.5" />
             Employees
           </Link>
-          <ChevronRight className="h-3.5 w-3.5" />
-          <span className="text-foreground font-medium">{employee.full_name}</span>
+          <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/30 shrink-0" />
+          <span className="text-sm font-semibold text-foreground truncate">{employee.full_name}</span>
         </div>
 
         {/* ══════════════════════════════════════════════
@@ -228,7 +234,7 @@ export default async function EmployeeDetailsPage({ params }: EmployeeDetailsPag
 
                 <p className="text-base text-muted-foreground font-medium mb-3">
                   {employee.designation}
-                  {deptName && <span className="text-muted-foreground/55"> · {deptName}</span>}
+
                 </p>
 
                 {/* Tags row */}
@@ -246,8 +252,8 @@ export default async function EmployeeDetailsPage({ params }: EmployeeDetailsPag
               <div className="flex items-center gap-2 shrink-0">
                 <EditEmployeeDialog
                   employee={employee}
-                  departments={departments}
                   managers={managers}
+                  departments={departments}
                 />
               </div>
             </div>
@@ -257,7 +263,7 @@ export default async function EmployeeDetailsPage({ params }: EmployeeDetailsPag
               <QuickInfo icon={<Mail className="h-3.5 w-3.5" />} label="Email" value={employee.email} small />
               <QuickInfo icon={<Phone className="h-3.5 w-3.5" />} label="Phone" value={employee.phone ?? '—'} small />
               <QuickInfo icon={<Calendar className="h-3.5 w-3.5" />} label="Joined" value={fmt(employee.joining_date, { month: 'short', day: 'numeric', year: 'numeric' })} small />
-              <QuickInfo icon={<Building2 className="h-3.5 w-3.5" />} label="Department" value={deptName ?? 'N/A'} small />
+
             </div>
           </div>
         </div>
@@ -295,10 +301,9 @@ export default async function EmployeeDetailsPage({ params }: EmployeeDetailsPag
         </div>
 
         {/* ── Main grid ── */}
-        <div className="grid grid-cols-1 xl:grid-cols-[360px_1fr] gap-5">
-
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
           {/* ── LEFT ── */}
-          <div className="space-y-4">
+          <div className="flex flex-col gap-8">
 
             <InfoCard title="Contact Information" icon={<Mail className="h-4 w-4 text-blue-500" />} accent="#3b82f6">
               <InfoRow icon={<Mail className="h-3.5 w-3.5" />} label="Email"   value={employee.email} />
@@ -341,84 +346,188 @@ export default async function EmployeeDetailsPage({ params }: EmployeeDetailsPag
               </div>
             </InfoCard>
 
-            {/* Performance Rating Donut */}
-            {avgRating !== null && (
-              <InfoCard title="Performance Rating" icon={<Star className="h-4 w-4 text-yellow-500" />} accent="#eab308">
-                <div className="px-5 py-6 flex flex-col items-center">
-                  {(() => {
-                    const rating = parseFloat(avgRating);
-                    const maxRating = 5;
-                    const circumference = 2 * Math.PI * 42;
-                    const ratingPct = rating / maxRating;
-                    const segments = [
-                      { color: '#ef4444', label: '1', range: [0, 1] },
-                      { color: '#f97316', label: '2', range: [1, 2] },
-                      { color: '#eab308', label: '3', range: [2, 3] },
-                      { color: '#22c55e', label: '4', range: [3, 4] },
-                      { color: '#06b6d4', label: '5', range: [4, 5] },
-                    ];
-                    const filledLength = ratingPct * circumference;
-                    return (
-                      <>
-                        <div className="relative w-[130px] h-[130px]">
-                          <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-                            {/* Background ring */}
-                            <circle cx="50" cy="50" r="42" fill="none" stroke="hsl(var(--muted))" strokeWidth="8" />
-                            {/* Rating fill */}
-                            <circle
-                              cx="50" cy="50" r="42"
-                              fill="none"
-                              stroke="url(#ratingGradient)"
-                              strokeWidth="8"
-                              strokeLinecap="round"
-                              strokeDasharray={`${filledLength} ${circumference}`}
-                              className="transition-all duration-700"
-                            />
-                            <defs>
-                              <linearGradient id="ratingGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" stopColor="#ef4444" />
-                                <stop offset="25%" stopColor="#f97316" />
-                                <stop offset="50%" stopColor="#eab308" />
-                                <stop offset="75%" stopColor="#22c55e" />
-                                <stop offset="100%" stopColor="#06b6d4" />
-                              </linearGradient>
-                            </defs>
-                          </svg>
-                          <div className="absolute inset-0 flex flex-col items-center justify-center">
-                            <span className="text-3xl font-black tracking-tight text-foreground">{avgRating}</span>
-                            <span className="text-[10px] font-semibold text-muted-foreground">out of 5</span>
-                          </div>
-                        </div>
-                        {/* Legend */}
-                        <div className="flex items-center gap-2.5 mt-4">
-                          {segments.map((seg) => (
-                            <div key={seg.label} className="flex items-center gap-1">
-                              <div className="h-2 w-2 rounded-full" style={{ backgroundColor: seg.color }} />
-                              <span className="text-[10px] text-muted-foreground font-medium">{seg.label}</span>
-                            </div>
-                          ))}
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-2.5">
-                          Based on {reviews.length} {reviews.length === 1 ? 'review' : 'reviews'}
-                        </p>
-                      </>
-                    );
-                  })()}
-                </div>
-              </InfoCard>
-            )}
 
-            {reviews.length === 0 && goals.length === 0 && (
-              <InfoCard title="Performance Rating" icon={<Star className="h-4 w-4 text-yellow-500" />} accent="#eab308">
-                <div className="px-5 py-8 text-center">
-                  <p className="text-sm text-muted-foreground">No performance data yet</p>
+
+            {/* Career Progression & Probation */}
+            {(() => {
+              const desig = (employee.designation || '').toLowerCase();
+              const isBD = desig.includes('business') || desig.includes('bd');
+
+              const CAREER_LADDER = isBD
+                ? [
+                    { key: 'associate',     label: 'Associate',         icon: GraduationCap },
+                    { key: 'bd',            label: 'Business Developer', icon: Briefcase },
+                    { key: 'sr-bd',         label: 'Senior BD',         icon: Award },
+                    { key: 'admin',         label: 'Admin / CEO',       icon: Building },
+                  ]
+                : [
+                    { key: 'associate',     label: 'Associate Engineer', icon: Code2 },
+                    { key: 'engineer',      label: 'Software Engineer',  icon: Layers },
+                    { key: 'senior',        label: 'Senior Engineer',    icon: ShieldCheck },
+                    { key: 'admin',         label: 'Admin / CEO',       icon: Building },
+                  ];
+
+              const isAdminRole = desig.includes('admin') || desig.includes('ceo') || desig.includes('director');
+              const LADDER = isAdminRole ? [...CAREER_LADDER] : CAREER_LADDER.slice(0, -1);
+
+              let currentIdx = 0;
+              if (desig.includes('admin') || desig.includes('ceo') || desig.includes('director') || desig.includes('head')) currentIdx = 3;
+              else if (desig.includes('senior')) currentIdx = isBD ? 2 : 2;
+              else if (desig.includes('business') || desig.includes('bd') || desig.includes('developer') || desig.includes('software') || desig.includes('engineer') || desig.includes('ai')) currentIdx = 1;
+
+              const current = LADDER[currentIdx];
+              const next = currentIdx < LADDER.length - 1 ? LADDER[currentIdx + 1] : null;
+
+              const joining = employee.joining_date ? new Date(employee.joining_date) : null;
+              const now = new Date();
+              const daysEmployed = joining ? Math.floor((now.getTime() - joining.getTime()) / (1000 * 60 * 60 * 24)) : 0;
+              const monthsEmployed = Math.floor(daysEmployed / 30);
+
+              const PROBATION_MONTHS = 3;
+              const probationEnd = joining
+                ? new Date(joining.getFullYear(), joining.getMonth() + PROBATION_MONTHS, joining.getDate())
+                : null;
+              const probationActive = probationEnd && now < probationEnd;
+              const probationDaysLeft = probationEnd ? Math.max(0, Math.ceil((probationEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))) : 0;
+              const probationPct = probationEnd && joining
+                ? Math.min(100, Math.round(((now.getTime() - joining.getTime()) / (probationEnd.getTime() - joining.getTime())) * 100))
+                : 0;
+
+              const totalStageMonths = currentIdx * 6;
+              const monthsInStage = Math.max(0, monthsEmployed - totalStageMonths);
+              const stageDuration = 12;
+              const progressPct = Math.min(100, Math.round((monthsInStage / stageDuration) * 100));
+              const monthsUntilNext = next ? Math.max(0, stageDuration - monthsInStage) : 0;
+
+              return (
+                <div className="rounded-2xl border border-border/60 bg-card overflow-hidden shadow-sm flex-1 flex flex-col">
+                  <div className="px-5 py-4 border-b border-border/40 bg-muted/20">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <TrendingUp className="h-5 w-5 text-primary" />
+                        <div>
+                          <h3 className="text-sm font-semibold">Career Progression</h3>
+                          <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Career Path</p>
+                        </div>
+                      </div>
+                      {probationActive && (
+                        <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium bg-muted text-muted-foreground border border-border/50">
+                          <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+                          Probation: 3 Months
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="px-5 py-5 space-y-6">
+                    {probationActive && (
+                      <div className="rounded-xl bg-muted/30 border border-border/50 p-4">
+                        <div className="flex items-center justify-between mb-2.5">
+                          <div className="flex items-center gap-2">
+                            <Timer className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-xs font-semibold text-foreground">Probation Period</span>
+                          </div>
+                          <span className="text-xs font-semibold text-foreground">{probationPct}%</span>
+                        </div>
+                        <div className="h-1.5 rounded-full bg-border overflow-hidden mb-2.5">
+                          <div className="h-full rounded-full bg-primary transition-all duration-700" style={{ width: `${probationPct}%` }} />
+                        </div>
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="text-muted-foreground">{probationDaysLeft} days remaining</span>
+                          <span className="text-muted-foreground">Ends {fmt(probationEnd ? probationEnd.toISOString() : null, { month: 'short', day: 'numeric' })}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-4 p-4 rounded-xl border border-border/60 bg-card shadow-sm">
+                      <div className="h-12 w-12 rounded-lg flex items-center justify-center text-primary bg-primary/10 shrink-0">
+                        <current.icon className="h-6 w-6" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-0.5">Current Role</p>
+                        <p className="text-base font-semibold text-foreground">{current.label}</p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <div className="text-xl font-bold tabular-nums text-foreground">{monthsEmployed}<span className="text-xs font-medium text-muted-foreground ml-0.5">mo</span></div>
+                        <p className="text-[10px] text-muted-foreground font-medium">Total Tenure</p>
+                      </div>
+                    </div>
+
+                    {next && (
+                      <div className="space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-medium text-muted-foreground">Next: {next.label}</span>
+                          <span className="text-xs font-semibold text-foreground">{progressPct}%</span>
+                        </div>
+                        <div className="h-1.5 rounded-full bg-border overflow-hidden">
+                          <div className="h-full rounded-full bg-primary transition-all duration-700" style={{ width: `${progressPct}%` }} />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <p className="text-[11px] text-muted-foreground">
+                            {monthsInStage} of {stageDuration} months in stage
+                          </p>
+                          <p className="text-[11px] font-medium text-foreground">
+                            {monthsUntilNext > 0 ? `~${monthsUntilNext}mo to promotion` : 'Eligible now'}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="mt-2">
+                      <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-6">Career Ladder</p>
+                      <div className="space-y-14">
+                        {LADDER.map((stage, i) => {
+                          const isCurrent = i === currentIdx;
+                          const isPast = i < currentIdx;
+                          return (
+                            <div key={stage.key} className="flex items-center gap-3.5 relative">
+                              {i < LADDER.length - 1 && (
+                                <div className="absolute left-[13px] top-[32px] w-[2px] h-[calc(100%+56px)] bg-border" />
+                              )}
+                              <div className={cn(
+                                "relative z-10 h-7 w-7 rounded-full flex items-center justify-center shrink-0 text-sm transition-all duration-300 border-2",
+                                isCurrent ? "bg-primary border-primary text-primary-foreground" : isPast ? "bg-primary/10 border-primary text-primary" : "bg-card border-border text-muted-foreground"
+                              )}>
+                                {isPast ? (
+                                  <CheckCircle2 className="h-3.5 w-3.5" />
+                                ) : isCurrent ? (
+                                  <stage.icon className="h-3.5 w-3.5" />
+                                ) : (
+                                  <span className="text-[10px] font-semibold">{i + 1}</span>
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0 py-3">
+                                <div className="flex items-center gap-2">
+                                  <p className={cn("text-sm font-medium", isCurrent ? "text-foreground" : isPast ? "text-foreground/80" : "text-muted-foreground")}>
+                                    {stage.label}
+                                  </p>
+                                </div>
+                                <p className="text-[10px] text-muted-foreground mt-0.5">Level {i + 1} of {LADDER.length}</p>
+                              </div>
+                              {isCurrent && (
+                                <span className="shrink-0 text-[10px] font-medium px-2 py-0.5 rounded-md bg-primary/10 text-primary">
+                                  Current
+                                </span>
+                              )}
+                              {isPast && (
+                                <span className="shrink-0 text-[10px] font-medium px-2 py-0.5 text-muted-foreground">
+                                  Completed
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                  </div>
                 </div>
-              </InfoCard>
-            )}
+              );
+            })()}
           </div>
 
           {/* ── RIGHT ── */}
-          <div className="space-y-4">
+          <div className="flex flex-col gap-8">
 
             {/* Professional Details */}
             <InfoCard title="Professional Details" icon={<Briefcase className="h-4 w-4 text-amber-500" />} accent="#f59e0b">
@@ -426,7 +535,6 @@ export default async function EmployeeDetailsPage({ params }: EmployeeDetailsPag
                 <div className="sm:border-r border-border/40">
                   <InfoRow icon={<Hash className="h-3.5 w-3.5" />}      label="Employee Code"  value={employee.employee_code ?? 'N/A'} mono />
                   <InfoRow icon={<Briefcase className="h-3.5 w-3.5" />} label="Designation"    value={employee.designation} />
-                  <InfoRow icon={<Building2 className="h-3.5 w-3.5" />} label="Department"     value={deptName ?? 'N/A'} />
                   <InfoRow icon={<Shield className="h-3.5 w-3.5" />}    label="System Role"    value={currentRole.label} />
                 </div>
                 <div>
@@ -443,10 +551,10 @@ export default async function EmployeeDetailsPage({ params }: EmployeeDetailsPag
             {(employee.work_start_time || employee.work_end_time || employee.weekly_working_days || employee.probation_end_date) && (
               <InfoCard title="Work Schedule" icon={<Clock className="h-4 w-4 text-cyan-500" />} accent="#06b6d4">
                 <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y divide-border/30">
-                  {employee.work_start_time && <SchedCell emoji="🕘" label="Start Time"     value={employee.work_start_time} />}
-                  {employee.work_end_time   && <SchedCell emoji="🕔" label="End Time"       value={employee.work_end_time} />}
-                  {employee.weekly_working_days && <SchedCell emoji="📅" label="Days/Week"  value={`${employee.weekly_working_days} days`} />}
-                  {employee.probation_end_date  && <SchedCell emoji="⏳" label="Probation End" value={fmt(employee.probation_end_date, { month: 'short', day: 'numeric', year: 'numeric' })} />}
+                  {employee.work_start_time && <SchedCell icon={<Clock className="h-4 w-4" />} label="Start Time" value={employee.work_start_time} />}
+                  {employee.work_end_time   && <SchedCell icon={<Timer className="h-4 w-4" />} label="End Time"   value={employee.work_end_time} />}
+                  {employee.weekly_working_days && <SchedCell icon={<Calendar className="h-4 w-4" />} label="Days/Week" value={`${employee.weekly_working_days} days`} />}
+                  {employee.probation_end_date  && <SchedCell icon={<Hourglass className="h-4 w-4" />} label="Probation End" value={fmt(employee.probation_end_date, { month: 'short', day: 'numeric', year: 'numeric' })} />}
                 </div>
               </InfoCard>
             )}
@@ -543,7 +651,7 @@ export default async function EmployeeDetailsPage({ params }: EmployeeDetailsPag
             {/* Recent Leave Requests */}
             {recentLeaves.length > 0 && (
               <InfoCard title="Recent Leave Requests" icon={<FileText className="h-4 w-4 text-orange-500" />} accent="#f97316">
-                <div className="divide-y divide-border/30">
+                <div className="divide-y divide-border/30 max-h-[320px] overflow-y-auto pm-scroll-col">
                   {recentLeaves.map((leave: any) => {
                     const ls = leaveStatusMeta[leave.status] ?? leaveStatusMeta.pending;
                     return (
@@ -571,55 +679,59 @@ export default async function EmployeeDetailsPage({ params }: EmployeeDetailsPag
             )}
 
             {/* Employment Timeline */}
-            <InfoCard title="Employment Timeline" icon={<TrendingUp className="h-4 w-4 text-teal-500" />} accent="#14b8a6">
-              <div className="px-5 py-5 space-y-0">
+            <InfoCard title="Employment Timeline" icon={<Clock className="h-4 w-4 text-muted-foreground" />} accent="hsl(var(--primary))" className="flex-1">
+              <div className="px-5 py-5 flex flex-col justify-between space-y-0 h-full">
                 {[
                   ...(employee.joining_date ? [{
                     label: 'Joined Organisation',
                     date: fmt(employee.joining_date),
                     meta: `${tenureLabel} ago`,
                     icon: UserPlus,
-                    ring: 'ring-emerald-500/30 bg-emerald-500/10',
-                    ic: 'text-emerald-500',
-                    line: 'bg-emerald-500/20',
+                    filled: true,
                   }] : []),
                   ...(employee.probation_end_date ? [{
                     label: 'Probation Period Ended',
                     date: fmt(employee.probation_end_date),
                     meta: new Date(employee.probation_end_date) < today ? 'Completed' : 'Upcoming',
                     icon: CheckCircle2,
-                    ring: 'ring-blue-500/30 bg-blue-500/10',
-                    ic: 'text-blue-500',
-                    line: 'bg-blue-500/20',
+                    filled: true,
                   }] : []),
                   ...(employee.date_of_birth ? [{
                     label: 'Birthday',
                     date: fmt(employee.date_of_birth, { month: 'long', day: 'numeric' }),
                     meta: 'Annual celebration',
-                    icon: Cake,
-                    ring: 'ring-pink-500/30 bg-pink-500/10',
-                    ic: 'text-pink-500',
-                    line: 'bg-pink-500/20',
+                    icon: Calendar,
+                    filled: false,
                   }] : []),
                   {
                     label: 'Profile Last Updated',
                     date: fmt(employee.updated_at),
                     meta: 'Record modified',
                     icon: Activity,
-                    ring: 'ring-border/50 bg-muted/50',
-                    ic: 'text-muted-foreground',
-                    line: 'bg-border/40',
+                    filled: false,
+                  },
+                  {
+                    label: 'Account Created',
+                    date: fmt(employee.created_at),
+                    meta: 'System registration',
+                    icon: Shield,
+                    filled: false,
                   },
                 ].map((ev, i, arr) => (
-                  <div key={i} className="relative flex gap-4 pb-5 last:pb-0">
+                  <div key={i} className="relative flex gap-3.5 flex-1 items-start last:pb-0">
                     {i < arr.length - 1 && (
-                      <div className={`absolute left-[17px] top-9 bottom-0 w-px ${ev.line}`} />
+                      <div className="absolute left-[13px] top-9 bottom-0 w-[2px] bg-border" />
                     )}
-                    <div className={`h-9 w-9 rounded-xl ring-1 flex items-center justify-center shrink-0 ${ev.ring}`}>
-                      <ev.icon className={`h-4 w-4 ${ev.ic}`} />
+                    <div className={cn(
+                      "relative z-10 h-7 w-7 rounded-full flex items-center justify-center shrink-0 border-2",
+                      ev.filled
+                        ? "bg-primary border-primary text-primary-foreground"
+                        : "bg-card border-border text-muted-foreground"
+                    )}>
+                      <ev.icon className="h-3.5 w-3.5" />
                     </div>
                     <div className="flex-1 min-w-0 pt-0.5">
-                      <p className="text-sm font-semibold">{ev.label}</p>
+                      <p className="text-sm font-medium text-foreground">{ev.label}</p>
                       <p className="text-xs text-muted-foreground">{ev.date}</p>
                       <p className="text-[11px] text-muted-foreground/60 mt-0.5">{ev.meta}</p>
                     </div>
@@ -628,47 +740,10 @@ export default async function EmployeeDetailsPage({ params }: EmployeeDetailsPag
               </div>
             </InfoCard>
 
-            {/* Performance Summary */}
-            <InfoCard title="Performance Summary" icon={<Star className="h-4 w-4 text-yellow-500" />} accent="#eab308">
-              <div className="px-5 py-5">
-                {/* Stats row */}
-                <div className="grid grid-cols-3 gap-3 mb-5">
-                  <div className="rounded-xl bg-muted/40 ring-1 ring-border/40 p-3 text-center">
-                    <p className="text-xl sm:text-2xl font-black text-yellow-600 dark:text-yellow-400">{avgRating ?? '—'}</p>
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mt-1">Avg Rating</p>
-                  </div>
-                  <div className="rounded-xl bg-muted/40 ring-1 ring-border/40 p-3 text-center">
-                    <p className="text-xl sm:text-2xl font-black text-blue-600 dark:text-blue-400">{goalsCompleted}/{goals.length}</p>
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mt-1">Goals Done</p>
-                  </div>
-                  <div className="rounded-xl bg-muted/40 ring-1 ring-border/40 p-3 text-center">
-                    <p className="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400">{reviews.length}</p>
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mt-1">Reviews</p>
-                  </div>
-                </div>
-                {/* Rating bars */}
-                {reviews.length > 0 && (
-                  <div className="space-y-2.5">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Recent Ratings</p>
-                    {reviews.slice(0, 5).map((review: any) => (
-                      <div key={review.id} className="flex items-center gap-3">
-                        <span className="text-xs text-muted-foreground w-20 shrink-0 truncate">{review.review_period}</span>
-                        <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
-                          <div
-                            className="h-full rounded-full bg-gradient-to-r from-yellow-500 to-yellow-400 transition-all"
-                            style={{ width: `${((review.rating ?? 0) / 5) * 100}%` }}
-                          />
-                        </div>
-                        <span className="text-xs font-bold w-6 text-right">{review.rating ?? '—'}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {reviews.length === 0 && goals.length === 0 && (
-                  <p className="text-sm text-muted-foreground text-center py-2">No performance data yet</p>
-                )}
-              </div>
-            </InfoCard>
+
+
+
+
 
           </div>
         </div>
@@ -695,9 +770,9 @@ function InfoCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className={`rounded-2xl border border-border/60 bg-card overflow-hidden shadow-sm ${className ?? ''}`}>
-      <div className="h-px w-full" style={{ background: `linear-gradient(90deg, transparent, ${accent ?? '#e5a158'}50, transparent)` }} />
-      <div className="flex items-center gap-2.5 px-5 py-3.5 border-b border-border/40 bg-muted/20">
+    <div className={`rounded-2xl border border-border/60 bg-card overflow-hidden shadow-sm flex flex-col ${className ?? ''}`}>
+      <div className="h-px w-full shrink-0" style={{ background: `linear-gradient(90deg, transparent, ${accent ?? '#e5a158'}50, transparent)` }} />
+      <div className="flex items-center gap-2.5 px-5 py-3.5 border-b border-border/40 bg-muted/20 shrink-0">
         {icon}
         <h3 className="text-sm font-semibold tracking-tight">{title}</h3>
       </div>
@@ -788,31 +863,30 @@ function KpiCard({
   sub: string;
   color: 'amber' | 'blue' | 'violet' | 'emerald';
 }) {
-  const styles = {
-    amber:   { wrap: 'bg-gradient-to-br from-amber-500/5 to-amber-500/10 border border-amber-500/15',   icon: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',   val: 'text-foreground'   },
-    blue:    { wrap: 'bg-gradient-to-br from-blue-500/5 to-blue-500/10 border border-blue-500/15',     icon: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',     val: 'text-foreground'     },
-    violet:  { wrap: 'bg-gradient-to-br from-violet-500/5 to-violet-500/10 border border-violet-500/15', icon: 'bg-violet-500/10 text-violet-600 dark:text-violet-400', val: 'text-foreground' },
-    emerald: { wrap: 'bg-gradient-to-br from-emerald-500/5 to-emerald-500/10 border border-emerald-500/15', icon: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400', val: 'text-foreground' },
+  const iconStyles = {
+    amber: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
+    blue: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
+    violet: 'bg-violet-500/10 text-violet-600 dark:text-violet-400',
+    emerald: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
   };
-  const s = styles[color];
   return (
-    <div className={`rounded-xl p-4 flex items-center gap-3.5 ${s.wrap}`}>
-      <div className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 ${s.icon}`}>
+    <div className="rounded-xl border border-border/60 bg-card p-4 flex items-center gap-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md">
+      <div className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 ${iconStyles[color]}`}>
         {icon}
       </div>
       <div className="min-w-0 flex-1">
         <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">{label}</p>
-        <p className={`text-lg font-bold tracking-tight leading-tight mt-0.5 ${s.val}`}>{value}</p>
+        <p className="text-lg font-bold tracking-tight leading-tight mt-0.5 text-foreground">{value}</p>
         <p className="text-[11px] text-muted-foreground/70 mt-0.5">{sub}</p>
       </div>
     </div>
   );
 }
 
-function SchedCell({ emoji, label, value }: { emoji: string; label: string; value: string }) {
+function SchedCell({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="flex flex-col items-center justify-center py-5 px-3 text-center gap-1.5">
-      <span className="text-xl">{emoji}</span>
+    <div className="flex flex-col items-center justify-center py-5 px-3 text-center gap-2">
+      <div className="h-8 w-8 rounded-lg bg-muted/60 flex items-center justify-center text-muted-foreground">{icon}</div>
       <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</p>
       <p className="text-sm font-bold">{value}</p>
     </div>

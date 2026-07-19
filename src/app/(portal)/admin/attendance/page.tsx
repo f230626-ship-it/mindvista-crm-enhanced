@@ -89,30 +89,36 @@ export default async function AdminAttendancePage() {
         <CardContent>
           <div className="overflow-x-auto">
           {records && records.length > 0 ? (
-            <Table style={{ tableLayout: 'fixed' }}>
+                  <Table style={{ tableLayout: 'fixed' }}>
                 <TableHeader>
                   <TableRow className="hover:bg-transparent border-b border-border/50">
-                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[22%]">Employee</TableHead>
-                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[16%]">Date</TableHead>
-                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[16%]">Check In</TableHead>
-                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[16%]">Check Out</TableHead>
-                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[13%] text-right">Hours</TableHead>
-                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[17%]">Type</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 pl-4 pr-2 w-[22%]">Employee</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-2 w-[16%]">Date</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-2 w-[16%]">Check In</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-2 w-[16%]">Check Out</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-2 w-[13%] text-right">Hours</TableHead>
+                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 pr-4 pl-2 w-[17%]">Type</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {records.slice(0, 50).map((record) => (
                     <TableRow key={record.id} className="border-b border-border/30">
-                      <TableCell className="py-2.5 px-3 font-medium truncate">{record.employee?.full_name}</TableCell>
-                      <TableCell className="py-2.5 px-3 text-sm">{formatDate(record.date)}</TableCell>
-                      <TableCell className="py-2.5 px-3 text-sm">
-                        {record.check_in ? formatDate(record.check_in, "h:mm a") : <span className="text-muted-foreground">—</span>}
+                      <TableCell className="py-2.5 pl-4 pr-2 font-medium overflow-hidden">
+                        <div className="truncate">{record.employee?.full_name}</div>
                       </TableCell>
-                      <TableCell className="py-2.5 px-3 text-sm">
-                        {record.check_out ? formatDate(record.check_out, "h:mm a") : <span className="text-muted-foreground">—</span>}
+                      <TableCell className="py-2.5 px-2 text-sm overflow-hidden">
+                        <div className="truncate">{formatDate(record.date)}</div>
                       </TableCell>
-                      <TableCell className="py-2.5 px-3 text-right tabular-nums font-semibold">{record.working_hours ?? <span className="text-muted-foreground">—</span>}</TableCell>
-                      <TableCell className="py-2.5 px-3 text-sm">{ATTENDANCE_TYPE_LABELS[record.attendance_type]}</TableCell>
+                      <TableCell className="py-2.5 px-2 text-sm overflow-hidden">
+                        <div className="truncate">{record.check_in ? formatDate(record.check_in, "h:mm a") : <span className="text-muted-foreground">—</span>}</div>
+                      </TableCell>
+                      <TableCell className="py-2.5 px-2 text-sm overflow-hidden">
+                        <div className="truncate">{record.check_out ? formatDate(record.check_out, "h:mm a") : <span className="text-muted-foreground">—</span>}</div>
+                      </TableCell>
+                      <TableCell className="py-2.5 px-2 text-right tabular-nums font-semibold overflow-hidden">{record.working_hours ?? <span className="text-muted-foreground">—</span>}</TableCell>
+                      <TableCell className="py-2.5 pr-4 pl-2 text-sm overflow-hidden">
+                        <div className="truncate">{ATTENDANCE_TYPE_LABELS[record.attendance_type]}</div>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

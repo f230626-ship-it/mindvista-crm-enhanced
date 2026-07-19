@@ -103,15 +103,16 @@ export function CommandCenterClient({ data }: { data: CommandData }) {
   const totalLeads = repStats.reduce((s, r) => s + r.weekTotals.leads_added, 0);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-5 md:space-y-6 lg:space-y-8">
       {/* Top KPI Cards */}
-      <div className="grid gap-3 sm:gap-4 grid-cols-[repeat(auto-fit,minmax(180px,1fr))]">
+      <div className="grid gap-2 sm:gap-3 md:gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
         <MetricGlowCard
           title="Connections"
           value={teamToday.connections_sent}
           subtitle={`${connPct}% of team target`}
           icon={Link2}
           accent="primary"
+          href="/sales/history"
         />
         <MetricGlowCard
           title="Accepted"
@@ -119,6 +120,7 @@ export function CommandCenterClient({ data }: { data: CommandData }) {
           subtitle={`${pct(teamToday.connections_accepted, teamToday.connections_sent)}% rate`}
           icon={Users}
           accent="emerald"
+          href="/sales/history"
         />
         <MetricGlowCard
           title="Reply rate"
@@ -126,6 +128,7 @@ export function CommandCenterClient({ data }: { data: CommandData }) {
           subtitle={`${teamToday.replies_received}/${teamToday.messages_sent}`}
           icon={MessageSquare}
           accent="blue"
+          href="/sales/history"
         />
         <MetricGlowCard
           title="Meetings"
@@ -133,12 +136,14 @@ export function CommandCenterClient({ data }: { data: CommandData }) {
           subtitle={`${teamToday.follow_ups_done} follow-ups`}
           icon={CalendarCheck}
           accent="violet"
+          href="/sales/meetings"
         />
         <MetricGlowCard
           title="Active leads"
           value={sheetTotals.active_leads}
           subtitle={`${profiles.length} profiles`}
           icon={FileSpreadsheet}
+          href="/sales/leads"
         />
         <MetricGlowCard
           title="Team score"
@@ -146,20 +151,21 @@ export function CommandCenterClient({ data }: { data: CommandData }) {
           subtitle="Avg performance"
           icon={Zap}
           accent="emerald"
+          href="/sales/my-progress"
         />
       </div>
 
       {/* Pipeline Funnel */}
       <Card className="border-border/60 bg-card/70 backdrop-blur-md">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-primary" />
+          <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+            <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
             Weekly Pipeline
           </CardTitle>
-          <CardDescription>Funnel from connections to meetings</CardDescription>
+          <CardDescription className="text-xs sm:text-sm">Funnel from connections to meetings</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {[
               { label: "Connections Sent", value: totalConnections, color: "bg-primary" },
               { label: "Accepted", value: totalAccepted, color: "bg-emerald-500", parent: totalConnections },
@@ -170,14 +176,14 @@ export function CommandCenterClient({ data }: { data: CommandData }) {
               const widthPct = totalConnections > 0 ? (stage.value / totalConnections) * 100 : 0;
               const convPct = stage.parent ? pct(stage.value, stage.parent) : 100;
               return (
-                <div key={stage.label} className="space-y-1">
-                  <div className="flex items-center justify-between text-sm">
+                <div key={stage.label} className="space-y-1 sm:space-y-1.5">
+                  <div className="flex items-center justify-between text-xs sm:text-sm">
                     <span className="font-medium">{stage.label}</span>
                     <span className="tabular-nums text-muted-foreground">
-                      {stage.value} {stage.parent ? <span className="text-xs">({convPct}% conv.)</span> : null}
+                      {stage.value} {stage.parent ? <span className="text-[10px] sm:text-xs">({convPct}% conv.)</span> : null}
                     </span>
                   </div>
-                  <div className="h-3 overflow-hidden rounded-full bg-muted/50">
+                  <div className="h-2 sm:h-3 overflow-hidden rounded-full bg-muted/50">
                     <div
                       className={cn("h-full rounded-full transition-all", stage.color)}
                       style={{ width: `${widthPct}%` }}
@@ -190,23 +196,23 @@ export function CommandCenterClient({ data }: { data: CommandData }) {
         </CardContent>
       </Card>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
         {/* Leaderboard */}
         <Card className="border-border/60 bg-card/70 backdrop-blur-md">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Trophy className="h-5 w-5 text-amber-500" />
+            <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+              <Trophy className="h-4 w-4 sm:h-5 sm:w-5 text-amber-500" />
               Leaderboard
             </CardTitle>
-            <CardDescription>Top performers this week</CardDescription>
+            <CardDescription className="text-xs sm:text-sm">Top performers this week</CardDescription>
           </CardHeader>
           <CardContent>
             {leaderboard?.overall && leaderboard.overall.length > 0 ? (
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 {leaderboard.overall.slice(0, 5).map((rep, i) => (
-                  <div key={rep.id} className="flex items-center gap-3 rounded-xl border border-border/60 p-3">
+                  <div key={rep.id} className="flex items-center gap-2 sm:gap-3 rounded-xl border border-border/60 p-2 sm:p-3">
                     <div className={cn(
-                      "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold",
+                      "flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full text-xs sm:text-sm font-bold",
                       i === 0 ? "bg-amber-500/15 text-amber-600" :
                       i === 1 ? "bg-slate-400/15 text-slate-500" :
                       i === 2 ? "bg-orange-500/15 text-orange-600" :
@@ -215,15 +221,15 @@ export function CommandCenterClient({ data }: { data: CommandData }) {
                       {i + 1}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-sm truncate">{rep.name}</p>
-                      <p className="text-xs text-muted-foreground">{rep.daysLogged} days logged</p>
+                      <p className="font-semibold text-xs sm:text-sm truncate">{rep.name}</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground">{rep.daysLogged} days logged</p>
                     </div>
-                    <Badge>{rep.score}/100</Badge>
+                    <Badge className="text-[10px] sm:text-xs">{rep.score}/100</Badge>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground py-8 text-center">No data yet this week.</p>
+              <p className="text-xs sm:text-sm text-muted-foreground py-6 sm:py-8 text-center">No data yet this week.</p>
             )}
           </CardContent>
         </Card>
@@ -231,39 +237,39 @@ export function CommandCenterClient({ data }: { data: CommandData }) {
         {/* Alerts */}
         <Card className="border-border/60 bg-card/70 backdrop-blur-md">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-amber-500" />
+            <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+              <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 text-amber-500" />
               Alerts
             </CardTitle>
-            <CardDescription>Issues requiring attention</CardDescription>
+            <CardDescription className="text-xs sm:text-sm">Issues requiring attention</CardDescription>
           </CardHeader>
           <CardContent>
             {alerts.length === 0 ? (
-              <div className="py-8 text-center">
-                <CheckCircle2 className="mx-auto mb-2 h-8 w-8 text-green-500/60" />
-                <p className="text-sm text-muted-foreground">All clear — no alerts.</p>
+              <div className="py-6 sm:py-8 text-center">
+                <CheckCircle2 className="mx-auto mb-2 h-6 w-6 sm:h-8 sm:w-8 text-green-500/60" />
+                <p className="text-xs sm:text-sm text-muted-foreground">All clear — no alerts.</p>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-1.5 sm:space-y-2">
                 {alerts.slice(0, 5).map((alert) => (
                   <div
                     key={alert.id}
                     className={cn(
-                      "flex items-start gap-3 rounded-xl border p-3",
+                      "flex items-start gap-2 sm:gap-3 rounded-xl border p-2 sm:p-3",
                       alert.type === "danger" ? "border-red-500/20 bg-red-500/5" :
                       alert.type === "warning" ? "border-amber-500/20 bg-amber-500/5" :
                       "border-blue-500/20 bg-blue-500/5"
                     )}
                   >
                     <AlertTriangle className={cn(
-                      "mt-0.5 h-4 w-4 shrink-0",
+                      "mt-0.5 h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0",
                       alert.type === "danger" ? "text-red-500" :
                       alert.type === "warning" ? "text-amber-500" :
                       "text-blue-500"
                     )} />
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold">{alert.title}</p>
-                      <p className="text-xs text-muted-foreground line-clamp-2">{alert.message}</p>
+                      <p className="text-xs sm:text-sm font-semibold">{alert.title}</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground line-clamp-2">{alert.message}</p>
                     </div>
                   </div>
                 ))}
@@ -276,34 +282,34 @@ export function CommandCenterClient({ data }: { data: CommandData }) {
       {/* Google Sheets Pipeline Table */}
       <Card className="border-border/60 bg-card/70 backdrop-blur-md">
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
-              <CardTitle className="flex items-center gap-2">
-                <FileSpreadsheet className="h-5 w-5 text-primary" />
+              <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                <FileSpreadsheet className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                 Pipeline by profile
               </CardTitle>
-              <CardDescription>Google Sheet snapshots</CardDescription>
+              <CardDescription className="text-xs sm:text-sm">Google Sheet snapshots</CardDescription>
             </div>
             <Button variant="outline" size="sm" onClick={() => setSyncOpen(true)} className="gap-2">
-              <RefreshCw className="h-4 w-4" />
+              <RefreshCw className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               Sync snapshot
             </Button>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto -mx-2 sm:mx-0 px-2 sm:px-0">
           {profiles.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No profiles configured.</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">No profiles configured.</p>
           ) : (
             <Table style={{ tableLayout: 'fixed' }}>
               <TableHeader>
                 <TableRow className="hover:bg-transparent border-b border-border/50">
-                  <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[30%]">Profile</TableHead>
-                  <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[20%]">Rep</TableHead>
-                  <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[15%] text-right">Active</TableHead>
-                  <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[15%] text-right">Follow-up</TableHead>
-                  <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[10%] text-right">Intro</TableHead>
-                  <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[10%] text-right">Won MTD</TableHead>
+                  <TableHead className="font-semibold text-[10px] sm:text-xs tracking-wider uppercase text-muted-foreground py-2 sm:py-2.5 px-2 sm:px-3 w-[30%]">Profile</TableHead>
+                  <TableHead className="font-semibold text-[10px] sm:text-xs tracking-wider uppercase text-muted-foreground py-2 sm:py-2.5 px-2 sm:px-3 w-[20%]">Rep</TableHead>
+                  <TableHead className="font-semibold text-[10px] sm:text-xs tracking-wider uppercase text-muted-foreground py-2 sm:py-2.5 px-2 sm:px-3 w-[15%] text-right">Active</TableHead>
+                  <TableHead className="font-semibold text-[10px] sm:text-xs tracking-wider uppercase text-muted-foreground py-2 sm:py-2.5 px-2 sm:px-3 w-[15%] text-right">Follow-up</TableHead>
+                  <TableHead className="font-semibold text-[10px] sm:text-xs tracking-wider uppercase text-muted-foreground py-2 sm:py-2.5 px-2 sm:px-3 w-[10%] text-right">Intro</TableHead>
+                  <TableHead className="font-semibold text-[10px] sm:text-xs tracking-wider uppercase text-muted-foreground py-2 sm:py-2.5 px-2 sm:px-3 w-[10%] text-right">Won MTD</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -311,16 +317,16 @@ export function CommandCenterClient({ data }: { data: CommandData }) {
                   const snap = snapshots.find((s) => s.profile_id === p.id);
                   return (
                     <TableRow key={p.id} className="border-b border-border/30">
-                      <TableCell className="py-2.5 px-3 font-medium truncate">{p.name}</TableCell>
-                      <TableCell className="py-2.5 px-3 text-muted-foreground text-sm truncate">
+                      <TableCell className="py-2 sm:py-2.5 px-2 sm:px-3 font-medium text-xs sm:text-sm truncate">{p.name}</TableCell>
+                      <TableCell className="py-2 sm:py-2.5 px-2 sm:px-3 text-muted-foreground text-[10px] sm:text-sm truncate">
                         {(p.employee as { full_name: string })?.full_name ?? <span className="text-muted-foreground">—</span>}
                       </TableCell>
-                      <TableCell className="py-2.5 px-3 text-right font-semibold text-primary tabular-nums">
+                      <TableCell className="py-2 sm:py-2.5 px-2 sm:px-3 text-right font-semibold text-primary tabular-nums text-xs sm:text-sm">
                         {snap?.active_leads ?? <span className="text-muted-foreground">—</span>}
                       </TableCell>
-                      <TableCell className="py-2.5 px-3 text-right tabular-nums">{snap?.follow_up ?? <span className="text-muted-foreground">—</span>}</TableCell>
-                      <TableCell className="py-2.5 px-3 text-right tabular-nums">{snap?.intro_call ?? <span className="text-muted-foreground">—</span>}</TableCell>
-                      <TableCell className="py-2.5 px-3 text-right tabular-nums">{snap?.won_mtd ?? <span className="text-muted-foreground">—</span>}
+                      <TableCell className="py-2 sm:py-2.5 px-2 sm:px-3 text-right tabular-nums text-xs sm:text-sm">{snap?.follow_up ?? <span className="text-muted-foreground">—</span>}</TableCell>
+                      <TableCell className="py-2 sm:py-2.5 px-2 sm:px-3 text-right tabular-nums text-xs sm:text-sm">{snap?.intro_call ?? <span className="text-muted-foreground">—</span>}</TableCell>
+                      <TableCell className="py-2 sm:py-2.5 px-2 sm:px-3 text-right tabular-nums text-xs sm:text-sm">{snap?.won_mtd ?? <span className="text-muted-foreground">—</span>}
                       </TableCell>
                     </TableRow>
                   );
@@ -335,35 +341,35 @@ export function CommandCenterClient({ data }: { data: CommandData }) {
       {/* Team Scorecard */}
       <Card className="border-border/60 bg-card/70 backdrop-blur-md">
         <CardHeader>
-          <CardTitle>Team scorecard</CardTitle>
-          <CardDescription>Today&apos;s progress vs individual targets</CardDescription>
+          <CardTitle className="text-sm sm:text-base">Team scorecard</CardTitle>
+          <CardDescription className="text-xs sm:text-sm">Today&apos;s progress vs individual targets</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4 sm:space-y-6">
           {repStats.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No sales reps with BD role yet.</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">No sales reps with BD role yet.</p>
           ) : (
             repStats.map((rep) => (
-              <div key={rep.id} className="space-y-2">
+              <div key={rep.id} className="space-y-1.5 sm:space-y-2">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold">{rep.full_name}</span>
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <span className="font-semibold text-xs sm:text-sm">{rep.full_name}</span>
                     {rep.todayLogged ? (
-                      <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                      <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-500" />
                     ) : (
-                      <XCircle className="h-4 w-4 text-red-500" />
+                      <XCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-red-500" />
                     )}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge>{rep.score}/100</Badge>
-                    <span className="text-sm text-muted-foreground tabular-nums">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <Badge className="text-[10px] sm:text-xs">{rep.score}/100</Badge>
+                    <span className="text-[10px] sm:text-sm text-muted-foreground tabular-nums">
                       {rep.todayTotals?.connections_sent ?? 0}/{rep.target.connections_daily} conn.
                     </span>
                   </div>
                 </div>
                 <Progress value={rep.connectionsPct}>
-                  <ProgressTrack className="h-2.5 rounded-full">
+                  <ProgressTrack className="h-2 sm:h-2.5 rounded-full">
                     <ProgressIndicator
-                      className={cn("h-2.5 rounded-full bg-gradient-to-r", progressColor(rep.connectionsPct))}
+                      className={cn("h-2 sm:h-2.5 rounded-full bg-gradient-to-r", progressColor(rep.connectionsPct))}
                     />
                   </ProgressTrack>
                 </Progress>
