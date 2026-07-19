@@ -731,7 +731,7 @@ export default function ProjectsClient({
                         data={statusChartData}
                         cx="50%"
                         cy="45%"
-                        innerRadius={50}
+                        innerRadius={60}
                         outerRadius={80}
                         paddingAngle={2}
                         dataKey="value"
@@ -768,10 +768,10 @@ export default function ProjectsClient({
                         ]}
                       />
                       {/* Center label */}
-                      <text x="50%" y="42%" textAnchor="middle" dominantBaseline="central" className="fill-foreground" fontSize="28" fontWeight="800">
+                      <text x="50%" y="42%" textAnchor="middle" dominantBaseline="central" className="fill-foreground" fontSize="24" fontWeight="800">
                         {filteredProjectsByTime.length}
                       </text>
-                      <text x="50%" y="52%" textAnchor="middle" dominantBaseline="central" className="fill-muted-foreground" fontSize="11" fontWeight="500">
+                      <text x="50%" y="52%" textAnchor="middle" dominantBaseline="central" className="fill-muted-foreground" fontSize="10" fontWeight="500">
                         Total Projects
                       </text>
                       <Legend

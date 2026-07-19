@@ -52,9 +52,9 @@ function OrgNodeBranch({
       {visibleChildren.length > 0 && (
         <div className="flex flex-col items-center">
           {/* Stem from parent down to the connector bus */}
-          <div className="h-8 w-[2.5px] rounded-t-full bg-primary/45" />
+          <div className="h-5 sm:h-8 w-[2.5px] rounded-t-full bg-primary/45" />
 
-          <div className="flex items-start gap-x-6 sm:gap-x-10">
+          <div className="flex items-start gap-x-3 sm:gap-x-6 md:gap-x-10">
             {visibleChildren.map((child, i) => {
               const isOnly = visibleChildren.length === 1;
               const isFirst = i === 0;
@@ -63,17 +63,17 @@ function OrgNodeBranch({
               return (
                 <div key={child.id} className="flex flex-col items-center">
                   {!isOnly && (
-                    <div className="relative h-8 w-full">
+                    <div className="relative h-5 sm:h-8 w-full">
                       {!isFirst && (
-                        <div className="absolute -left-3 top-0 h-[2.5px] w-[calc(50%+0.75rem)] bg-primary/45 sm:-left-5 sm:w-[calc(50%+1.25rem)]" />
+                        <div className="absolute -left-2 top-0 h-[2.5px] w-[calc(50%+0.5rem)] bg-primary/45 sm:-left-3 sm:w-[calc(50%+0.75rem)] md:-left-5 md:w-[calc(50%+1.25rem)]" />
                       )}
                       {!isLast && (
-                        <div className="absolute -right-3 top-0 h-[2.5px] w-[calc(50%+0.75rem)] bg-primary/45 sm:-right-5 sm:w-[calc(50%+1.25rem)]" />
+                        <div className="absolute -right-2 top-0 h-[2.5px] w-[calc(50%+0.5rem)] bg-primary/45 sm:-right-3 sm:w-[calc(50%+0.75rem)] md:-right-5 md:w-[calc(50%+1.25rem)]" />
                       )}
                       <div className="absolute left-1/2 top-0 h-full w-[2.5px] -translate-x-1/2 rounded-b-full bg-primary/45" />
                     </div>
                   )}
-                  {isOnly && <div className="h-8 w-[2.5px] rounded-b-full bg-primary/45" />}
+                  {isOnly && <div className="h-5 sm:h-8 w-[2.5px] rounded-b-full bg-primary/45" />}
 
                   <OrgNodeBranch
                     node={child}
@@ -156,9 +156,9 @@ export function TeamHierarchyTree({
         onPointerMove={onPointerMove}
         onPointerUp={endDrag}
         onPointerLeave={endDrag}
-        className="cursor-grab overflow-x-auto rounded-2xl border border-border/60 bg-card/40 py-10 active:cursor-grabbing"
+        className="cursor-grab overflow-x-auto rounded-2xl border border-border/60 bg-card/40 py-8 sm:py-10 active:cursor-grabbing"
       >
-        <div className="flex min-w-full justify-center px-6 sm:px-10">
+        <div className="flex min-w-full justify-center px-4 sm:px-6 md:px-10">
           <OrgNodeBranch
             node={root}
             depth={0}
