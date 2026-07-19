@@ -16,7 +16,7 @@ export function TargetsPageClient({
   employees,
   targets,
 }: {
-  employees: { id: string; full_name: string; email: string; pm_role: string }[];
+  employees: { id: string; full_name: string; email: string; designation: string }[];
   targets: SalesTarget[];
 }) {
   const [selectedId, setSelectedId] = useState(employees[0]?.id ?? "");

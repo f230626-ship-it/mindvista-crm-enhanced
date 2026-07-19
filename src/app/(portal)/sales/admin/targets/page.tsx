@@ -9,12 +9,17 @@ export default async function AdminTargetsPage() {
   const [{ data: employees }, { data: targets }] = await Promise.all([
     supabase
       .from("employees")
-      .select("id, full_name, email, pm_role")
-      .in("pm_role", ["bd", "admin", "coordinator"])
+      .select("id, full_name, email, designation")
       .eq("status", "active")
       .order("full_name"),
     supabase.from("sales_targets").select("*"),
   ]);
 
-  return <TargetsPageClient employees={employees ?? []} targets={targets ?? []} />;
+  // Filter for Business Developers by designation
+  const bdEmployees = employees?.filter(emp => {
+    const d = (emp.designation || "").toLowerCase();
+    return d.includes("business developer") || d.includes("bd");
+  }) ?? [];
+
+  return <TargetsPageClient employees={bdEmployees} targets={targets ?? []} />;
 }

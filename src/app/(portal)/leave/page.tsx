@@ -1,3 +1,4 @@
+import React from "react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth, isAdmin } from "@/lib/auth";
 import { PageHeader } from "@/components/ui/page-header";
@@ -34,7 +35,7 @@ export default async function LeavePage() {
   ]);
 
   return (
-    <div>
+    <div className="space-y-4 sm:space-y-5 md:space-y-6">
       <PageHeader
         title="Leave Management"
         description="Apply for leave and track your requests"
@@ -42,9 +43,9 @@ export default async function LeavePage() {
       />
 
       {pendingForLead.length > 0 && (
-        <Card className="mb-6 border-primary/20">
+        <Card className="mb-4 sm:mb-5 md:mb-6 border-primary/20">
           <CardHeader>
-            <CardTitle>Team Leave Approvals</CardTitle>
+            <CardTitle className="text-sm sm:text-base">Team Leave Approvals</CardTitle>
           </CardHeader>
           <CardContent>
             <PendingLeaveApprovals leaves={pendingForLead} />
@@ -52,11 +53,11 @@ export default async function LeavePage() {
         </Card>
       )}
 
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="mb-4 sm:mb-5 md:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold">Leave Balance</h2>
+          <h2 className="text-base sm:text-lg font-semibold">Leave Balance</h2>
           {admin && (
-            <p className="text-xs text-muted-foreground">Editing quotas applies to all employees</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">Editing quotas applies to all employees</p>
           )}
         </div>
         {admin && (
@@ -67,7 +68,7 @@ export default async function LeavePage() {
           />
         )}
       </div>
-      <div className="mb-6 grid gap-3 sm:gap-4 grid-cols-[repeat(auto-fit,minmax(180px,1fr))]">
+      <div className="mb-4 sm:mb-5 md:mb-6 grid gap-2 sm:gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {[
           {
             label: "Annual",
@@ -86,12 +87,12 @@ export default async function LeavePage() {
           },
         ].map((item) => (
           <Card key={item.label}>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">{item.label} Leave</CardTitle>
+            <CardHeader className="pb-2 sm:pb-3">
+              <CardTitle className="text-xs sm:text-sm font-medium">{item.label} Leave</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold">{item.remaining}</p>
-              <p className="text-xs text-muted-foreground">of {item.total} days remaining</p>
+              <p className="text-xl sm:text-2xl font-bold">{item.remaining}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">of {item.total} days remaining</p>
             </CardContent>
           </Card>
         ))}
@@ -99,41 +100,57 @@ export default async function LeavePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Leave History</CardTitle>
+          <CardTitle className="text-sm sm:text-base">Leave History</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto -mx-2 sm:mx-0 px-2 sm:px-0">
           {leaves && leaves.length > 0 ? (
-            <Table style={{ tableLayout: 'fixed' }}>
+              <Table>
                 <TableHeader>
-                  <TableRow className="hover:bg-transparent border-b border-border/50">
-                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[16%]">Type</TableHead>
-                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[18%]">From</TableHead>
-                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[18%]">To</TableHead>
-                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[10%] text-right">Days</TableHead>
-                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[18%]">Status</TableHead>
-                    <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[20%]">Applied</TableHead>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className="font-semibold text-[10px] sm:text-xs tracking-wider uppercase text-muted-foreground py-2 sm:py-3 pl-2 sm:pl-4 pr-2">Type</TableHead>
+                    <TableHead className="font-semibold text-[10px] sm:text-xs tracking-wider uppercase text-muted-foreground py-2 sm:py-3 px-2">From</TableHead>
+                    <TableHead className="font-semibold text-[10px] sm:text-xs tracking-wider uppercase text-muted-foreground py-2 sm:py-3 px-2">To</TableHead>
+                    <TableHead className="font-semibold text-[10px] sm:text-xs tracking-wider uppercase text-muted-foreground py-2 sm:py-3 px-2 text-right">Days</TableHead>
+                    <TableHead className="font-semibold text-[10px] sm:text-xs tracking-wider uppercase text-muted-foreground py-2 sm:py-3 px-2">Status</TableHead>
+                    <TableHead className="font-semibold text-[10px] sm:text-xs tracking-wider uppercase text-muted-foreground py-2 sm:py-3 px-2">Reason</TableHead>
+                    <TableHead className="font-semibold text-[10px] sm:text-xs tracking-wider uppercase text-muted-foreground py-2 sm:py-3 pr-2 sm:pr-4 pl-2">Applied</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {leaves.map((leave) => (
                     <TableRow key={leave.id} className="border-b border-border/30">
-                      <TableCell className="py-2.5 px-3 text-sm">{LEAVE_TYPE_LABELS[leave.leave_type]}</TableCell>
-                      <TableCell className="py-2.5 px-3 text-sm whitespace-nowrap">{formatDate(leave.start_date)}</TableCell>
-                      <TableCell className="py-2.5 px-3 text-sm whitespace-nowrap">{formatDate(leave.end_date)}</TableCell>
-                      <TableCell className="py-2.5 px-3 text-right tabular-nums font-semibold">{leave.days_count}</TableCell>
-                      <TableCell className="py-2.5 px-3">
+                      <TableCell className="py-2 sm:py-3 pl-2 sm:pl-4 pr-2 text-xs sm:text-sm">
+                        {LEAVE_TYPE_LABELS[leave.leave_type]}
+                      </TableCell>
+                      <TableCell className="py-2 sm:py-3 px-2 text-xs sm:text-sm">
+                        {formatDate(leave.start_date)}
+                      </TableCell>
+                      <TableCell className="py-2 sm:py-3 px-2 text-xs sm:text-sm">
+                        {formatDate(leave.end_date)}
+                      </TableCell>
+                      <TableCell className="py-2 sm:py-3 px-2 text-right tabular-nums font-semibold text-xs sm:text-sm">{leave.days_count}</TableCell>
+                      <TableCell className="py-2 sm:py-3 px-2">
                         <Badge className={STATUS_COLORS[leave.status]} variant="secondary">
                           {LEAVE_STATUS_LABELS[leave.status]}
                         </Badge>
                       </TableCell>
-                      <TableCell className="py-2.5 px-3 text-sm text-muted-foreground">{formatDate(leave.created_at)}</TableCell>
+                      <TableCell className="py-2 sm:py-3 px-2 text-xs sm:text-sm">
+                        {leave.status === 'rejected' && leave.rejection_reason ? (
+                          <span className="text-destructive text-[10px] sm:text-xs">{leave.rejection_reason}</span>
+                        ) : (
+                          <span className="text-muted-foreground text-[10px] sm:text-xs">-</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="py-2 sm:py-3 pr-2 sm:pr-4 pl-2 text-xs sm:text-sm text-muted-foreground">
+                        {formatDate(leave.created_at)}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
           ) : (
-            <p className="text-sm text-muted-foreground">No leave requests yet</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">No leave requests yet</p>
           )}
           </div>
         </CardContent>

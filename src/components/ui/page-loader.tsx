@@ -1,39 +1,36 @@
 import Image from "next/image";
-import { Spinner } from "@/components/ui/spinner";
 
-export function PageLoader({ message = "Loading..." }: { message?: string }) {
+export function PageLoader() {
   return (
-    <div className="flex min-h-[50vh] flex-col items-center justify-center gap-6 animate-fade-in">
-      <Image
-        src="/images/logo.png"
-        alt="MindVista"
-        width={140}
-        height={38}
-        className="opacity-80 object-contain"
-        priority
-      />
-      <div className="flex flex-col items-center gap-2">
-        <Spinner size="sm" className="text-primary/70" />
-        <p className="text-sm font-medium text-muted-foreground">{message}</p>
+    <div className="flex min-h-[50vh] items-center justify-center animate-fade-in bg-gradient-to-b from-background/95 to-background/90 dark:from-background dark:to-background">
+      <div className="loading-logo-wrapper">
+        <div className="loading-logo-center-glow" />
+        <Image
+          src="/images/mindvista-loading-logo.png"
+          alt="MindVista"
+          width={160}
+          height={160}
+          className="opacity-100 object-contain relative z-10 loading-logo-filter"
+          priority
+        />
       </div>
     </div>
   );
 }
 
-export function FullPageLoader({ message = "Loading MindVista..." }: { message?: string }) {
+export function FullPageLoader() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background animate-fade-in">
-      <Image
-        src="/images/logo.png"
-        alt="MindVista"
-        width={180}
-        height={48}
-        className="animate-pulse opacity-90 object-contain"
-        priority
-      />
-      <div className="flex flex-col items-center gap-3">
-        <Spinner size="md" className="text-primary" />
-        <p className="text-sm font-medium text-muted-foreground">{message}</p>
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-background/95 to-background/90 dark:from-background dark:to-background animate-fade-in">
+      <div className="loading-logo-wrapper">
+        <div className="loading-logo-center-glow" />
+        <Image
+          src="/images/mindvista-loading-logo.png"
+          alt="MindVista"
+          width={200}
+          height={200}
+          className="opacity-100 object-contain relative z-10 loading-logo-filter"
+          priority
+        />
       </div>
     </div>
   );

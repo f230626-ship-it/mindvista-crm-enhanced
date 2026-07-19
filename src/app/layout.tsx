@@ -7,7 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 export const metadata: Metadata = {
   title: "MindVista HRMS",
   description: "Internal HR management system for MindVista",
-  icons: { icon: "/images/logo-icon.png" },
+  icons: { icon: "/images/mindvista-mark.svg" },
 };
 
 export default function RootLayout({
@@ -29,7 +29,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

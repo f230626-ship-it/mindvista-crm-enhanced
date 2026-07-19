@@ -2,6 +2,7 @@ import { requireAdminAccess } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { PageHeader } from "@/components/ui/page-header";
 import { NewEmployeeForm } from "@/components/admin/new-employee-form";
+import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
 
 export default async function NewEmployeePage() {
   await requireAdminAccess();
@@ -18,6 +19,10 @@ export default async function NewEmployeePage() {
 
   return (
     <div>
+      <PageBreadcrumb
+        segments={[{ label: "Employees", href: "/admin/employees" }]}
+        current="Add New"
+      />
       <PageHeader
         title="Add New Employee"
         description="Create a new employee account"

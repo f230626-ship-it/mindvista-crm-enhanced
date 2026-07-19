@@ -277,17 +277,23 @@ export async function getCommandCenterData() {
     { data: targets },
     { data: reps },
   ] = await Promise.all([
-    supabase.from("sales_daily_logs").select("*, employee:employees(id, full_name, email)").gte("log_date", week),
-    supabase.from("sales_profiles").select("*, employee:employees(id, full_name, email)").eq("is_active", true).order("name"),
-    supabase.from("sales_sheet_snapshots").select("*, profile:sales_profiles(id, name, employee_id)").eq("snapshot_date", today),
-    supabase.from("sales_targets").select("*"),
-    supabase.from("employees").select("id, full_name, email, pm_role").or("pm_role.eq.bd,designation.ilike.%Business Developer%,designation.ilike.%BD%").eq("status", "active"),
+    supabase.from("sales_daily_logs").select("*, employee:employees(id, full_name, email)").gte("log_date", week).limit(500),
+    supabase.from("sales_profiles").select("*, employee:employees(id, full_name, email)").eq("is_active", true).order("name").limit(100),
+    supabase.from("sales_sheet_snapshots").select("*, profile:sales_profiles(id, name, employee_id)").eq("snapshot_date", today).limit(100),
+    supabase.from("sales_targets").select("*").limit(100),
+    supabase.from("employees").select("id, full_name, email, designation").eq("status", "active").limit(100),
   ]);
 
   const todayLogs = logs?.filter((l) => l.log_date === today) ?? [];
   const teamToday = sumLogs(todayLogs);
 
-  const repStats = (reps ?? []).map((rep) => {
+  // Filter for Business Developers by designation
+  const bdReps = (reps ?? []).filter(rep => {
+    const d = (rep.designation || "").toLowerCase();
+    return d.includes("business developer") || d.includes("bd");
+  });
+
+  const repStats = bdReps.map((rep) => {
     const repWeekLogs = logs?.filter((l) => l.employee_id === rep.id) ?? [];
     const repToday = logs?.find((l) => l.employee_id === rep.id && l.log_date === today);
     const target = targets?.find((t) => t.employee_id === rep.id) ?? {
@@ -328,9 +334,9 @@ export async function getMyProgressData() {
   const today = todayISO();
 
   const [{ data: logs }, { data: target }, { data: profiles }] = await Promise.all([
-    supabase.from("sales_daily_logs").select("*, profile:sales_profiles(name)").eq("employee_id", employee.id).gte("log_date", week).order("log_date"),
+    supabase.from("sales_daily_logs").select("*, profile:sales_profiles(name)").eq("employee_id", employee.id).gte("log_date", week).order("log_date").limit(100),
     supabase.from("sales_targets").select("*").eq("employee_id", employee.id).maybeSingle(),
-    supabase.from("sales_profiles").select("id, name").eq("employee_id", employee.id).eq("is_active", true),
+    supabase.from("sales_profiles").select("id, name").eq("employee_id", employee.id).eq("is_active", true).limit(50),
   ]);
 
   const profileIds = profiles?.map((p) => p.id) ?? [];
@@ -426,17 +432,23 @@ export async function getCommandCenterDataWithSnapshots() {
     { data: targets },
     { data: reps },
   ] = await Promise.all([
-    supabase.from("sales_daily_logs").select("*, employee:employees(id, full_name, email)").gte("log_date", week),
-    supabase.from("sales_profiles").select("*, employee:employees(id, full_name, email)").eq("is_active", true).order("name"),
-    supabase.from("sales_sheet_snapshots").select("*, profile:sales_profiles(id, name, employee_id)").eq("snapshot_date", today),
-    supabase.from("sales_targets").select("*"),
-    supabase.from("employees").select("id, full_name, email, pm_role").or("pm_role.eq.bd,designation.ilike.%Business Developer%,designation.ilike.%BD%").eq("status", "active"),
+    supabase.from("sales_daily_logs").select("*, employee:employees(id, full_name, email)").gte("log_date", week).limit(500),
+    supabase.from("sales_profiles").select("*, employee:employees(id, full_name, email)").eq("is_active", true).order("name").limit(100),
+    supabase.from("sales_sheet_snapshots").select("*, profile:sales_profiles(id, name, employee_id)").eq("snapshot_date", today).limit(100),
+    supabase.from("sales_targets").select("*").limit(100),
+    supabase.from("employees").select("id, full_name, email, designation").eq("status", "active").limit(100),
   ]);
 
   const todayLogs = logs?.filter((l) => l.log_date === today) ?? [];
   const teamToday = sumLogs(todayLogs);
 
-  const repStats = (reps ?? []).map((rep) => {
+  // Filter for Business Developers by designation
+  const bdReps = (reps ?? []).filter(rep => {
+    const d = (rep.designation || "").toLowerCase();
+    return d.includes("business developer") || d.includes("bd");
+  });
+
+  const repStats = bdReps.map((rep) => {
     const repWeekLogs = logs?.filter((l) => l.employee_id === rep.id) ?? [];
     const repToday = logs?.find((l) => l.employee_id === rep.id && l.log_date === today);
     const target = targets?.find((t) => t.employee_id === rep.id) ?? {
@@ -483,12 +495,14 @@ export async function getWeeklyReportData() {
   const { data: logs } = await supabase
     .from("sales_daily_logs")
     .select("*, employee:employees(full_name)")
-    .gte("log_date", week);
+    .gte("log_date", week)
+    .limit(500);
 
   const { data: snapshots } = await supabase
     .from("sales_sheet_snapshots")
     .select("active_leads, won_mtd")
-    .eq("snapshot_date", todayISO());
+    .eq("snapshot_date", todayISO())
+    .limit(100);
 
   const totals = sumLogs(logs ?? []);
   const activeLeads = snapshots?.reduce((s, x) => s + x.active_leads, 0) ?? 0;

@@ -13,7 +13,7 @@ export default async function PortalLayout({ children }: { children: React.React
 
   return (
     <AppShell employee={employee} notifications={notifications} unreadCount={unreadCount}>
-      <Suspense fallback={<PageLoader message="Loading content..." />}>
+      <Suspense fallback={<PageLoader />}>
         {children}
       </Suspense>
     </AppShell>

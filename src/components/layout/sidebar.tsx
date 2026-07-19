@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/types/database";
@@ -23,6 +22,7 @@ import {
   UsersRound,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { BrandLogo } from "@/components/ui/brand-logo";
 
 import { X } from "lucide-react";
 
@@ -95,13 +95,6 @@ const adminNav: NavItem[] = [
     icon: Users, 
     roles: ["admin", "hr"],
     description: "Manage staff"
-  },
-  { 
-    title: "Teams", 
-    href: "/admin/teams", 
-    icon: UsersRound, 
-    roles: ["admin"],
-    description: "Manage teams"
   },
   { 
     title: "Leave Approvals", 
@@ -235,32 +228,31 @@ export function Sidebar({
   });
 
   return (
-    <aside className="flex h-full w-64 lg:w-72 xl:w-72 2xl:w-80 flex-col border-r border-sidebar-border bg-linear-to-b from-sidebar to-sidebar/95 backdrop-blur-sm">
+    <aside className="flex h-full w-[280px] sm:w-[300px] lg:w-[288px] xl:w-[288px] 2xl:w-[320px] flex-col border-r border-sidebar-border bg-linear-to-b from-sidebar to-sidebar/95 backdrop-blur-sm">
       {/* Header */}
-      <div className="flex h-14 sm:h-16 items-center justify-between border-b border-sidebar-border/50 px-4 sm:px-6">
-        <Link href="/dashboard" className="flex items-center justify-center group">
-          <Image
-            src="/images/logo.png"
-            alt="MindVista"
-            width={140}
-            height={40}
-            className="h-8 sm:h-9 w-auto object-contain transition-transform group-hover:scale-105"
+      <div className="flex h-12 sm:h-14 md:h-16 items-center justify-between border-b border-sidebar-border/50 px-3 sm:px-4 md:px-6 pt-1 shrink-0">
+        <Link href="/dashboard" className="flex items-center justify-center group flex-1">
+          <BrandLogo
+            lightLogoSrc="/images/mindvista-sidebar-logo-light.png"
+            darkLogoSrc="/images/mindvista-sidebar-logo-dark.png"
             priority
+            className="w-28 sm:w-32 md:w-36 dark:w-32 dark:sm:w-36 dark:md:w-40 transition-transform group-hover:scale-[1.02]"
+            sizes="(max-width: 640px) 5rem, 6rem"
           />
         </Link>
         <button
           onClick={onClose}
-          className="lg:hidden flex items-center justify-center h-8 w-8 rounded-lg hover:bg-sidebar-accent transition-colors"
+          className="lg:hidden flex items-center justify-center h-8 w-8 rounded-lg hover:bg-sidebar-accent transition-colors shrink-0 ml-2"
           aria-label="Close menu"
         >
           <X className="h-4 w-4" />
         </button>
       </div>
 
-      <nav className="flex-1 space-y-6 overflow-y-auto p-4">
+      <nav className="flex-1 space-y-4 sm:space-y-5 md:space-y-6 overflow-y-auto overflow-x-hidden p-3 sm:p-4">
         {/* Portal Section */}
         <div>
-          <SectionHeader title="Portal" badge={filteredEmployeeNav.length} />
+          <SectionHeader title="Portal" />
           <div className="space-y-1">
             {filteredEmployeeNav.map((item, i) => {
               const effectiveHref = item.salesHref
@@ -291,7 +283,7 @@ export function Sidebar({
         {/* Management Section */}
         {filteredAdminNav.length > 0 && (
           <div>
-            <SectionHeader title="Management" badge={filteredAdminNav.length} />
+            <SectionHeader title="Management" />
             <div className="space-y-1">
               {filteredAdminNav.map((item, i) => {
                 const active =
@@ -312,20 +304,20 @@ export function Sidebar({
       </nav>
 
       {/* Footer - Profile Card */}
-      <div className="border-t border-sidebar-border/50 p-4">
+      <div className="border-t border-sidebar-border/50 px-2.5 sm:px-3 py-1.5 sm:py-2 shrink-0">
         <Link
           href="/profile"
-          className="flex items-center gap-3 rounded-xl p-3 transition-all duration-200 hover:bg-linear-to-r hover:from-primary/10 hover:to-primary/5 group"
+          className="flex items-center gap-2 sm:gap-2.5 rounded-lg px-2 py-2 transition-all duration-200 hover:bg-linear-to-r hover:from-primary/10 hover:to-primary/5 group"
         >
           <div className="relative shrink-0">
             {profilePhotoUrl ? (
               <img
                 src={profilePhotoUrl}
                 alt={fullName ?? "Profile"}
-                className="h-10 w-10 rounded-full object-cover ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all"
+                className="h-8 w-8 sm:h-9 sm:w-9 rounded-full object-cover ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all"
               />
             ) : (
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary/30 to-primary/10 text-primary font-bold text-sm">
+              <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary/30 to-primary/10 text-primary font-bold text-[10px] sm:text-xs">
                 {fullName
                   ?.split(" ")
                   .map((n) => n[0])
@@ -334,13 +326,13 @@ export function Sidebar({
                   .slice(0, 2) ?? "U"}
               </div>
             )}
-            <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-sidebar bg-green-500" />
+            <div className="absolute -bottom-0.5 -right-0.5 h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full border-2 border-sidebar bg-green-500" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold truncate text-sidebar-foreground">
+            <p className="text-[11px] sm:text-xs font-semibold truncate text-sidebar-foreground">
               {fullName ?? "User"}
             </p>
-            <p className="text-[11px] text-sidebar-foreground/60 truncate">
+            <p className="text-[9px] sm:text-[10px] text-sidebar-foreground/60 truncate">
               {designation ?? "Employee"}
             </p>
           </div>

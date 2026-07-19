@@ -1,3 +1,4 @@
+import React from "react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireRole, isAdmin } from "@/lib/auth";
 import { PageHeader } from "@/components/ui/page-header";
@@ -81,32 +82,32 @@ export default async function AdminLeavesPage() {
                   <Table style={{ tableLayout: 'fixed' }}>
                     <TableHeader>
                       <TableRow className="hover:bg-transparent border-b border-border/50">
-                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[22%]">Employee</TableHead>
-                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[13%]">Type</TableHead>
-                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[22%]">Dates</TableHead>
-                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[10%] text-right">Days</TableHead>
-                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[20%]">Reason</TableHead>
-                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[13%]">Actions</TableHead>
+                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 pl-4 pr-2 w-[20%]">Employee</TableHead>
+                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-2 w-[12%]">Type</TableHead>
+                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-2 w-[26%]">Dates</TableHead>
+                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-2 w-[9%] text-right">Days</TableHead>
+                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-2 w-[20%]">Reason</TableHead>
+                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 pr-4 pl-2 w-[13%]">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {pending.map((leave) => (
                         <TableRow key={leave.id} className="border-b border-border/30">
-                          <TableCell className="py-2.5 px-3">
-                            <div>
-                              <p className="font-medium text-sm">{leave.employee?.full_name}</p>
-                              <p className="text-xs text-muted-foreground">
+                          <TableCell className="py-2.5 pl-4 pr-2 overflow-hidden">
+                            <div className="truncate">
+                              <p className="font-medium text-sm truncate">{leave.employee?.full_name}</p>
+                              <p className="text-xs text-muted-foreground truncate">
                                 {leave.employee?.employee_code ?? leave.employee?.designation}
                               </p>
                             </div>
                           </TableCell>
-                          <TableCell className="py-2.5 px-3 text-sm">{LEAVE_TYPE_LABELS[leave.leave_type]}</TableCell>
-                          <TableCell className="py-2.5 px-3 text-sm whitespace-nowrap">
-                            {formatDate(leave.start_date)} – {formatDate(leave.end_date)}
+                          <TableCell className="py-2.5 px-2 text-sm truncate overflow-hidden">{LEAVE_TYPE_LABELS[leave.leave_type]}</TableCell>
+                          <TableCell className="py-2.5 px-2 text-sm overflow-hidden">
+                            <div className="truncate">{formatDate(leave.start_date)} – {formatDate(leave.end_date)}</div>
                           </TableCell>
-                          <TableCell className="py-2.5 px-3 text-right tabular-nums font-semibold">{leave.days_count}</TableCell>
-                          <TableCell className="py-2.5 px-3 max-w-[200px] truncate text-sm text-muted-foreground">{leave.reason}</TableCell>
-                          <TableCell className="py-2.5 px-3">
+                          <TableCell className="py-2.5 px-2 text-right tabular-nums font-semibold overflow-hidden">{leave.days_count}</TableCell>
+                          <TableCell className="py-2.5 px-2 truncate text-sm text-muted-foreground overflow-hidden max-w-0">{leave.reason}</TableCell>
+                          <TableCell className="py-2.5 pr-4 pl-2 overflow-hidden">
                             <LeaveActions leaveId={leave.id} />
                           </TableCell>
                         </TableRow>
@@ -131,29 +132,41 @@ export default async function AdminLeavesPage() {
                 <div className="overflow-x-auto">
                   <Table style={{ tableLayout: 'fixed' }}>
                     <TableHeader>
-                      <TableRow className="hover:bg-transparent border-b border-border/50">
-                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[28%]">Employee</TableHead>
-                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[16%]">Type</TableHead>
-                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[25%]">Dates</TableHead>
-                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[13%] text-right">Days</TableHead>
-                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-3 w-[18%]">Status</TableHead>
+                      <TableRow className="hover:bg-transparent">
+                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 pl-4 pr-2 w-[24%]">Employee</TableHead>
+                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-2 w-[13%]">Type</TableHead>
+                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-2 w-[26%]">Dates</TableHead>
+                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 px-2 w-[11%] text-right">Days</TableHead>
+                        <TableHead className="font-semibold text-xs tracking-wider uppercase text-muted-foreground py-2.5 pr-4 pl-2 w-[26%]">Status</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {processed.map((leave) => (
-                        <TableRow key={leave.id} className="border-b border-border/30">
-                          <TableCell className="py-2.5 px-3 font-medium text-sm">{leave.employee?.full_name}</TableCell>
-                          <TableCell className="py-2.5 px-3 text-sm">{LEAVE_TYPE_LABELS[leave.leave_type]}</TableCell>
-                          <TableCell className="py-2.5 px-3 text-sm whitespace-nowrap">
-                            {formatDate(leave.start_date)} – {formatDate(leave.end_date)}
-                          </TableCell>
-                          <TableCell className="py-2.5 px-3 text-right tabular-nums font-semibold">{leave.days_count}</TableCell>
-                          <TableCell className="py-2.5 px-3">
-                            <Badge className={STATUS_COLORS[leave.status]} variant="secondary">
-                              {LEAVE_STATUS_LABELS[leave.status]}
-                            </Badge>
-                          </TableCell>
-                        </TableRow>
+                        <React.Fragment key={leave.id}>
+                          <TableRow className="border-b border-border/30">
+                            <TableCell className="py-2.5 pl-4 pr-2 font-medium text-sm truncate">{leave.employee?.full_name}</TableCell>
+                            <TableCell className="py-2.5 px-2 text-sm truncate">{LEAVE_TYPE_LABELS[leave.leave_type]}</TableCell>
+                            <TableCell className="py-2.5 px-2 text-sm">
+                              <div className="truncate">{formatDate(leave.start_date)} – {formatDate(leave.end_date)}</div>
+                            </TableCell>
+                            <TableCell className="py-2.5 px-2 text-right tabular-nums font-semibold">{leave.days_count}</TableCell>
+                            <TableCell className="py-2.5 pr-4 pl-2">
+                              <Badge className={STATUS_COLORS[leave.status]} variant="secondary">
+                                {LEAVE_STATUS_LABELS[leave.status]}
+                              </Badge>
+                            </TableCell>
+                          </TableRow>
+                          {leave.status === 'rejected' && leave.rejection_reason && (
+                            <TableRow className="border-b border-border/30">
+                              <TableCell colSpan={5} className="pt-0 pb-3 pl-4 pr-4">
+                                <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+                                  <p className="text-xs font-semibold text-red-700 dark:text-red-400 mb-1">Rejection Reason:</p>
+                                  <p className="text-sm text-red-600 dark:text-red-300">{leave.rejection_reason}</p>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </React.Fragment>
                       ))}
                     </TableBody>
                   </Table>

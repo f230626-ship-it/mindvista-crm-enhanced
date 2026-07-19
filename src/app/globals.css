@@ -9,7 +9,7 @@
   --color-foreground: var(--foreground);
   --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  --font-heading: var(--font-inter);
+  --font-heading: var(--font-sans);
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -396,6 +396,62 @@
 .pm-glass-dialog {
   @apply border border-border/50 bg-card/90 backdrop-blur-xl;
   box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+}
+
+/* Brand Logo Visibility Styles */
+.brand-logo-enhanced {
+  filter: brightness(1.2) contrast(1.15) drop-shadow(0 4px 16px rgba(0, 0, 0, 0.08)) drop-shadow(0 0 12px rgba(229, 161, 88, 0.15));
+}
+
+.dark .brand-logo-enhanced {
+  filter: brightness(1.3) contrast(1.25) drop-shadow(0 0 24px rgba(255, 215, 110, 0.4));
+}
+
+.loading-logo-filter {
+  filter: brightness(1.8) contrast(1.55) drop-shadow(0 0 50px rgba(229, 161, 88, 1)) drop-shadow(0 0 30px rgba(255, 215, 110, 1));
+}
+
+.dark .loading-logo-filter {
+  filter: brightness(1.5) contrast(1.35) drop-shadow(0 0 30px rgba(255, 215, 110, 0.7));
+}
+
+/* Loading Logo Animation */
+.loading-logo-wrapper {
+  position: relative;
+  display: inline-block;
+  overflow: visible;
+}
+
+.loading-logo-center-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  height: 90%;
+  border-radius: 40% 60% 40% 60% / 60% 40% 60% 40%;
+  background: radial-gradient(ellipse, rgba(255, 215, 110, 1) 0%, rgba(229, 161, 88, 0.9) 40%, rgba(229, 161, 88, 0) 70%);
+  filter: blur(42px);
+  animation: loading-center-glow 2.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+:root:not(.dark) .loading-logo-center-glow {
+  width: 110%;
+  height: 120%;
+  background: radial-gradient(ellipse, rgba(255, 215, 110, 1) 0%, rgba(229, 161, 88, 1) 40%, rgba(229, 161, 88, 0) 70%);
+  filter: blur(52px);
+}
+
+@keyframes loading-center-glow {
+  0%, 100% {
+    opacity: 0.4;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.15);
+  }
 }
 .dark .pm-glass-dialog {
   box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;

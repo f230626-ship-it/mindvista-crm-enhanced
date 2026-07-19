@@ -28,6 +28,7 @@ import {
   Play,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -139,18 +140,14 @@ export default function ProjectDetailClient({
   }
 
   return (
-    <div className="space-y-6">
+    <div>
+      <PageBreadcrumb
+        segments={[{ label: "Projects", href: "/projects" }]}
+        current={project.name}
+      />
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex items-start justify-between gap-4 mb-6">
         <div className="flex items-start gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.push("/projects")}
-            className="mt-1 shrink-0"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">{project.name}</h1>
             <div className="flex items-center gap-3 mt-1 flex-wrap">

@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { Send, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
+import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
 import { cn } from "@/lib/utils";
 import type { SalesDailyLog } from "@/types/database";
 
@@ -55,11 +56,11 @@ export function DailyLogPageForm({
   }
 
   return (
-    <div className="space-y-6">
-      <Link href="/sales/my-day" className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "gap-2")}>
-        <ArrowLeft className="h-4 w-4" />
-        All profiles
-      </Link>
+    <div>
+      <PageBreadcrumb
+        segments={[{ label: "My Outreach", href: "/sales/my-day" }]}
+        current="Outreach Log"
+      />
 
       <Card className="border-primary/20 bg-gradient-to-br from-card to-primary/5 shadow-xl">
         <CardHeader>

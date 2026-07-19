@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/auth";
 import { ProjectForm } from "../project-form";
 import { PageHeader } from "@/components/ui/page-header";
+import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
 
 export default async function NewProjectPage() {
   const employee = await requireAuth();
@@ -17,7 +18,11 @@ export default async function NewProjectPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div>
+      <PageBreadcrumb
+        segments={[{ label: "Projects", href: "/projects" }]}
+        current="Add New"
+      />
       <PageHeader 
         title="Add New Project" 
         description="Create a new project or lead in the CRM." 

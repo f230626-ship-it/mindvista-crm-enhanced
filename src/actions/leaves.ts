@@ -17,7 +17,11 @@ export async function applyLeave(formData: FormData) {
   const leaveType = formData.get("leave_type") as LeaveType;
   const startDate = formData.get("start_date") as string;
   const endDate = formData.get("end_date") as string;
-  const reason = formData.get("reason") as string;
+  const reason = (formData.get("reason") as string)?.trim();
+
+  if (!reason) {
+    return { error: "Please provide a reason for your leave request." };
+  }
 
   const supabase = createAdminClient();
 
@@ -68,6 +72,10 @@ export async function reviewLeave(
     emp.lead_id === reviewer.id;
 
   if (!canApprove) return { error: "You are not authorized to approve this leave" };
+
+  if (status === "rejected" && !rejectionReason?.trim()) {
+    return { error: "A rejection reason is required when rejecting a leave request." };
+  }
 
   const { error } = await supabase
     .from("leaves")

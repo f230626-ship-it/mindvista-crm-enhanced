@@ -6,28 +6,42 @@ export async function getTeamHierarchy(currentEmployeeId: string) {
 
   const { data: allEmployees } = await supabase
     .from("employees")
-    .select("id, full_name, designation, employee_code, manager_id, lead_id, status, profile_photo_url")
+    .select(
+      "id, full_name, designation, employee_code, manager_id, lead_id, status, profile_photo_url, email, joining_date, role, department:departments(name)"
+    )
     .eq("status", "active")
     .order("full_name");
 
   if (!allEmployees) return { directReports: [], leadTeam: [], all: [] };
 
-  const directReports = allEmployees.filter((e) => e.manager_id === currentEmployeeId);
-  const leadTeam = allEmployees.filter(
+  const nameById = new Map(allEmployees.map((e) => [e.id, e.full_name]));
+  const withNames = allEmployees.map((e) => ({
+    ...e,
+    managerName: e.manager_id ? nameById.get(e.manager_id) ?? null : null,
+    leadName: e.lead_id ? nameById.get(e.lead_id) ?? null : null,
+  }));
+
+  const directReports = withNames.filter((e) => e.manager_id === currentEmployeeId);
+  const leadTeam = withNames.filter(
     (e) => e.lead_id === currentEmployeeId && e.manager_id !== currentEmployeeId
   );
 
   return {
-    directReports: directReports as HierarchyMember[],
-    leadTeam: leadTeam as HierarchyMember[],
-    all: allEmployees as HierarchyMember[],
+    directReports: directReports as unknown as HierarchyMember[],
+    leadTeam: leadTeam as unknown as HierarchyMember[],
+    all: withNames as unknown as HierarchyMember[],
   };
 }
 
 export type HierarchyMember = Pick<
   Employee,
-  "id" | "full_name" | "designation" | "manager_id" | "lead_id" | "profile_photo_url"
-> & { employee_code: string | null };
+  "id" | "full_name" | "designation" | "manager_id" | "lead_id" | "profile_photo_url" | "email" | "joining_date" | "role"
+> & {
+  employee_code: string | null;
+  department: { name: string } | null;
+  managerName: string | null;
+  leadName: string | null;
+};
 
 export function buildHierarchyTree(
   members: HierarchyMember[],

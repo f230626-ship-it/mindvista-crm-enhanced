@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDate } from "@/lib/utils/date";
-import { recalculateAllGoals } from "@/lib/performance/goal-calculator";
+
 import { RefreshCw, Trash2, Activity } from "lucide-react";
 import { DeleteGoalButton } from "@/components/performance/delete-goal-button";
 import { AdminRefreshButton } from "@/components/performance/admin-refresh-button";
@@ -16,8 +16,7 @@ export default async function AdminPerformancePage() {
   await requireRole("admin");
   const supabase = createAdminClient();
 
-  // Auto-calculate all goals
-  await recalculateAllGoals();
+
 
   const [{ data: goals }, { data: reviews }, { data: employeesList }] = await Promise.all([
     supabase
