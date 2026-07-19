@@ -236,8 +236,8 @@ export function Sidebar({
             lightLogoSrc="/images/mindvista-sidebar-logo-light.png"
             darkLogoSrc="/images/mindvista-sidebar-logo-dark.png"
             priority
-            className="w-28 sm:w-32 md:w-36 dark:w-32 dark:sm:w-36 dark:md:w-40 transition-transform group-hover:scale-[1.02]"
-            sizes="(max-width: 640px) 5rem, 6rem"
+            className="w-36 sm:w-40 md:w-44 transition-transform group-hover:scale-[1.02]"
+            sizes="(max-width: 640px) 9rem, 11rem"
           />
         </Link>
         <button
@@ -307,6 +307,7 @@ export function Sidebar({
       <div className="border-t border-sidebar-border/50 px-2.5 sm:px-3 py-1.5 sm:py-2 shrink-0">
         <Link
           href="/profile"
+          onClick={onNavClick}
           className="flex items-center gap-2 sm:gap-2.5 rounded-lg px-2 py-2 transition-all duration-200 hover:bg-linear-to-r hover:from-primary/10 hover:to-primary/5 group"
         >
           <div className="relative shrink-0">

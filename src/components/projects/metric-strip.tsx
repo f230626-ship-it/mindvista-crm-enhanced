@@ -38,7 +38,7 @@ export function MetricStrip({
   };
 
   return (
-    <div className="flex flex-wrap items-stretch gap-px rounded-xl border border-border/50 bg-border/30 p-px overflow-hidden">
+    <div className="grid gap-px rounded-xl border border-border/50 bg-border/30 p-px overflow-hidden grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
       {metrics.map((m, i) => {
         const Icon = m.icon;
         const filter = filterMap[i];
@@ -50,8 +50,7 @@ export function MetricStrip({
             key={m.label}
             onClick={() => onFilterChange(filter)}
             className={cn(
-              "group relative flex flex-1 items-center gap-3.5 px-5 py-3.5 transition-all duration-150 min-w-0",
-              "first:rounded-l-[11px] last:rounded-r-[11px]",
+              "group relative flex items-center gap-2.5 sm:gap-3.5 px-3 sm:px-5 py-3 sm:py-3.5 transition-all duration-150 min-w-0",
               isActive ? "bg-primary/[0.05]" : "bg-card hover:bg-muted/30",
             )}
           >
@@ -63,7 +62,7 @@ export function MetricStrip({
             {/* Icon — no boxy container, just the icon with semantic color */}
             <Icon
               className={cn(
-                "h-[17px] w-[17px] shrink-0 transition-colors duration-150",
+                "h-4 w-4 sm:h-[17px] sm:w-[17px] shrink-0 transition-colors duration-150",
                 isActive
                   ? colors.base
                   : cn("text-muted-foreground/50", colors.hover)
@@ -75,7 +74,7 @@ export function MetricStrip({
             <div className="min-w-0 text-left">
               <p
                 className={cn(
-                  "text-[10px] font-semibold uppercase tracking-[0.08em] leading-none mb-1.5 transition-colors",
+                  "text-[9px] sm:text-[10px] font-semibold uppercase tracking-[0.08em] leading-none mb-1 sm:mb-1.5 transition-colors",
                   isActive ? "text-primary/70" : "text-muted-foreground/60"
                 )}
               >
@@ -83,7 +82,7 @@ export function MetricStrip({
               </p>
               <p
                 className={cn(
-                  "text-[19px] font-bold tracking-tight leading-none tabular-nums transition-colors",
+                  "text-[15px] sm:text-[19px] font-bold tracking-tight leading-none tabular-nums transition-colors",
                   isActive ? colors.base : "text-foreground"
                 )}
               >

@@ -71,7 +71,9 @@ export default async function TeamHierarchyPage({ searchParams }: TeamHierarchyP
         </div>
       </div>
 
-      <TeamHierarchyTree root={rootNode} currentEmployeeId={currentEmployee.id} />
+      <div className="w-full overflow-x-auto -mx-2 sm:mx-0 px-2 sm:px-0">
+        <TeamHierarchyTree root={rootNode} currentEmployeeId={currentEmployee.id} />
+      </div>
     </div>
   );
 }
