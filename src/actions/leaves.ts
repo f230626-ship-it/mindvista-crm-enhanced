@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentEmployee, requireRole } from "@/lib/auth";
 import { calculateLeaveDays } from "@/lib/utils/date";
 import { revalidatePath } from "next/cache";
@@ -17,9 +17,13 @@ export async function applyLeave(formData: FormData) {
   const leaveType = formData.get("leave_type") as LeaveType;
   const startDate = formData.get("start_date") as string;
   const endDate = formData.get("end_date") as string;
-  const reason = formData.get("reason") as string;
+  const reason = (formData.get("reason") as string)?.trim();
 
-  const supabase = await createClient();
+  if (!reason) {
+    return { error: "Please provide a reason for your leave request." };
+  }
+
+  const supabase = createAdminClient();
 
   const { data: holidays } = await supabase.from("holidays").select("date");
   const holidayDates = holidays?.map((h) => h.date) ?? [];
@@ -52,23 +56,26 @@ export async function reviewLeave(
   const reviewer = await getCurrentEmployee();
   if (!reviewer) return { error: "Not authenticated" };
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data: leave } = await supabase
     .from("leaves")
-    .select("*, employee:employees(id, full_name, lead_id, manager_id)")
+    .select("*, employee:employees!leaves_employee_id_fkey(id, full_name, lead_id, manager_id)")
     .eq("id", leaveId)
     .single();
 
   if (!leave) return { error: "Leave request not found" };
 
-  const emp = leave.employee as { id: string; lead_id: string | null; manager_id: string | null };
+  const emp = leave.employee as { id: string; lead_id: string | null };
   const canApprove =
     reviewer.role === "admin" ||
-    emp.lead_id === reviewer.id ||
-    emp.manager_id === reviewer.id;
+    emp.lead_id === reviewer.id;
 
   if (!canApprove) return { error: "You are not authorized to approve this leave" };
+
+  if (status === "rejected" && !rejectionReason?.trim()) {
+    return { error: "A rejection reason is required when rejecting a leave request." };
+  }
 
   const { error } = await supabase
     .from("leaves")
@@ -103,22 +110,68 @@ export async function getPendingLeavesForLead() {
   const employee = await getCurrentEmployee();
   if (!employee) return [];
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data: team } = await supabase
     .from("employees")
     .select("id")
-    .or(`lead_id.eq.${employee.id},manager_id.eq.${employee.id}`);
+    .eq("lead_id", employee.id);
 
   const teamIds = team?.map((t) => t.id) ?? [];
   if (teamIds.length === 0) return [];
 
   const { data } = await supabase
     .from("leaves")
-    .select("*, employee:employees(id, full_name, email, designation, employee_code)")
+      .select("*, employee:employees!leaves_employee_id_fkey(id, full_name, email, designation, employee_code)")
     .in("employee_id", teamIds)
     .eq("status", "pending")
     .order("created_at", { ascending: false });
 
+  return data ?? [];
+}
+
+export async function updateGlobalLeaveQuota(
+  quotas: { annual_quota?: number; sick_quota?: number; casual_quota?: number }
+) {
+  await requireRole("admin");
+  const supabase = createAdminClient();
+
+  const updates: Record<string, number> = {};
+  if (quotas.annual_quota !== undefined) updates.annual_quota = quotas.annual_quota;
+  if (quotas.sick_quota !== undefined) updates.sick_quota = quotas.sick_quota;
+  if (quotas.casual_quota !== undefined) updates.casual_quota = quotas.casual_quota;
+
+  if (Object.keys(updates).length === 0) {
+    return { error: "No changes provided." };
+  }
+
+  const { error } = await supabase
+    .from("leave_balances")
+    .update(updates)
+    .neq("employee_id", "00000000-0000-0000-0000-000000000000");
+
+  if (error) {
+    console.error("Error updating global leave quota:", error);
+    return { error: error.message };
+  }
+
+  revalidatePath("/leave");
+  revalidatePath("/dashboard");
+  revalidatePath("/admin/leaves");
+  return { success: true };
+}
+
+export async function getAllLeaveBalances() {
+  const supabase = createAdminClient();
+
+  const { data, error } = await supabase
+    .from("leave_balances")
+    .select(`
+      *,
+      employee:employees!leave_balances_employee_id_fkey(id, full_name, email, employee_code, designation, status)
+    `)
+    .order("created_at", { ascending: false });
+
+  if (error) return [];
   return data ?? [];
 }

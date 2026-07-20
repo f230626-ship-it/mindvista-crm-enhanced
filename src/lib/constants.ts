@@ -39,7 +39,6 @@ export const EMPLOYEE_STATUS_LABELS: Record<string, string> = {
 export const ROLE_LABELS: Record<string, string> = {
   admin: "Admin",
   hr: "HR",
-  manager: "Manager",
   employee: "Employee",
 };
 
@@ -87,3 +86,5 @@ export const STATUS_COLORS: Record<string, string> = {
   approved: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
   rejected: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
 };
+
+

@@ -50,7 +50,7 @@ export function NotificationBell({
           </span>
         )}
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-80" align="end">
+      <DropdownMenuContent className="w-80 max-w-[calc(100vw-2rem)]" align="end">
         <DropdownMenuGroup>
           <DropdownMenuLabel className="flex items-center justify-between">
             Notifications

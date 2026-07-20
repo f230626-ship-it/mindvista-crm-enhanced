@@ -1,13 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/types/database";
+import type { PMRole } from "@/types/database";
+
+// Extend UserRole to include legacy "Developer" role
+type ExtendedUserRole = UserRole | "Developer";
 import {
   LayoutDashboard,
-  User,
   CalendarDays,
   FileText,
   Package,
@@ -15,9 +17,14 @@ import {
   CheckSquare,
   Star,
   Briefcase,
+  LineChart,
   ChevronRight,
+  UsersRound,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { BrandLogo } from "@/components/ui/brand-logo";
+
+import { X } from "lucide-react";
 
 interface NavItem {
   title: string;
@@ -25,6 +32,7 @@ interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
   roles?: UserRole[];
   description?: string;
+  salesHref?: boolean;
 }
 
 const employeeNav: NavItem[] = [
@@ -38,19 +46,14 @@ const employeeNav: NavItem[] = [
     title: "Projects", 
     href: "/projects", 
     icon: Briefcase,
-    description: "Project management"
+    description: "Project management",
+    roles: ["admin"]
   },
   { 
-    title: "Team", 
+    title: "My Team", 
     href: "/team", 
     icon: Users,
     description: "Company directory"
-  },
-  { 
-    title: "Profile", 
-    href: "/profile", 
-    icon: User,
-    description: "Personal settings"
   },
   { 
     title: "Leave", 
@@ -70,6 +73,13 @@ const employeeNav: NavItem[] = [
     icon: Package,
     description: "Equipment tracking"
   },
+  {
+    title: "Sales",
+    href: "/sales",
+    icon: LineChart,
+    description: "Outreach & performance",
+    salesHref: true,
+  },
   { 
     title: "My Performance", 
     href: "/performance", 
@@ -83,21 +93,21 @@ const adminNav: NavItem[] = [
     title: "Employees", 
     href: "/admin/employees", 
     icon: Users, 
-    roles: ["admin"],
+    roles: ["admin", "hr"],
     description: "Manage staff"
   },
   { 
     title: "Leave Approvals", 
     href: "/admin/leaves", 
     icon: CheckSquare, 
-    roles: ["admin", "manager"],
+    roles: ["admin"],
     description: "Review requests"
   },
   { 
     title: "Performance Reviews", 
     href: "/admin/performance", 
     icon: Star, 
-    roles: ["admin", "manager"],
+    roles: ["admin"],
     description: "Team evaluations"
   },
   { 
@@ -127,22 +137,25 @@ function NavLink({
   item,
   active,
   index,
+  onClick,
 }: {
   item: NavItem;
   active: boolean;
   index: number;
+  onClick?: () => void;
 }) {
   const Icon = item.icon;
   return (
     <Link
       href={item.href}
       prefetch
+      onClick={onClick}
       className={cn(
         "group relative flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200",
-        "animate-slide-up opacity-0 [animation-fill-mode:forwards] hover:scale-105 active:scale-95",
+        "animate-slide-up opacity-0 fill-mode-[forwards] hover:scale-105 active:scale-95",
         active
-          ? "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/25"
-          : "text-sidebar-foreground/70 hover:bg-gradient-to-r hover:from-primary/10 hover:to-primary/5 hover:text-sidebar-foreground hover:shadow-md"
+          ? "bg-linear-to-r from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/25"
+          : "text-sidebar-foreground/70 hover:bg-linear-to-r hover:from-primary/10 hover:to-primary/5 hover:text-sidebar-foreground hover:shadow-md"
       )}
       style={{ animationDelay: `${index * 40}ms` }}
     >
@@ -160,14 +173,6 @@ function NavLink({
           </div>
         )}
       </div>
-      {active && (
-        <ChevronRight className="h-4 w-4 shrink-0" />
-      )}
-      
-      {/* Active indicator */}
-      {active && (
-        <div className="absolute -left-1 top-1/2 h-8 w-1 -translate-y-1/2 rounded-full bg-primary-foreground shadow-sm" />
-      )}
     </Link>
   );
 }
@@ -187,39 +192,90 @@ function SectionHeader({ title, badge }: { title: string; badge?: number }) {
   );
 }
 
-export function Sidebar({ role }: { role: UserRole }) {
+export function Sidebar({
+  role,
+  pmRole,
+  profilePhotoUrl,
+  fullName,
+  designation,
+  onNavClick,
+  onClose,
+}: {
+  role: ExtendedUserRole;
+  pmRole: PMRole;
+  profilePhotoUrl?: string | null;
+  fullName?: string;
+  designation?: string;
+  onNavClick?: () => void;
+  onClose?: () => void;
+}) {
   const pathname = usePathname();
 
-  const filteredAdminNav = adminNav.filter(
-    (item) => !item.roles || item.roles.includes(role)
-  );
+  const showSales = role === "admin" || role === "Developer";
+  const isBd = pmRole === "bd" || (designation || "").toLowerCase().includes("business developer") || (designation || "").toLowerCase().includes("bd ");
+  const filteredEmployeeNav = employeeNav.filter((item) => {
+    if (item.salesHref) return showSales || isBd;
+    return !item.roles || item.roles.includes(role as UserRole);
+  });
+
+  // Special handling for admin navigation - include "Developer" as admin-equivalent
+  const filteredAdminNav = adminNav.filter((item) => {
+    if (!item.roles) return true;
+    
+    // Allow if role is in the allowed roles OR if user is "Developer" and item allows "admin"
+    return item.roles.includes(role as UserRole) || 
+           (role === "Developer" && item.roles.includes("admin"));
+  });
 
   return (
-    <aside className="flex h-full w-72 flex-col border-r border-sidebar-border bg-gradient-to-b from-sidebar to-sidebar/95 backdrop-blur-sm">
+    <aside className="flex h-full w-[280px] sm:w-[300px] lg:w-[288px] xl:w-[288px] 2xl:w-[320px] flex-col border-r border-sidebar-border bg-linear-to-b from-sidebar to-sidebar/95 backdrop-blur-sm">
       {/* Header */}
-      <div className="flex h-16 items-center justify-center gap-3 border-b border-sidebar-border/50 px-6">
-        <Link href="/dashboard" className="flex items-center justify-center group">
-          <Image
-            src="/images/logo.png"
-            alt="MindVista"
-            width={140}
-            height={40}
-            className="h-9 w-auto object-contain transition-transform group-hover:scale-105"
+      <div className="flex h-12 sm:h-14 md:h-16 items-center justify-between border-b border-sidebar-border/50 px-3 sm:px-4 md:px-6 pt-1 shrink-0">
+        <Link href="/dashboard" className="flex items-center justify-center group flex-1">
+          <BrandLogo
+            lightLogoSrc="/images/mindvista-sidebar-logo-light.png"
+            darkLogoSrc="/images/mindvista-sidebar-logo-dark.png"
             priority
+            className="w-36 sm:w-40 md:w-44 transition-transform group-hover:scale-[1.02]"
+            sizes="(max-width: 640px) 9rem, 11rem"
           />
         </Link>
+        <button
+          onClick={onClose}
+          className="lg:hidden flex items-center justify-center h-8 w-8 rounded-lg hover:bg-sidebar-accent transition-colors shrink-0 ml-2"
+          aria-label="Close menu"
+        >
+          <X className="h-4 w-4" />
+        </button>
       </div>
 
-      <nav className="flex-1 space-y-6 overflow-y-auto p-4">
+      <nav className="flex-1 space-y-4 sm:space-y-5 md:space-y-6 overflow-y-auto overflow-x-hidden p-3 sm:p-4">
         {/* Portal Section */}
         <div>
-          <SectionHeader title="Portal" badge={employeeNav.length} />
+          <SectionHeader title="Portal" />
           <div className="space-y-1">
-            {employeeNav.map((item, i) => {
-              const active =
-                pathname === item.href ||
-                (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
-              return <NavLink key={item.href} item={item} active={active} index={i} />;
+            {filteredEmployeeNav.map((item, i) => {
+              const effectiveHref = item.salesHref
+                ? showSales
+                  ? "/sales/command"
+                  : "/sales/my-day"
+                : item.href;
+
+              const active = item.salesHref
+                ? pathname.startsWith("/sales")
+                : pathname === effectiveHref ||
+                  (effectiveHref !== "/dashboard" &&
+                    pathname.startsWith(effectiveHref + "/"));
+
+              return (
+                <NavLink
+                  key={effectiveHref}
+                  item={{ ...item, href: effectiveHref }}
+                  active={active}
+                  index={i}
+                  onClick={onNavClick}
+                />
+              );
             })}
           </div>
         </div>
@@ -227,7 +283,7 @@ export function Sidebar({ role }: { role: UserRole }) {
         {/* Management Section */}
         {filteredAdminNav.length > 0 && (
           <div>
-            <SectionHeader title="Management" badge={filteredAdminNav.length} />
+            <SectionHeader title="Management" />
             <div className="space-y-1">
               {filteredAdminNav.map((item, i) => {
                 const active =
@@ -237,7 +293,8 @@ export function Sidebar({ role }: { role: UserRole }) {
                     key={item.href}
                     item={item}
                     active={active}
-                    index={i + employeeNav.length}
+                    index={i + filteredEmployeeNav.length}
+                    onClick={onNavClick}
                   />
                 );
               })}
@@ -246,16 +303,41 @@ export function Sidebar({ role }: { role: UserRole }) {
         )}
       </nav>
 
-      {/* Footer */}
-      <div className="border-t border-sidebar-border/50 p-4">
-        <div className="rounded-lg bg-gradient-to-r from-primary/10 to-primary/5 p-3 text-center">
-          <p className="text-[10px] font-medium text-sidebar-foreground/60">
-            MindVista HRMS v1.0
-          </p>
-          <p className="text-[9px] text-sidebar-foreground/40 mt-1">
-            Enterprise Edition
-          </p>
-        </div>
+      {/* Footer - Profile Card */}
+      <div className="border-t border-sidebar-border/50 px-2.5 sm:px-3 py-1.5 sm:py-2 shrink-0">
+        <Link
+          href="/profile"
+          onClick={onNavClick}
+          className="flex items-center gap-2 sm:gap-2.5 rounded-lg px-2 py-2 transition-all duration-200 hover:bg-linear-to-r hover:from-primary/10 hover:to-primary/5 group"
+        >
+          <div className="relative shrink-0">
+            {profilePhotoUrl ? (
+              <img
+                src={profilePhotoUrl}
+                alt={fullName ?? "Profile"}
+                className="h-8 w-8 sm:h-9 sm:w-9 rounded-full object-cover ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all"
+              />
+            ) : (
+              <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary/30 to-primary/10 text-primary font-bold text-[10px] sm:text-xs">
+                {fullName
+                  ?.split(" ")
+                  .map((n) => n[0])
+                  .join("")
+                  .toUpperCase()
+                  .slice(0, 2) ?? "U"}
+              </div>
+            )}
+            <div className="absolute -bottom-0.5 -right-0.5 h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full border-2 border-sidebar bg-green-500" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[11px] sm:text-xs font-semibold truncate text-sidebar-foreground">
+              {fullName ?? "User"}
+            </p>
+            <p className="text-[9px] sm:text-[10px] text-sidebar-foreground/60 truncate">
+              {designation ?? "Employee"}
+            </p>
+          </div>
+        </Link>
       </div>
     </aside>
   );

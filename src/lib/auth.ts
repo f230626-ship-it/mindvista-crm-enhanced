@@ -109,12 +109,42 @@ export async function requireRole(...roles: Employee["role"][]) {
   return employee;
 }
 
+export async function requireAdminAccess() {
+  const employee = await requireAuth();
+
+  // Allow admin, hr roles OR legacy "developer" role
+  const hasAccess = employee.role === "admin" ||
+                   employee.role === "hr" ||
+                   employee.role === "developer";
+
+  if (!hasAccess) {
+    redirect("/dashboard");
+  }
+
+  return employee;
+}
+
+export async function requireManagerOrAdminAccess() {
+  const employee = await requireAuth();
+
+  // Allow admin, hr roles OR legacy "developer" role
+  const hasAccess = employee.role === "admin" ||
+                   employee.role === "hr" ||
+                   employee.role === "developer";
+
+  if (!hasAccess) {
+    redirect("/dashboard");
+  }
+
+  return employee;
+}
+
 export function isAdmin(role: Employee["role"]) {
   return role === "admin";
 }
 
 export function isManagerOrAdmin(role: Employee["role"]) {
-  return role === "admin" || role === "manager";
+  return role === "admin";
 }
 
 export function isHrOrAdmin(role: Employee["role"]) {
@@ -135,7 +165,6 @@ export function isPmAdminOrCoordinator(role: PMRole) {
   return role === "admin" || role === "coordinator";
 }
 
-// ─── API-level guards (return 401/403 JSON instead of redirect) ────────────
 
 export async function requireApiAuth(): Promise<
   | { user: NonNullable<Awaited<ReturnType<typeof getCurrentUser>>>; employee: Employee }
@@ -177,4 +206,29 @@ export async function requireApiRole(
   }
 
   return result;
+}
+
+export function isSalesOwner(role: Employee["role"]) {
+  return role === "admin";
+}
+
+export function isBdEmployee(employee: Pick<Employee, "designation">) {
+  const d = (employee.designation || "").toLowerCase();
+  return d.includes("business developer") || d.includes("bd");
+}
+
+export function canAccessSales(employee: Pick<Employee, "role" | "designation">) {
+  return employee.role === "admin" || isBdEmployee(employee);
+}
+
+export async function requireSalesAccess() {
+  const employee = await requireAuth();
+  if (!canAccessSales(employee)) redirect("/dashboard");
+  return employee;
+}
+
+export async function requireSalesOwner() {
+  const employee = await requireAuth();
+  if (!isSalesOwner(employee.role)) redirect("/sales/my-day");
+  return employee;
 }

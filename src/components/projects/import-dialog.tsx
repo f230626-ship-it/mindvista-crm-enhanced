@@ -31,9 +31,132 @@ interface ParsedRow {
   data: Partial<Project> & {
     manager_name?: string;
     team_members_raw?: string;
+    bd_name?: string;
+    dev_name?: string;
+    project_type?: string | null;
+    payment_structure?: string | null;
+    project_rate?: string | null;
+    expected_monthly_revenue?: number | null;
+    profile_name?: string | null;
   };
   errors: string[];
   warnings: string[];
+}
+
+interface DetectedMapping {
+  originalHeader: string;
+  mappedTo: string;
+  confidence: "high" | "medium" | "low";
+}
+
+const COLUMN_MAP_RULES: {
+  field: string;
+  fieldLabel: string;
+  keywords: string[];
+  required?: boolean;
+}[] = [
+  { field: "name", fieldLabel: "Project Name", keywords: ["project name", "project", "name", "title", "project title", "project_name"] },
+  { field: "client_name", fieldLabel: "Client Name", keywords: ["client name", "client", "customer", "customer name", "client_name"] },
+  { field: "project_type", fieldLabel: "Project Type", keywords: ["project type", "type", "engagement", "employment type"] },
+  { field: "client_email", fieldLabel: "Client Email", keywords: ["client email", "email", "customer email", "client_email"] },
+  { field: "client_contact_number", fieldLabel: "Client Contact", keywords: ["contact", "phone", "client contact", "client phone", "mobile", "telephone", "client_contact"] },
+  { field: "company_name", fieldLabel: "Company Name", keywords: ["company", "company name", "organization", "org", "firm", "company_name"] },
+  { field: "description", fieldLabel: "Description", keywords: ["description", "desc", "details", "about", "summary", "notes"] },
+  { field: "industry", fieldLabel: "Industry", keywords: ["industry", "sector", "domain", "field"] },
+  { field: "lead_source", fieldLabel: "Lead Source", keywords: ["lead source", "source", "how did", "referred", "origin", "lead_source"] },
+  { field: "start_date", fieldLabel: "Start Date", keywords: ["start date", "start", "begin", "begins", "commencement", "start_date", "project start"] },
+  { field: "expected_delivery_date", fieldLabel: "End Date", keywords: ["end date", "end", "deadline", "due date", "delivery date", "finish", "expected_delivery", "target date", "completion date"] },
+  { field: "status", fieldLabel: "Status", keywords: ["status", "state", "phase", "stage", "project status"] },
+  { field: "priority", fieldLabel: "Priority", keywords: ["priority", "importance", "urgency", "level"] },
+  { field: "value", fieldLabel: "Total Contract Value", keywords: ["budget", "value", "cost", "price", "amount", "revenue", "fee", "total", "project value", "project budget", "total contract value", "contract value"] },
+  { field: "payment_structure", fieldLabel: "Payment Structure", keywords: ["payment structure", "payment type", "billing", "milestones", "monthly", "weekly", "payment plan"] },
+  { field: "project_rate", fieldLabel: "Project Rate", keywords: ["project rate", "rate", "hourly rate", "rate per hour", "pricing"] },
+  { field: "expected_monthly_revenue", fieldLabel: "Expected Monthly Revenue", keywords: ["mrr", "monthly revenue", "expected monthly", "recurring revenue", "monthly income"] },
+  { field: "currency", fieldLabel: "Currency", keywords: ["currency", "curr", "money"] },
+  { field: "progress_percentage", fieldLabel: "Progress %", keywords: ["progress", "completion", "%", "percentage", "done", "completed %"] },
+  { field: "manager_name", fieldLabel: "Project Manager", keywords: ["manager", "pm", "project manager", "lead", "project lead", "handled by"] },
+  { field: "bd_name", fieldLabel: "Assigned BD", keywords: ["bd", "business development", "bd rep", "bd representative", "sales rep", "assigned bd"] },
+  { field: "dev_name", fieldLabel: "Front Face", keywords: ["developer", "dev", "front face", "frontface", "engineer", "dev rep", "resource", "assigned resource"] },
+  { field: "team_members_raw", fieldLabel: "Team Members", keywords: ["team", "team members", "members", "resources", "assignees", "staff", "team member"] },
+  { field: "payment_status", fieldLabel: "Payment Status", keywords: ["payment", "payment status", "paid", "billing status"] },
+  { field: "profile_name", fieldLabel: "Profile Name", keywords: ["profile", "profile name", "outreach profile", "sales profile"] },
+  { field: "is_monthly_retainer", fieldLabel: "Monthly Retainer", keywords: ["retainer", "monthly", "recurring", "monthly retainer"] },
+  { field: "retainer_amount", fieldLabel: "Retainer Amount", keywords: ["retainer amount", "monthly amount", "recurring amount"] },
+  { field: "expected_profit", fieldLabel: "Expected Profit", keywords: ["profit", "expected profit", "margin", "net profit"] },
+];
+
+function autoMapColumns(headers: string[]): DetectedMapping[] {
+  const normalizedHeaders = headers.map((h) => h.toLowerCase().trim());
+  const mappings: DetectedMapping[] = [];
+  const usedFields = new Set<string>();
+
+  for (let i = 0; i < normalizedHeaders.length; i++) {
+    const h = normalizedHeaders[i];
+    let bestMatch: { field: string; fieldLabel: string; score: number } | null = null;
+
+    for (const rule of COLUMN_MAP_RULES) {
+      if (usedFields.has(rule.field)) continue;
+
+      for (const kw of rule.keywords) {
+        if (h === kw) {
+          bestMatch = { field: rule.field, fieldLabel: rule.fieldLabel, score: 100 };
+          break;
+        }
+        if (h.includes(kw) || kw.includes(h)) {
+          const score = Math.min(h.length, kw.length) / Math.max(h.length, kw.length) * 80;
+          if (!bestMatch || score > bestMatch.score) {
+            bestMatch = { field: rule.field, fieldLabel: rule.fieldLabel, score };
+          }
+        }
+      }
+      if (bestMatch && bestMatch.score === 100) break;
+    }
+
+    if (bestMatch && bestMatch.score >= 30) {
+      usedFields.add(bestMatch.field);
+      mappings.push({
+        originalHeader: headers[i],
+        mappedTo: bestMatch.fieldLabel,
+        confidence: bestMatch.score >= 80 ? "high" : bestMatch.score >= 50 ? "medium" : "low",
+      });
+    } else {
+      mappings.push({
+        originalHeader: headers[i],
+        mappedTo: "(skipped — no match)",
+        confidence: "low",
+      });
+    }
+  }
+
+  return mappings;
+}
+
+function fuzzyExtract(row: Record<string, unknown>, field: string): string {
+  for (const rule of COLUMN_MAP_RULES) {
+    if (rule.field !== field) continue;
+    for (const h of Object.keys(row)) {
+      const hLower = h.toLowerCase().trim();
+      for (const kw of rule.keywords) {
+        if (hLower === kw || hLower.includes(kw) || kw.includes(hLower)) {
+          return String(row[h] ?? "").trim();
+        }
+      }
+    }
+  }
+  return "";
+}
+
+function fuzzyExtractNumber(row: Record<string, unknown>, field: string): number {
+  const raw = fuzzyExtract(row, field);
+  if (!raw) return 0;
+  const cleaned = raw.replace(/[^0-9.\-]/g, "");
+  const num = parseFloat(cleaned);
+  return isNaN(num) ? 0 : num;
+}
+
+function fuzzyExtractBool(row: Record<string, unknown>, field: string): boolean {
+  const raw = fuzzyExtract(row, field).toLowerCase();
+  return raw === "yes" || raw === "true" || raw === "1";
 }
 
 export function ImportDialog({
@@ -48,12 +171,14 @@ export function ImportDialog({
   const [importing, setImporting] = useState(false);
   const [parsedRows, setParsedRows] = useState<ParsedRow[]>([]);
   const [stats, setStats] = useState({ total: 0, valid: 0, invalid: 0 });
+  const [detectedMappings, setDetectedMappings] = useState<DetectedMapping[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const resetState = () => {
     setFile(null);
     setParsedRows([]);
     setStats({ total: 0, valid: 0, invalid: 0 });
+    setDetectedMappings([]);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -66,60 +191,48 @@ export function ImportDialog({
     }
   };
 
-  // Download Sample Template
   const handleDownloadTemplate = () => {
     try {
       const headers = [
-        "Project Name",
-        "Client Name",
-        "Client Email",
-        "Description",
-        "Start Date",
-        "End Date",
-        "Project Manager",
-        "Team Members",
-        "Priority",
-        "Status",
-        "Budget",
-        "Progress Percentage",
+        "Client Name", "Project Name", "Project Type", "Total Contract Value",
+        "Payment Structure", "Start Date", "Project Rate", "Project Status",
+        "Expected Monthly Revenue (MRR)", "Assigned Resource", "Profile Name",
+        "Assigned BD", "End Date",
       ];
 
-      // Resolve sample dynamic employee names
-      const pm = allEmployees.find((e) => e.pm_role === "admin" || e.pm_role === "coordinator")?.full_name || "Daniel Foster";
-      const devs = allEmployees
-        .filter((e) => e.pm_role === "developer" || e.pm_role === "bd")
-        .slice(0, 2)
-        .map((e) => e.full_name)
-        .join(", ") || "Arjun Mehta, Sophie Laurent";
+      const bd = allEmployees.find((e) => e.pm_role === "bd")?.full_name || "Reference";
+      const resource = allEmployees.find((e) => e.pm_role === "developer")?.full_name || "Fatima";
 
       const sampleData = [
         {
-          "Project Name": "Acme Web App Redesign",
-          "Client Name": "Acme Corp",
-          "Client Email": "billing@acme.com",
-          "Description": "Modernizing the customer-facing web portal using Next.js and Tailwind CSS.",
-          "Start Date": "2026-07-01",
-          "End Date": "2026-10-31",
-          "Project Manager": pm,
-          "Team Members": devs,
-          "Priority": "High",
-          "Status": "In Progress",
-          "Budget": 45000,
-          "Progress Percentage": 15,
+          "Client Name": "Ember-AI",
+          "Project Name": "Snap Dev",
+          "Project Type": "Full Time",
+          "Total Contract Value": 50000,
+          "Payment Structure": "Weekly",
+          "Start Date": "2026-03-24",
+          "Project Rate": "1500RS/h",
+          "Project Status": "Active",
+          "Expected Monthly Revenue (MRR)": 8000,
+          "Assigned Resource": resource,
+          "Profile Name": "Fiza",
+          "Assigned BD": bd,
+          "End Date": "2026-07-04",
         },
         {
-          "Project Name": "Nexus Billing API Integration",
-          "Client Name": "Nexus Global",
-          "Client Email": "api@nexus-global.io",
-          "Description": "Backend API integration with Stripe for international subscription management.",
-          "Start Date": "2026-08-15",
-          "End Date": "2026-12-15",
-          "Project Manager": pm,
-          "Team Members": devs,
-          "Priority": "Medium",
-          "Status": "Onboarding",
-          "Budget": 32000,
-          "Progress Percentage": 0,
+          "Client Name": "Zenith Retailers",
+          "Project Name": "Zenith Mobile App",
+          "Project Type": "Full Time",
+          "Total Contract Value": 29000,
+          "Payment Structure": "Milestones",
+          "Start Date": "2026-06-01",
+          "Project Rate": "1000RS/h",
+          "Project Status": "In Progress",
+          "Expected Monthly Revenue (MRR)": 5000,
+          "Assigned Resource": resource,
+          "Profile Name": "Fiza",
+          "Assigned BD": bd,
+          "End Date": "2026-09-30",
         },
       ];
 
@@ -127,35 +240,26 @@ export function ImportDialog({
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Template");
       XLSX.writeFile(wb, "mindvista_projects_import_template.xlsx");
-      toast.success("Sample template downloaded successfully!");
+      toast.success("Template downloaded!");
     } catch {
       toast.error("Failed to generate template.");
     }
   };
 
-  // Parse Excel File on Client
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
 
-    // Validate size (5MB)
-    if (selectedFile.size > 5 * 1024 * 1024) {
-      toast.error("File is too large. Maximum size allowed is 5MB.");
-      return;
-    }
-
-    // Validate type
-    const extension = selectedFile.name.split(".").pop()?.toLowerCase();
-    if (extension !== "xlsx" && extension !== "xls") {
-      toast.error("Invalid file format. Please upload an Excel sheet (.xlsx or .xls).");
+    if (selectedFile.size > 10 * 1024 * 1024) {
+      toast.error("File too large. Max 10MB.");
       return;
     }
 
     setFile(selectedFile);
-    parseExcel(selectedFile);
+    parseFile(selectedFile);
   };
 
-  const parseExcel = (selectedFile: File) => {
+  const parseFile = (selectedFile: File) => {
     setParsing(true);
     const reader = new FileReader();
 
@@ -168,10 +272,25 @@ export function ImportDialog({
         const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(worksheet, { defval: "" });
 
         if (rows.length === 0) {
-          toast.error("Excel sheet is empty.");
+          toast.error("File is empty.");
           setParsing(false);
           return;
         }
+
+        const rawHeaders = Object.keys(rows[0]);
+        const mappings = autoMapColumns(rawHeaders);
+        setDetectedMappings(mappings);
+
+        const mappedFields = mappings.filter((m) => m.mappedTo !== "(skipped — no match)");
+        const hasProjectName = mappedFields.some((m) => m.mappedTo === "Project Name");
+
+        if (!hasProjectName) {
+          toast.error("Could not detect a project name column. Please ensure one column contains project names/titles.");
+          setParsing(false);
+          return;
+        }
+
+        toast.info(`Detected ${mappedFields.length} of ${rawHeaders.length} columns automatically.`);
 
         const parsed: ParsedRow[] = [];
         let validCount = 0;
@@ -182,123 +301,196 @@ export function ImportDialog({
         );
 
         rows.forEach((row, index) => {
-          const rowNum = index + 2; // Row number in Excel sheet (header is row 1)
+          const rowNum = index + 2;
           const errors: string[] = [];
           const warnings: string[] = [];
 
-          // Column Mapping
-          const rawName = String(row["Project Name"] || "").trim();
-          const rawClientName = String(row["Client Name"] || "").trim();
-          const rawClientEmail = String(row["Client Email"] || "").trim();
-          const rawDescription = String(row["Description"] || "").trim();
-          const rawStartDate = String(row["Start Date"] || "").trim();
-          const rawEndDate = String(row["End Date"] || "").trim();
-          const rawPM = String(row["Project Manager"] || "").trim();
-          const rawTeam = String(row["Team Members"] || "").trim();
-          const rawPriority = String(row["Priority"] || "").trim();
-          const rawStatus = String(row["Status"] || "").trim();
-          const rawBudget = parseFloat(String(row["Budget"] || "0"));
-          const rawProgress = parseInt(String(row["Progress Percentage"] || "0"), 10);
+          const rawName = fuzzyExtract(row, "name");
+          const rawClientName = fuzzyExtract(row, "client_name");
+          const rawClientEmail = fuzzyExtract(row, "client_email");
+          const rawClientContact = fuzzyExtract(row, "client_contact_number");
+          const rawCompanyName = fuzzyExtract(row, "company_name");
+          const rawDescription = fuzzyExtract(row, "description");
+          const rawIndustry = fuzzyExtract(row, "industry");
+          const rawLeadSource = fuzzyExtract(row, "lead_source");
+          const rawStartDate = fuzzyExtract(row, "start_date");
+          const rawEndDate = fuzzyExtract(row, "expected_delivery_date");
+          const rawPM = fuzzyExtract(row, "manager_name");
+          const rawBD = fuzzyExtract(row, "bd_name");
+          const rawDev = fuzzyExtract(row, "dev_name");
+          const rawTeam = fuzzyExtract(row, "team_members_raw");
+          const rawPriority = fuzzyExtract(row, "priority");
+          const rawStatus = fuzzyExtract(row, "status");
+          const rawBudget = fuzzyExtractNumber(row, "value");
+          const rawCurrency = fuzzyExtract(row, "currency");
+          const rawRetainer = fuzzyExtractBool(row, "is_monthly_retainer");
+          const rawRetainerAmount = fuzzyExtractNumber(row, "retainer_amount");
+          const rawExpectedProfit = fuzzyExtractNumber(row, "expected_profit");
+          const rawPaymentStatus = fuzzyExtract(row, "payment_status");
+          const rawProgress = parseInt(fuzzyExtract(row, "progress_percentage") || "0", 10);
+          const rawProjectType = fuzzyExtract(row, "project_type");
+          const rawPaymentStructure = fuzzyExtract(row, "payment_structure");
+          const rawProjectRate = fuzzyExtract(row, "project_rate");
+          const rawExpectedMRR = fuzzyExtractNumber(row, "expected_monthly_revenue");
+          const rawProfileName = fuzzyExtract(row, "profile_name");
 
-          // Validation Rules
           if (!rawName) errors.push("Project Name is required.");
-          if (!rawClientName) errors.push("Client Name is required.");
-          if (!rawStartDate) errors.push("Start Date is required.");
-          if (!rawEndDate) errors.push("End Date is required.");
+          if (!rawClientName) warnings.push("Client Name not detected — will be empty.");
 
-          // Validate Dates
-          const startDateParsed = new Date(rawStartDate);
-          const endDateParsed = new Date(rawEndDate);
-          if (rawStartDate && isNaN(startDateParsed.getTime())) {
-            errors.push(`Invalid Start Date format: "${rawStartDate}".`);
+          if (rawStartDate) {
+            const d = new Date(rawStartDate);
+            if (isNaN(d.getTime())) errors.push(`Invalid Start Date: "${rawStartDate}".`);
           }
-          if (rawEndDate && isNaN(endDateParsed.getTime())) {
-            errors.push(`Invalid End Date format: "${rawEndDate}".`);
+          if (rawEndDate) {
+            const d = new Date(rawEndDate);
+            if (isNaN(d.getTime())) errors.push(`Invalid End Date: "${rawEndDate}".`);
           }
-          if (rawStartDate && rawEndDate && !isNaN(startDateParsed.getTime()) && !isNaN(endDateParsed.getTime())) {
-            if (endDateParsed < startDateParsed) {
+          if (rawStartDate && rawEndDate) {
+            const sd = new Date(rawStartDate);
+            const ed = new Date(rawEndDate);
+            if (!isNaN(sd.getTime()) && !isNaN(ed.getTime()) && ed < sd) {
               errors.push("End Date cannot be before Start Date.");
             }
           }
 
-          // Duplicate checking in file and DB
           if (rawName && existingProjectNames.has(rawName.toLowerCase())) {
-            errors.push(`Duplicate: A project named "${rawName}" already exists in the database.`);
+            warnings.push(`"${rawName}" already exists in DB — will still import.`);
           }
-          
-          const fileDuplicate = parsed.some((p) => p.data.name?.toLowerCase() === rawName.toLowerCase());
-          if (rawName && fileDuplicate) {
-            errors.push(`Duplicate in sheet: Project "${rawName}" appears multiple times in this Excel file.`);
+          if (rawName && parsed.some((p) => p.data.name?.toLowerCase() === rawName.toLowerCase())) {
+            warnings.push(`"${rawName}" appears multiple times in file.`);
           }
 
-          // Map PM Name to Employee ID
           let managerId: string | undefined = undefined;
           if (rawPM) {
-            const match = allEmployees.find(
-              (e) => e.full_name.toLowerCase() === rawPM.toLowerCase()
-            );
+            const match = allEmployees.find((e) => e.full_name.toLowerCase() === rawPM.toLowerCase());
             if (match) {
               managerId = match.id;
             } else {
-              warnings.push(`Project Manager "${rawPM}" not found in CRM. Row will be imported without an assigned PM.`);
+              warnings.push(`PM "${rawPM}" not found — will import without assigned PM.`);
             }
           }
 
-          // Map Team Members Names to list
-          const teamMemberNames = rawTeam ? rawTeam.split(",").map((name) => name.trim()).filter(Boolean) : [];
+          let bdId: string | undefined = undefined;
+          if (rawBD) {
+            const match = allEmployees.find((e) => e.full_name.toLowerCase() === rawBD.toLowerCase());
+            if (match) {
+              bdId = match.id;
+            } else {
+              warnings.push(`BD "${rawBD}" not found — will be unassigned.`);
+            }
+          }
+
+          let devId: string | undefined = undefined;
+          if (rawDev) {
+            const match = allEmployees.find((e) => e.full_name.toLowerCase() === rawDev.toLowerCase());
+            if (match) {
+              devId = match.id;
+            } else {
+              warnings.push(`Developer "${rawDev}" not found — will be unassigned.`);
+            }
+          }
+
+          const teamMemberNames = rawTeam
+            ? rawTeam.split(/[,;|]/).map((n) => n.trim()).filter(Boolean)
+            : [];
           const matchedTeamIds: string[] = [];
           teamMemberNames.forEach((name) => {
             const match = allEmployees.find((e) => e.full_name.toLowerCase() === name.toLowerCase());
             if (match) {
               matchedTeamIds.push(match.id);
             } else {
-              warnings.push(`Team Member "${name}" not found in CRM. Will skip assignment.`);
+              warnings.push(`Team member "${name}" not found — will skip.`);
             }
           });
 
-          // Validate Status
           const validStatuses = [
             "Lead Won", "Onboarding", "In Progress", "On Hold", "Completed",
-            "Maintenance", "Paused", "Cancelled", "Archived"
+            "Maintenance", "Paused", "Cancelled", "Archived", "Active", "Ended",
           ];
           let status = "Lead Won";
           if (rawStatus) {
-            const matchedStatus = validStatuses.find(
-              (s) => s.toLowerCase() === rawStatus.toLowerCase()
-            );
-            if (matchedStatus) {
-              status = matchedStatus;
+            const matched = validStatuses.find((s) => s.toLowerCase() === rawStatus.toLowerCase());
+            if (matched) {
+              status = matched;
             } else {
-              warnings.push(`Status "${rawStatus}" is invalid. Defaulting to "Lead Won".`);
+              const fuzzyMatch = validStatuses.find((s) =>
+                s.toLowerCase().includes(rawStatus.toLowerCase()) ||
+                rawStatus.toLowerCase().includes(s.toLowerCase().split(" ")[0])
+              );
+              if (fuzzyMatch) {
+                status = fuzzyMatch;
+                warnings.push(`Status "${rawStatus}" auto-corrected to "${fuzzyMatch}".`);
+              } else {
+                warnings.push(`Status "${rawStatus}" unrecognized — defaulting to "Lead Won".`);
+              }
             }
           }
 
-          // Validate Priority
           const validPriorities = ["Low", "Medium", "High"];
           let priority = "Medium";
           if (rawPriority) {
-            const matchedPriority = validPriorities.find(
-              (p) => p.toLowerCase() === rawPriority.toLowerCase()
-            );
-            if (matchedPriority) {
-              priority = matchedPriority;
+            const matched = validPriorities.find((p) => p.toLowerCase() === rawPriority.toLowerCase());
+            if (matched) {
+              priority = matched;
+            } else if (rawPriority.toLowerCase().includes("high") || rawPriority.toLowerCase().includes("urgent")) {
+              priority = "High";
+            } else if (rawPriority.toLowerCase().includes("low")) {
+              priority = "Low";
             } else {
-              warnings.push(`Priority "${rawPriority}" is invalid. Defaulting to "Medium".`);
+              warnings.push(`Priority "${rawPriority}" unrecognized — defaulting to "Medium".`);
             }
           }
 
-          // Validate Budget
-          if (isNaN(rawBudget) || rawBudget < 0) {
-            errors.push(`Invalid Budget value: "${row["Budget"]}". Must be a non-negative number.`);
+          const validIndustries = ["Real Estate", "Healthcare", "Restaurant", "Hotel", "E-commerce", "Other"];
+          let industry: string | null = null;
+          if (rawIndustry) {
+            const matched = validIndustries.find((i) => i.toLowerCase() === rawIndustry.toLowerCase());
+            if (matched) {
+              industry = matched;
+            } else {
+              const fuzzyMatch = validIndustries.find((i) =>
+                i.toLowerCase().includes(rawIndustry.toLowerCase()) ||
+                rawIndustry.toLowerCase().includes(i.toLowerCase())
+              );
+              if (fuzzyMatch) {
+                industry = fuzzyMatch;
+              } else {
+                industry = "Other";
+                warnings.push(`Industry "${rawIndustry}" not recognized — mapped to "Other".`);
+              }
+            }
           }
 
-          // Validate Progress Percentage
-          if (isNaN(rawProgress) || rawProgress < 0 || rawProgress > 100) {
-            errors.push(`Invalid Progress Percentage: "${row["Progress Percentage"]}". Must be between 0 and 100.`);
+          const validLeadSources = ["Fiverr", "Upwork", "LinkedIn", "Website", "Referral", "Cold Email", "Other"];
+          let leadSource: string | null = null;
+          if (rawLeadSource) {
+            const matched = validLeadSources.find((s) => s.toLowerCase() === rawLeadSource.toLowerCase());
+            if (matched) {
+              leadSource = matched;
+            } else if (rawLeadSource.toLowerCase().includes("refer")) {
+              leadSource = "Referral";
+            } else if (rawLeadSource.toLowerCase().includes("linkedin")) {
+              leadSource = "LinkedIn";
+            } else {
+              leadSource = "Other";
+              warnings.push(`Lead Source "${rawLeadSource}" not recognized — mapped to "Other".`);
+            }
           }
 
-          // Generate placeholder client email if missing
-          const clientEmail = rawClientEmail || `${rawClientName.toLowerCase().replace(/[^a-z0-9]/g, "")}@example.com`;
+          const validPaymentStatuses = ["Pending", "Partial", "Paid", "Overdue"];
+          let paymentStatus = "Pending";
+          if (rawPaymentStatus) {
+            const matched = validPaymentStatuses.find((s) => s.toLowerCase() === rawPaymentStatus.toLowerCase());
+            if (matched) {
+              paymentStatus = matched;
+            } else {
+              warnings.push(`Payment Status "${rawPaymentStatus}" unrecognized — defaulting to "Pending".`);
+            }
+          }
+
+          const clientEmail = rawClientEmail || (rawClientName
+            ? `${rawClientName.toLowerCase().replace(/[^a-z0-9]/g, "")}@example.com`
+            : "");
 
           if (errors.length > 0) {
             invalidCount++;
@@ -309,20 +501,37 @@ export function ImportDialog({
           parsed.push({
             rowNum,
             data: {
-              name: rawName,
-              client_name: rawClientName,
-              client_email: clientEmail,
+              name: rawName || "",
+              client_name: rawClientName || "",
+              client_email: clientEmail || "",
+              client_contact_number: rawClientContact || null,
+              company_name: rawCompanyName || null,
               description: rawDescription || null,
-              start_date: rawStartDate,
-              expected_delivery_date: rawEndDate,
+              industry: (industry as Project["industry"]) || null,
+              lead_source: (leadSource as Project["lead_source"]) || null,
+              start_date: rawStartDate || new Date().toISOString().split("T")[0],
+              expected_delivery_date: rawEndDate || rawStartDate || new Date().toISOString().split("T")[0],
               manager_id: managerId || null,
+              bd_id: bdId || null,
+              closing_developer_id: devId || null,
               status: status as Project["status"],
               priority: priority as "Low" | "Medium" | "High",
               value: rawBudget,
-              progress_percentage: rawProgress,
+              currency: rawCurrency || "USD",
+              is_monthly_retainer: rawRetainer,
+              retainer_amount: rawRetainerAmount || null,
+              expected_profit: rawExpectedProfit || null,
+              payment_status: paymentStatus as Project["payment_status"],
+              progress_percentage: isNaN(rawProgress) ? 0 : Math.min(Math.max(rawProgress, 0), 100),
+              project_type: rawProjectType || null,
+              payment_structure: rawPaymentStructure || null,
+              project_rate: rawProjectRate || null,
+              expected_monthly_revenue: rawExpectedMRR || null,
+              profile_name: rawProfileName || null,
               manager_name: rawPM || undefined,
+              bd_name: rawBD || undefined,
+              dev_name: rawDev || undefined,
               team_members_raw: rawTeam || undefined,
-              // extra metadata for server action handling resource creation
               ...({ team_employee_ids: matchedTeamIds } as unknown as object),
             },
             errors,
@@ -332,10 +541,10 @@ export function ImportDialog({
 
         setParsedRows(parsed);
         setStats({ total: rows.length, valid: validCount, invalid: invalidCount });
-        toast.success(`Excel file parsed: ${validCount} rows valid, ${invalidCount} skipped/invalid.`);
+        toast.success(`Parsed: ${validCount} ready, ${invalidCount} skipped.`);
       } catch (err) {
-        console.error("Error reading excel file:", err);
-        toast.error("Failed to parse the Excel file. Make sure the structure matches the template.");
+        console.error("Parse error:", err);
+        toast.error("Failed to parse file. Make sure it's a valid spreadsheet or CSV.");
       } finally {
         setParsing(false);
       }
@@ -344,7 +553,6 @@ export function ImportDialog({
     reader.readAsArrayBuffer(selectedFile);
   };
 
-  // Submit parsed valid projects to Server Action
   const handleImportSubmit = async () => {
     const validRows = parsedRows.filter((r) => r.errors.length === 0);
     if (validRows.length === 0) {
@@ -361,15 +569,21 @@ export function ImportDialog({
 
       const response = await bulkImportProjects(importPayload);
 
-      if (response.error) {
-        toast.error(response.error);
+      if (!response.success && response.errors && response.errors.length > 0) {
+        const errMsg = response.errors.slice(0, 3).map((e) => `Row ${e.row}: ${e.error}`).join("; ");
+        toast.error(`Import failed: ${errMsg}${response.errors.length > 3 ? ` (+${response.errors.length - 3} more)` : ""}`);
+      } else if (!response.success) {
+        toast.error("Import failed. Check backend logs.");
       } else {
-        toast.success(`Import complete! Created ${response.successCount} projects successfully.`);
+        const msg = response.errors && response.errors.length > 0
+          ? `Imported ${response.successCount} projects (${response.errors.length} rows failed — check preview).`
+          : `Imported ${response.successCount} projects successfully!`;
+        toast.success(msg);
         onImportSuccess();
         handleClose(false);
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Bulk import failed. Please check backend logs.");
+      toast.error(err instanceof Error ? err.message : "Import failed.");
     } finally {
       setImporting(false);
     }
@@ -387,24 +601,23 @@ export function ImportDialog({
               onClick={handleDownloadTemplate}
               className="pm-btn-outline flex items-center gap-1.5 text-xs"
             >
-              <Download className="h-3.5 w-3.5" /> Download Sample Template
+              <Download className="h-3.5 w-3.5" /> Download Template
             </Button>
           </div>
           <DialogDescription className="text-xs mt-1">
-            Upload an Excel sheet (.xlsx or .xls) to import multiple projects simultaneously. Required fields will be validated before import.
+            Upload any Excel, CSV, TSV, or text file. Column headers are auto-detected — no fixed format needed.
           </DialogDescription>
         </DialogHeader>
 
-        {/* Upload Zone */}
         {!file && (
           <div className="pm-upload-zone mt-4">
             <UploadCloud className="h-10 w-10 text-primary/60 mb-3" />
-            <p className="text-sm font-semibold mb-1">Drag and drop your Excel file here</p>
-            <p className="text-xs text-muted-foreground mb-4">Or search from directory (.xlsx, .xls up to 5MB)</p>
+            <p className="text-sm font-semibold mb-1">Drag and drop any project list file</p>
+            <p className="text-xs text-muted-foreground mb-4">.xlsx, .xls, .csv, .tsv, .txt, .ods — up to 10MB. Any column names work.</p>
             <input
               type="file"
               ref={fileInputRef}
-              accept=".xlsx, .xls"
+              accept=".xlsx,.xls,.csv,.tsv,.txt,.ods,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv,text/tab-separated-values,text/plain"
               onChange={handleFileChange}
               className="hidden"
             />
@@ -421,13 +634,12 @@ export function ImportDialog({
         {parsing && (
           <div className="flex flex-col items-center justify-center p-8 mt-4">
             <Loader2 className="h-8 w-8 text-primary animate-spin mb-2" />
-            <p className="text-sm font-medium text-muted-foreground">Parsing Excel rows...</p>
+            <p className="text-sm font-medium text-muted-foreground">Detecting columns & parsing rows...</p>
           </div>
         )}
 
         {file && !parsing && (
           <div className="space-y-4 mt-4 flex-1">
-            {/* File info bar */}
             <div className="flex items-center justify-between bg-muted/40 border rounded-lg p-3 text-xs">
               <div className="flex items-center gap-2">
                 <FileSpreadsheet className="h-5 w-5 text-green-600 dark:text-green-400 shrink-0" />
@@ -443,23 +655,43 @@ export function ImportDialog({
               )}
             </div>
 
-            {/* Stats Dashboard */}
-            <div className="grid grid-cols-3 gap-3">
-              <div className="pm-kpi pm-stagger-1 border-l-4 border-l-slate-400 p-3 text-center">
+            {detectedMappings.length > 0 && (
+              <div className="bg-muted/30 border rounded-lg p-3">
+                <p className="text-[10px] uppercase font-semibold text-muted-foreground mb-2">Auto-Detected Column Mappings</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {detectedMappings.map((m, i) => (
+                    <Badge
+                      key={i}
+                      variant={m.mappedTo === "(skipped — no match)" ? "outline" : "secondary"}
+                      className={`text-[10px] gap-1 ${
+                        m.confidence === "high" ? "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20" :
+                        m.confidence === "medium" ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20" :
+                        m.mappedTo === "(skipped — no match)" ? "bg-muted text-muted-foreground" :
+                        "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20"
+                      }`}
+                    >
+                      {m.originalHeader} → {m.mappedTo}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="rounded-xl border border-border/60 bg-card p-3 text-center">
                 <p className="text-[10px] uppercase font-semibold text-muted-foreground">Total Rows</p>
-                <p className="text-lg font-black">{stats.total}</p>
+                <p className="text-lg font-bold">{stats.total}</p>
               </div>
-              <div className="pm-kpi pm-stagger-2 border-l-4 border-l-green-500 p-3 text-center">
-                <p className="text-[10px] uppercase font-semibold text-green-600 dark:text-green-400">Ready to Import</p>
-                <p className="text-lg font-black text-green-600 dark:text-green-400">{stats.valid}</p>
+              <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3 text-center">
+                <p className="text-[10px] uppercase font-semibold text-emerald-600 dark:text-emerald-400">Ready to Import</p>
+                <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{stats.valid}</p>
               </div>
-              <div className="pm-kpi pm-stagger-3 border-l-4 border-l-red-500 p-3 text-center">
+              <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-3 text-center">
                 <p className="text-[10px] uppercase font-semibold text-red-600 dark:text-red-400">Skipped (Errors)</p>
-                <p className="text-lg font-black text-red-600 dark:text-red-400">{stats.invalid}</p>
+                <p className="text-lg font-bold text-red-600 dark:text-red-400">{stats.invalid}</p>
               </div>
             </div>
 
-            {/* Preview Table */}
             <div>
               <p className="text-xs font-semibold mb-2 uppercase tracking-wide text-muted-foreground">Data Import Preview</p>
               <div className="pm-table-card max-h-[300px] overflow-y-auto">
@@ -467,11 +699,15 @@ export function ImportDialog({
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
                       <TableHead className="w-16 text-center">Row</TableHead>
-                      <TableHead>Status / Validation</TableHead>
-                      <TableHead>Project Name</TableHead>
-                      <TableHead>Client Name</TableHead>
-                      <TableHead>Budget</TableHead>
-                      <TableHead>Manager</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Client</TableHead>
+                      <TableHead>Project</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Value</TableHead>
+                      <TableHead>Payment</TableHead>
+                      <TableHead>Rate</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>BD</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -501,18 +737,22 @@ export function ImportDialog({
                               </span>
                               {row.warnings.map((warn, i) => (
                                 <span key={i} className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">
-                                  ⚠️ {warn}
+                                  {warn}
                                 </span>
                               ))}
                             </div>
                           )}
                         </TableCell>
-                        <TableCell className="font-semibold text-xs">{row.data.name || "—"}</TableCell>
                         <TableCell className="text-xs">{row.data.client_name || "—"}</TableCell>
+                        <TableCell className="font-semibold text-xs">{row.data.name || "—"}</TableCell>
+                        <TableCell className="text-xs">{row.data.project_type || "—"}</TableCell>
                         <TableCell className="font-mono text-xs">
-                          {row.data.value ? `$${row.data.value.toLocaleString()}` : "—"}
+                          {row.data.value ? `${row.data.currency || "$"}${row.data.value.toLocaleString()}` : "—"}
                         </TableCell>
-                        <TableCell className="text-xs">{row.data.manager_name || "—"}</TableCell>
+                        <TableCell className="text-xs">{row.data.payment_structure || "—"}</TableCell>
+                        <TableCell className="text-xs font-mono">{row.data.project_rate || "—"}</TableCell>
+                        <TableCell className="text-xs">{row.data.status || "—"}</TableCell>
+                        <TableCell className="text-xs">{row.data.bd_name || "—"}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -535,7 +775,7 @@ export function ImportDialog({
             >
               {importing ? (
                 <>
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> Importing {stats.valid} Projects...
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> Importing {stats.valid}...
                 </>
               ) : (
                 `Confirm Import (${stats.valid} records)`

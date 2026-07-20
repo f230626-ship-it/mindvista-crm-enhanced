@@ -1,34 +1,33 @@
-import { createClient } from "@/lib/supabase/server";
-import { requireRole } from "@/lib/auth";
+import { requireAdminAccess } from "@/lib/auth";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { PageHeader } from "@/components/ui/page-header";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import { NewEmployeeForm } from "@/components/admin/new-employee-form";
+import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
 
 export default async function NewEmployeePage() {
-  await requireRole("admin");
-  const supabase = await createClient();
+  await requireAdminAccess();
+  const supabase = createAdminClient();
 
   const [{ data: departments }, { data: managers }] = await Promise.all([
     supabase.from("departments").select("*").order("name"),
-    supabase.from("employees").select("id, full_name, employee_code").order("full_name"),
+    supabase
+      .from("employees")
+      .select("id, full_name, employee_code")
+      .in("role", ["admin"])
+      .order("full_name"),
   ]);
 
   return (
     <div>
+      <PageBreadcrumb
+        segments={[{ label: "Employees", href: "/admin/employees" }]}
+        current="Add New"
+      />
       <PageHeader
         title="Add New Employee"
-        description="Create a new employee account and profile"
-        action={
-          <Link href="/admin/employees">
-            <Button variant="outline" size="sm">
-              <ArrowLeft className="mr-1.5 h-4 w-4" />
-              Back to Employees
-            </Button>
-          </Link>
-        }
+        description="Create a new employee account"
       />
+
       <NewEmployeeForm
         departments={departments ?? []}
         managers={managers ?? []}

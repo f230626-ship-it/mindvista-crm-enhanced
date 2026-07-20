@@ -135,6 +135,7 @@ export function EmployeeForm({
               <Select
                 value={departmentId || NONE_VALUE}
                 onValueChange={(v) => setDepartmentId(v === NONE_VALUE ? "" : (v ?? ""))}
+                items={[{ value: NONE_VALUE, label: "None" }, ...departments.map((d) => ({ value: d.id, label: d.name }))]}
               >
                 <SelectTrigger className={formSelectTriggerClass}>
                   <SelectValue placeholder="Select department">
@@ -156,6 +157,7 @@ export function EmployeeForm({
               <Select
                 value={managerId || NONE_VALUE}
                 onValueChange={(v) => setManagerId(v === NONE_VALUE ? "" : (v ?? ""))}
+                items={[{ value: NONE_VALUE, label: "None" }, ...managers.map((m) => ({ value: m.id, label: personLabel(m) }))]}
               >
                 <SelectTrigger className={formSelectTriggerClass}>
                   <SelectValue placeholder="Select manager">
@@ -177,6 +179,7 @@ export function EmployeeForm({
               <Select
                 value={leadId || NONE_VALUE}
                 onValueChange={(v) => setLeadId(v === NONE_VALUE ? "" : (v ?? ""))}
+                items={[{ value: NONE_VALUE, label: "None" }, ...managers.map((m) => ({ value: m.id, label: personLabel(m) }))]}
               >
                 <SelectTrigger className={formSelectTriggerClass}>
                   <SelectValue placeholder="Select lead">

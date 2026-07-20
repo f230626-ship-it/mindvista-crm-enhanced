@@ -110,35 +110,4 @@ export function CircularProgress({
   );
 }
 
-interface KpiCardProps {
-  label: string;
-  value: React.ReactNode;
-  description: string;
-  icon: React.ReactNode;
-  accentClass?: string;
-  borderClass?: string;
-  staggerClass?: string;
-  valueClassName?: string;
-}
-
-export function KpiCard({
-  label,
-  value,
-  description,
-  icon,
-  accentClass = "text-primary",
-  borderClass = "border-l-primary/80",
-  staggerClass = "",
-  valueClassName = "",
-}: KpiCardProps) {
-  return (
-    <div className={cn("pm-kpi border-l-4 p-4", borderClass, staggerClass)}>
-      <div className="flex items-center justify-between pb-2">
-        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{label}</span>
-        <div className={cn("pm-kpi-icon", accentClass)}>{icon}</div>
-      </div>
-      <div className={cn("text-2xl font-black tracking-tight", valueClassName)}>{value}</div>
-      <p className="text-[10px] text-muted-foreground mt-1">{description}</p>
-    </div>
-  );
-}
+export { KpiStatCard as KpiCard, type KpiTone } from "@/components/ui/kpi-stat-card";

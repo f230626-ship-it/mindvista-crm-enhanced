@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { StatCard } from "@/components/ui/stat-card";
 import {
   Dialog,
@@ -8,124 +9,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { CalendarDays, Package, Users } from "lucide-react";
+import { CalendarClock, Stethoscope, MonitorSmartphone, UsersRound } from "lucide-react";
 import { formatDate } from "@/lib/utils/date";
 import {
   LEAVE_STATUS_LABELS,
   STATUS_COLORS,
   ASSET_TYPE_LABELS,
 } from "@/lib/constants";
-import type { HierarchyNode } from "@/lib/hierarchy";
 import type { LeaveBalance, Leave, AssetAssignment, Asset } from "@/types/database";
 
-type ModalType = "annual" | "sick" | "assets" | "team" | null;
-
-// ─── Tree Node ───────────────────────────────────────────────────────────────
-
-function TreeNode({ node }: { node: HierarchyNode }) {
-  const initials = node.full_name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-
-  const hasChildren = node.children.length > 0;
-
-  return (
-    <div className="relative flex flex-col items-center">
-      {/* Node card */}
-      <div className="relative z-10 flex flex-col items-center">
-        <div className="flex flex-col items-center gap-1.5 rounded-xl border border-border/60 bg-card px-4 py-3 shadow-sm min-w-[140px] max-w-[160px] text-center">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={node.profile_photo_url ?? undefined} />
-            <AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <p className="text-sm font-semibold leading-tight truncate w-full">{node.full_name}</p>
-            {node.designation && (
-              <p className="text-[11px] text-muted-foreground leading-tight mt-0.5 truncate w-full">
-                {node.designation}
-              </p>
-            )}
-            {node.employee_code && (
-              <p className="text-[10px] text-primary font-mono mt-0.5">
-                {node.employee_code}
-              </p>
-            )}
-          </div>
-          <Badge variant="outline" className="text-[10px] px-1.5 py-0 shrink-0">
-            {node.relationship}
-          </Badge>
-        </div>
-      </div>
-
-      {/* Children */}
-      {hasChildren && (
-        <div className="flex flex-col items-center w-full">
-          {/* Vertical connector down */}
-          <div className="w-px h-10 bg-border" />
-          {/* Horizontal bar across children */}
-          <div className="flex items-start gap-0">
-            {node.children.map((child, idx) => {
-              const isFirst = idx === 0;
-              const isLastChild = idx === node.children.length - 1;
-              const isOnly = node.children.length === 1;
-              return (
-                <div key={child.id} className="flex flex-col items-center px-4">
-                  <div className="flex items-center w-full">
-                    {/* Left arm */}
-                    {!isOnly && (
-                      <div
-                        className={`h-px bg-border ${isFirst ? "w-1/2 ml-auto" : "w-full"}`}
-                        style={{ width: isFirst ? "50%" : isLastChild ? "50%" : "100%" }}
-                      />
-                    )}
-                    {/* Vertical down */}
-                    <div className="w-px h-10 bg-border" />
-                    {/* Right arm */}
-                    {!isOnly && (
-                      <div
-                        className={`h-px bg-border ${isLastChild ? "w-1/2 mr-auto" : "w-full"}`}
-                        style={{ width: isFirst ? "50%" : isLastChild ? "50%" : "100%" }}
-                      />
-                    )}
-                  </div>
-                  <TreeNode node={child} />
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function TeamTree({ tree }: { tree: HierarchyNode[] }) {
-  if (tree.length === 0) {
-    return (
-      <div className="flex flex-col items-center py-10 text-center text-muted-foreground">
-        <Users className="mb-3 h-10 w-10 opacity-30" />
-        <p className="text-sm">No team members in your hierarchy yet</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="overflow-auto py-4">
-      <div className="flex gap-8 justify-center flex-wrap">
-        {tree.map((node) => (
-          <TreeNode key={node.id} node={node} />
-        ))}
-      </div>
-    </div>
-  );
-}
+type ModalType = "annual" | "sick" | "assets" | null;
 
 // ─── Leave Progress Bar ───────────────────────────────────────────────────────
 
@@ -160,18 +54,18 @@ export function DashboardClient({
   leaveBalance,
   recentLeaves,
   assignedAssets,
-  hierarchyTree,
   teamSize,
   annualRemaining,
   sickRemaining,
+  casualRemaining,
 }: {
   leaveBalance: LeaveBalance | null;
   recentLeaves: Leave[] | null;
   assignedAssets: (AssetAssignment & { asset?: Asset | null })[] | null;
-  hierarchyTree: HierarchyNode[];
   teamSize: number;
   annualRemaining: number;
   sickRemaining: number;
+  casualRemaining: number;
 }) {
   const [activeModal, setActiveModal] = useState<ModalType>(null);
 
@@ -188,7 +82,7 @@ export function DashboardClient({
   return (
     <>
       {/* ── Stat Cards ── */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:gap-4 grid-cols-[repeat(auto-fit,minmax(220px,1fr))]">
         <button
           onClick={() => openModal("annual")}
           className="text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl cursor-pointer"
@@ -198,9 +92,8 @@ export function DashboardClient({
             title="Annual Leave"
             value={annualRemaining}
             description={`${leaveBalance?.annual_used ?? 0} used of ${leaveBalance?.annual_quota ?? 0}`}
-            icon={CalendarDays}
+            icon={CalendarClock}
             delay={0}
-            className="hover:border-primary/40 hover:shadow-md hover:shadow-primary/10 transition-all duration-200"
           />
         </button>
 
@@ -213,9 +106,8 @@ export function DashboardClient({
             title="Sick Leave"
             value={sickRemaining}
             description={`${leaveBalance?.sick_used ?? 0} used of ${leaveBalance?.sick_quota ?? 0}`}
-            icon={CalendarDays}
+            icon={Stethoscope}
             delay={60}
-            className="hover:border-primary/40 hover:shadow-md hover:shadow-primary/10 transition-all duration-200"
           />
         </button>
 
@@ -228,14 +120,13 @@ export function DashboardClient({
             title="Assigned Assets"
             value={assignedAssets?.length ?? 0}
             description="Company equipment"
-            icon={Package}
+            icon={MonitorSmartphone}
             delay={120}
-            className="hover:border-primary/40 hover:shadow-md hover:shadow-primary/10 transition-all duration-200"
           />
         </button>
 
-        <button
-          onClick={() => openModal("team")}
+        <Link
+          href="/team/hierarchy"
           className="text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl cursor-pointer"
           aria-label="View my team hierarchy"
         >
@@ -243,11 +134,10 @@ export function DashboardClient({
             title="My Team"
             value={teamSize}
             description="Direct reports & lead team"
-            icon={Users}
+            icon={UsersRound}
             delay={180}
-            className="hover:border-primary/40 hover:shadow-md hover:shadow-primary/10 transition-all duration-200"
           />
-        </button>
+        </Link>
       </div>
 
       {/* ── Annual Leave Modal ── */}
@@ -255,7 +145,7 @@ export function DashboardClient({
         <DialogContent className="sm:max-w-md max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <CalendarDays className="h-4 w-4 text-primary" />
+              <CalendarClock className="h-4 w-4 text-primary" />
               Annual Leave
             </DialogTitle>
           </DialogHeader>
@@ -306,7 +196,7 @@ export function DashboardClient({
         <DialogContent className="sm:max-w-md max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <CalendarDays className="h-4 w-4 text-primary" />
+              <Stethoscope className="h-4 w-4 text-primary" />
               Sick Leave
             </DialogTitle>
           </DialogHeader>
@@ -357,7 +247,7 @@ export function DashboardClient({
         <DialogContent className="sm:max-w-md max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Package className="h-4 w-4 text-primary" />
+              <MonitorSmartphone className="h-4 w-4 text-primary" />
               Assigned Assets
             </DialogTitle>
           </DialogHeader>
@@ -391,21 +281,6 @@ export function DashboardClient({
                 No assets currently assigned
               </p>
             )}
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* ── My Team Modal ── */}
-      <Dialog open={activeModal === "team"} onOpenChange={(open) => !open && closeModal()}>
-        <DialogContent className="sm:max-w-3xl max-h-[85vh] overflow-y-auto w-[95vw]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-primary" />
-              My Team Hierarchy
-            </DialogTitle>
-          </DialogHeader>
-          <div className="pt-1">
-            <TeamTree tree={hierarchyTree} />
           </div>
         </DialogContent>
       </Dialog>

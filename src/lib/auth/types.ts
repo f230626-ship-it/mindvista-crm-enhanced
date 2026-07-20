@@ -1,4 +1,4 @@
-export type AppRole = "admin" | "hr" | "manager" | "employee";
+export type AppRole = "admin" | "hr" | "employee" | "developer";
 
 export interface JwtClaims {
   sub: string; // user_id

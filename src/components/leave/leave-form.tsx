@@ -22,7 +22,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import { LEAVE_TYPE_LABELS } from "@/lib/constants";
 import type { LeaveType } from "@/types/database";
 
@@ -73,7 +73,7 @@ export function LeaveForm() {
               </SelectContent>
             </Select>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="start_date">Start Date</Label>
               <Input id="start_date" name="start_date" type="date" required />
@@ -84,11 +84,28 @@ export function LeaveForm() {
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="reason">Reason</Label>
-            <Textarea id="reason" name="reason" rows={3} required />
+            <Label htmlFor="reason" className="text-sm font-medium">
+              Reason <span className="text-destructive">*</span>
+            </Label>
+            <Textarea
+              id="reason"
+              name="reason"
+              rows={3}
+              required
+              placeholder="Briefly explain why you are requesting this leave..."
+              className="resize-none"
+            />
+            <p className="text-[11px] text-muted-foreground">Required. Your manager will see this when reviewing your request.</p>
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Submitting..." : "Submit Request"}
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Submitting...
+              </>
+            ) : (
+              "Submit Request"
+            )}
           </Button>
         </form>
       </DialogContent>

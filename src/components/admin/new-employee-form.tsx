@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 import { createEmployee } from "@/actions/employees";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,7 +42,6 @@ interface DraftState {
   cnic_number: string;
   joining_date: string;
   departmentId: string;
-  managerId: string;
   leadId: string;
   role: UserRole;
   employmentType: EmploymentType;
@@ -58,7 +58,6 @@ const EMPTY_DRAFT: DraftState = {
   cnic_number: "",
   joining_date: new Date().toISOString().split("T")[0],
   departmentId: "",
-  managerId: "",
   leadId: "",
   role: "employee",
   employmentType: "full_time",
@@ -173,10 +172,6 @@ export function NewEmployeeForm({
   }
 
   const selectedDepartment = departmentLabel(departments, draft.departmentId);
-  const selectedManager = useMemo(
-    () => managers.find((m) => m.id === draft.managerId),
-    [managers, draft.managerId]
-  );
   const selectedLead = useMemo(
     () => managers.find((m) => m.id === draft.leadId),
     [managers, draft.leadId]
@@ -189,10 +184,10 @@ export function NewEmployeeForm({
 
     const formData = new FormData(e.currentTarget);
     formData.set("role", draft.role);
+    formData.set("pm_role", "developer");
     formData.set("employment_type", draft.employmentType);
     formData.set("work_location", draft.workLocation);
     if (draft.departmentId) formData.set("department_id", draft.departmentId);
-    if (draft.managerId) formData.set("manager_id", draft.managerId);
     if (draft.leadId) formData.set("lead_id", draft.leadId);
 
     const result = await createEmployee(formData);
@@ -213,7 +208,7 @@ export function NewEmployeeForm({
   const labelClass = "text-sm font-medium";
 
   return (
-    <div className="max-w-3xl space-y-6">
+    <div className="space-y-6">
       {hasDraft && (
         <Alert className="border-amber-500/50 bg-amber-500/10">
           <AlertDescription className="flex items-center justify-between text-amber-700 dark:text-amber-400">
@@ -326,6 +321,7 @@ export function NewEmployeeForm({
               <Select
                 value={draft.departmentId || NONE_VALUE}
                 onValueChange={(v) => set("departmentId", v === NONE_VALUE ? "" : (v ?? ""))}
+                items={[{ value: NONE_VALUE, label: "None" }, ...departments.map((d) => ({ value: d.id, label: d.name }))]}
               >
                 <SelectTrigger className={formSelectTriggerClass}>
                   <SelectValue placeholder="Select department">
@@ -356,30 +352,11 @@ export function NewEmployeeForm({
             </div>
 
             <div className="space-y-2">
-              <Label className={labelClass}>Reporting To</Label>
-              <Select
-                value={draft.managerId || NONE_VALUE}
-                onValueChange={(v) => set("managerId", v === NONE_VALUE ? "" : (v ?? ""))}
-              >
-                <SelectTrigger className={formSelectTriggerClass}>
-                  <SelectValue placeholder="Select manager">
-                    {selectedManager ? personLabel(selectedManager) : "Select manager"}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={NONE_VALUE}>None</SelectItem>
-                  {managers.map((m) => (
-                    <SelectItem key={m.id} value={m.id}>{personLabel(m)}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
               <Label className={labelClass}>Team Lead</Label>
               <Select
                 value={draft.leadId || NONE_VALUE}
                 onValueChange={(v) => set("leadId", v === NONE_VALUE ? "" : (v ?? ""))}
+                items={[{ value: NONE_VALUE, label: "None" }, ...managers.map((m) => ({ value: m.id, label: personLabel(m) }))]}
               >
                 <SelectTrigger className={formSelectTriggerClass}>
                   <SelectValue placeholder="Select lead">
@@ -450,7 +427,14 @@ export function NewEmployeeForm({
 
         <div className="flex items-center gap-3">
           <Button type="submit" disabled={loading} className="min-w-32">
-            {loading ? "Creating…" : "Create Employee"}
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Creating…
+              </>
+            ) : (
+              "Create Employee"
+            )}
           </Button>
           <Button type="button" variant="outline" onClick={() => router.push("/admin/employees")}>
             Cancel

@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/auth";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,7 +14,7 @@ import { FileText, Download } from "lucide-react";
 
 export default async function PoliciesPage() {
   await requireAuth();
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data: policiesData } = await supabase
     .from("policies")
@@ -44,7 +44,7 @@ export default async function PoliciesPage() {
               <h3 className="mb-4 text-lg font-semibold">
                 {POLICY_CATEGORY_LABELS[category as keyof typeof POLICY_CATEGORY_LABELS]}
               </h3>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-3 sm:gap-4 grid-cols-[repeat(auto-fit,minmax(280px,1fr))]">
                 {items.map((policy) => (
                   <Card key={policy.id}>
                     <CardHeader>

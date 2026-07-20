@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { requestPasswordReset } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
@@ -16,6 +15,7 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Spinner } from "@/components/ui/spinner";
+import { BrandLogo } from "@/components/ui/brand-logo";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 
@@ -59,18 +59,20 @@ export default function ForgotPasswordPage() {
         className="relative w-full max-w-md"
       >
         <Card className="border-border/60 bg-card/90 shadow-2xl shadow-primary/5 backdrop-blur-sm">
-          <CardHeader className="space-y-4 text-center">
-            <Image
-              src="/images/logo.png"
-              alt="MindVista"
-              width={180}
-              height={48}
-              className="mx-auto h-10 w-auto object-contain"
-              priority
-            />
-            <div>
-              <CardTitle className="text-xl">Reset your password</CardTitle>
-              <CardDescription>
+          <CardHeader className="space-y-0 text-center pt-4">
+            <div className="mx-auto w-[6rem] sm:w-[7.5rem] mb-[-0.75rem]">
+              <BrandLogo
+                lightLogoSrc="/images/mindvista-official-logo-light.png"
+                darkLogoSrc="/images/mindvista-official-logo-dark.png"
+                variant="stacked"
+                priority
+                className="mx-auto"
+                sizes="(max-width: 640px) 6rem, 7.5rem"
+              />
+            </div>
+            <div className="space-y-2">
+              <CardTitle className="text-2xl font-semibold tracking-tight">Reset your password</CardTitle>
+              <CardDescription className="text-base">
                 Enter your email and we&apos;ll send a reset link
               </CardDescription>
             </div>

@@ -1,27 +1,20 @@
-import { createClient } from "@/lib/supabase/server";
-import { requireAuth } from "@/lib/auth";
+import React from "react";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { requireAuth, isAdmin } from "@/lib/auth";
 import { PageHeader } from "@/components/ui/page-header";
 import { LeaveForm } from "@/components/leave/leave-form";
 import { PendingLeaveApprovals } from "@/components/leave/pending-approvals";
+import { LeaveHistoryTable } from "@/components/leave/leave-history-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { LEAVE_TYPE_LABELS, LEAVE_STATUS_LABELS, STATUS_COLORS } from "@/lib/constants";
-import { formatDate } from "@/lib/utils/date";
 import { getPendingLeavesForLead } from "@/actions/leaves";
+import { LeaveQuotaEditor } from "@/components/admin/leave-quota-editor";
+
 
 export default async function LeavePage() {
   const employee = await requireAuth();
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
-  const [{ data: leaves }, { data: balance }, pendingForLead] = await Promise.all([
+  const [{ data: leaves }, { data: balance }, pendingForLead, admin] = await Promise.all([
     supabase
       .from("leaves")
       .select("*")
@@ -29,10 +22,11 @@ export default async function LeavePage() {
       .order("created_at", { ascending: false }),
     supabase.from("leave_balances").select("*").eq("employee_id", employee.id).maybeSingle(),
     getPendingLeavesForLead(),
+    isAdmin(employee.role),
   ]);
 
   return (
-    <div>
+    <div className="space-y-4 sm:space-y-5 md:space-y-6">
       <PageHeader
         title="Leave Management"
         description="Apply for leave and track your requests"
@@ -40,9 +34,9 @@ export default async function LeavePage() {
       />
 
       {pendingForLead.length > 0 && (
-        <Card className="mb-6 border-primary/20">
+        <Card className="mb-4 sm:mb-5 md:mb-6 border-primary/20">
           <CardHeader>
-            <CardTitle>Team Leave Approvals</CardTitle>
+            <CardTitle className="text-sm sm:text-base">Team Leave Approvals</CardTitle>
           </CardHeader>
           <CardContent>
             <PendingLeaveApprovals leaves={pendingForLead} />
@@ -50,7 +44,22 @@ export default async function LeavePage() {
         </Card>
       )}
 
-      <div className="mb-6 grid gap-4 md:grid-cols-3">
+      <div className="mb-4 sm:mb-5 md:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h2 className="text-base sm:text-lg font-semibold">Leave Balance</h2>
+          {admin && (
+            <p className="text-[10px] sm:text-xs text-muted-foreground">Editing quotas applies to all employees</p>
+          )}
+        </div>
+        {admin && (
+          <LeaveQuotaEditor
+            annualQuota={balance?.annual_quota ?? 5}
+            sickQuota={balance?.sick_quota ?? 5}
+            casualQuota={balance?.casual_quota ?? 3}
+          />
+        )}
+      </div>
+      <div className="mb-4 sm:mb-5 md:mb-6 grid gap-2 sm:gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {[
           {
             label: "Annual",
@@ -69,12 +78,12 @@ export default async function LeavePage() {
           },
         ].map((item) => (
           <Card key={item.label}>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">{item.label} Leave</CardTitle>
+            <CardHeader className="pb-2 sm:pb-3">
+              <CardTitle className="text-xs sm:text-sm font-medium">{item.label} Leave</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold">{item.remaining}</p>
-              <p className="text-xs text-muted-foreground">of {item.total} days remaining</p>
+              <p className="text-xl sm:text-2xl font-bold">{item.remaining}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">of {item.total} days remaining</p>
             </CardContent>
           </Card>
         ))}
@@ -82,41 +91,10 @@ export default async function LeavePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Leave History</CardTitle>
+          <CardTitle className="text-sm sm:text-base">Leave History</CardTitle>
         </CardHeader>
         <CardContent>
-          {leaves && leaves.length > 0 ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Type</TableHead>
-                  <TableHead>From</TableHead>
-                  <TableHead>To</TableHead>
-                  <TableHead>Days</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Applied</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {leaves.map((leave) => (
-                  <TableRow key={leave.id}>
-                    <TableCell>{LEAVE_TYPE_LABELS[leave.leave_type]}</TableCell>
-                    <TableCell>{formatDate(leave.start_date)}</TableCell>
-                    <TableCell>{formatDate(leave.end_date)}</TableCell>
-                    <TableCell>{leave.days_count}</TableCell>
-                    <TableCell>
-                      <Badge className={STATUS_COLORS[leave.status]} variant="secondary">
-                        {LEAVE_STATUS_LABELS[leave.status]}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{formatDate(leave.created_at)}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          ) : (
-            <p className="text-sm text-muted-foreground">No leave requests yet</p>
-          )}
+          <LeaveHistoryTable leaves={leaves ?? []} />
         </CardContent>
       </Card>
     </div>

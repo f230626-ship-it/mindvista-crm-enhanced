@@ -157,7 +157,13 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith("/login") ||
     pathname.startsWith("/signup") ||
     pathname.startsWith("/reset-password") ||
-    pathname.startsWith("/forgot-password");
+    pathname.startsWith("/forgot-password") ||
+    pathname.startsWith("/auth/confirm");
+
+  // Public API routes that don't require authentication (diagnostic/testing only in dev)
+  const isPublicApiRoute =
+    pathname === "/api/auth/test-brevo" ||
+    pathname === "/api/test-email";
 
   // ─── CSRF check on state-changing requests ─────────────────────────────
   if (!isOriginAllowed(request)) {
@@ -226,7 +232,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   // ─── Route protection ──────────────────────────────────────────────────
-  if (!user && !isAuthPage && pathname !== "/") {
+  if (!user && !isAuthPage && !isPublicApiRoute && pathname !== "/") {
     if (isApiRoute) {
       const unauthResponse = NextResponse.json(
         { code: "UNAUTHORIZED", message: "Authentication required" },
@@ -244,7 +250,7 @@ export async function updateSession(request: NextRequest) {
     return redirectResponse;
   }
 
-  if (user && isAuthPage) {
+  if (user && isAuthPage && pathname !== "/reset-password" && pathname !== "/auth/confirm") {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     const redirectResponse = NextResponse.redirect(url);

@@ -5,6 +5,26 @@ import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, 
 import { Calendar, TrendingUp, Target, Activity } from "lucide-react";
 import { motion } from "framer-motion";
 
+interface TooltipProps {
+  active?: boolean;
+  payload?: any[];
+}
+
+// Move CustomTooltip outside the component to prevent re-creation on each render
+const CustomTooltip = ({ active, payload }: TooltipProps) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="rounded-lg border bg-background p-3 shadow-lg">
+        <p className="font-semibold">{payload[0].payload.name || payload[0].name}</p>
+        <p className="text-sm text-muted-foreground">
+          {payload[0].name}: <span className="font-medium">{payload[0].value}</span>
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
+
 interface DashboardChartsProps {
   leaveBalance: any;
   recentLeaves: any[];
@@ -68,30 +88,16 @@ export function DashboardCharts({
     return acc;
   }, [] as any[]);
 
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="rounded-lg border bg-background p-3 shadow-lg">
-          <p className="font-semibold">{payload[0].payload.name || payload[0].name}</p>
-          <p className="text-sm text-muted-foreground">
-            {payload[0].name}: <span className="font-medium">{payload[0].value}</span>
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
-
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
+    <div className="grid gap-4 sm:gap-6 grid-cols-[repeat(auto-fit,minmax(min(380px,100%),1fr))]">
       {/* Leave Balance Pie Chart */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.2 }}
       >
-        <Card className="overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10">
+        <Card className="overflow-hidden pt-0">
+          <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 py-(--card-spacing)">
             <CardTitle className="flex items-center gap-2 text-lg">
               <Calendar className="h-5 w-5 text-primary" />
               Leave Balance Distribution
@@ -135,8 +141,8 @@ export function DashboardCharts({
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.3 }}
       >
-        <Card className="overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-green-500/5 to-green-500/10">
+        <Card className="overflow-hidden pt-0">
+          <CardHeader className="bg-gradient-to-r from-green-500/5 to-green-500/10 py-(--card-spacing)">
             <CardTitle className="flex items-center gap-2 text-lg">
               <Activity className="h-5 w-5 text-green-600" />
               Leave Request Status
@@ -167,8 +173,8 @@ export function DashboardCharts({
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.4 }}
         >
-          <Card className="overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-blue-500/5 to-blue-500/10">
+            <Card className="overflow-hidden pt-0">
+              <CardHeader className="bg-gradient-to-r from-blue-500/5 to-blue-500/10 py-(--card-spacing)">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <TrendingUp className="h-5 w-5 text-blue-600" />
                 Leave Request Trends
@@ -203,8 +209,8 @@ export function DashboardCharts({
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5 }}
         >
-          <Card className="overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-purple-500/5 to-purple-500/10">
+            <Card className="overflow-hidden pt-0">
+              <CardHeader className="bg-gradient-to-r from-purple-500/5 to-purple-500/10 py-(--card-spacing)">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Target className="h-5 w-5 text-purple-600" />
                 Team Performance Distribution

@@ -1,13 +1,15 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentEmployee, requireRole } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { recalculateAllGoals } from "@/lib/performance/goal-calculator";
 
 export async function createGoal(formData: FormData) {
   const employee = await getCurrentEmployee();
   if (!employee) return { error: "Not authenticated" };
-  await requireRole("admin", "manager");
+  await requireRole("admin");
 
   const supabase = await createClient();
 
@@ -41,10 +43,43 @@ export async function updateGoalProgress(goalId: string, completionStatus: numbe
   return { success: true };
 }
 
+export async function deleteGoal(goalId: string) {
+  await requireRole("admin");
+  const supabase = await createAdminClient();
+
+  const { error } = await supabase
+    .from("performance_goals")
+    .delete()
+    .eq("id", goalId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/admin/performance");
+  revalidatePath("/performance");
+  return { success: true };
+}
+
+export async function autoCalculateGoals(employeeId?: string) {
+  const employee = await getCurrentEmployee();
+  if (!employee) return { error: "Not authenticated" };
+
+  const targetId = employee.role === "admin" ? employeeId : employee.id;
+  const results = await recalculateAllGoals(targetId);
+
+  revalidatePath("/performance");
+  revalidatePath("/admin/performance");
+
+  return {
+    success: true,
+    updated: results.length,
+    metrics: results.filter((r) => r.metricSource !== "manual").length,
+  };
+}
+
 export async function submitReview(formData: FormData) {
   const employee = await getCurrentEmployee();
   if (!employee) return { error: "Not authenticated" };
-  await requireRole("admin", "manager");
+  await requireRole("admin");
 
   const supabase = await createClient();
 

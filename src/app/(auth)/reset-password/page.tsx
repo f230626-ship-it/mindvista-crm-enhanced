@@ -2,7 +2,6 @@
 
 import { useState, useTransition, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import { resetPassword } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
@@ -17,6 +16,7 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Spinner } from "@/components/ui/spinner";
+import { BrandLogo } from "@/components/ui/brand-logo";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 
@@ -103,12 +103,32 @@ function ResetPasswordForm() {
     );
   }
 
+  // Detect auth/session errors that mean the token is no longer valid
+  const isAuthError =
+    error &&
+    (error.toLowerCase().includes("expired") ||
+      error.toLowerCase().includes("failed to reset") ||
+      error.toLowerCase().includes("session") ||
+      error.toLowerCase().includes("auth"));
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
-        <Alert variant="destructive" className="animate-scale-in">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
+        <div className="space-y-2">
+          <Alert variant="destructive" className="animate-scale-in">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+          {isAuthError && (
+            <p className="text-center text-sm text-muted-foreground">
+              <Link
+                href="/forgot-password"
+                className="underline hover:text-foreground transition-colors"
+              >
+                Request a new reset link
+              </Link>
+            </p>
+          )}
+        </div>
       )}
 
       <div className="space-y-2">
@@ -157,33 +177,36 @@ function ResetPasswordForm() {
 
 function ResetPasswordPage() {
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background p-4">
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background p-4 sm:p-6 lg:p-8">
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-32 left-1/2 h-64 w-96 -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute bottom-0 right-0 h-48 w-48 rounded-full bg-primary/5 blur-2xl" />
+        <div className="absolute -top-40 left-1/2 h-80 w-[30rem] -translate-x-1/2 rounded-full bg-primary/15 blur-3xl" />
+        <div className="absolute bottom-0 right-0 h-64 w-64 rounded-full bg-primary/8 blur-2xl" />
       </div>
 
       <motion.div
-        initial={{ opacity: 0, y: 20, scale: 0.98 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="relative w-full max-w-md"
+        className="relative w-full max-w-[450px]"
       >
-        <Card className="border-border/60 bg-card/90 shadow-2xl shadow-primary/5 backdrop-blur-sm">
-          <CardHeader className="space-y-4 text-center">
-            <Image
-              src="/images/logo.png"
-              alt="MindVista"
-              width={180}
-              height={48}
-              className="mx-auto h-10 w-auto object-contain"
-              priority
-            />
-            <div>
-              <CardTitle className="text-xl">Set new password</CardTitle>
-              <CardDescription>Choose a strong password for your account</CardDescription>
+        <Card className="border-border/50 bg-card/85 shadow-2xl shadow-primary/8 [--card-spacing:1.75rem] sm:[--card-spacing:2.25rem]">
+          {/* Branding header — logo sits tight above title */}
+          <div className="flex flex-col items-center gap-1 px-6 pt-4 pb-4 text-center">
+            <div className="w-[6rem] sm:w-[7.5rem] mb-[-0.75rem]">
+              <BrandLogo
+                lightLogoSrc="/images/mindvista-official-logo-light.png"
+                darkLogoSrc="/images/mindvista-official-logo-dark.png"
+                priority
+                variant="stacked"
+                className="mx-auto transition-transform hover:scale-[1.01]"
+                sizes="(max-width: 640px) 6rem, 7.5rem"
+              />
             </div>
-          </CardHeader>
+            <div className="space-y-1">
+              <h1 className="text-2xl font-bold tracking-tight text-card-foreground">Set new password</h1>
+              <p className="text-sm text-muted-foreground">Choose a strong password for your account</p>
+            </div>
+          </div>
           <CardContent>
             <Suspense fallback={<div className="flex justify-center py-4"><Spinner /></div>}>
               <ResetPasswordForm />

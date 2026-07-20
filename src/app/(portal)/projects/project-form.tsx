@@ -22,8 +22,6 @@ import {
   User, 
   DollarSign, 
   Calendar, 
-  Percent, 
-  Activity, 
   ArrowLeft,
   X,
   Check
@@ -48,11 +46,12 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
   const [priority, setPriority] = useState<Project["priority"]>(project?.priority || "Medium");
   
   const [bdId, setBdId] = useState(project?.bd_id || "");
-  const [managerId, setManagerId] = useState(project?.manager_id || "");
   const [closingDevId, setClosingDevId] = useState(project?.closing_developer_id || "");
   
   const [isMonthlyRetainer, setIsMonthlyRetainer] = useState(project?.is_monthly_retainer || false);
   const [currency, setCurrency] = useState(project?.currency || "USD");
+  const [projectType, setProjectType] = useState(project?.project_type || "");
+  const [paymentStructure, setPaymentStructure] = useState(project?.payment_structure || "");
 
   const isEditing = !!project;
   const isAdmin = currentEmployee.pm_role === "admin";
@@ -69,9 +68,10 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
     formData.set("priority", priority || "Medium");
     formData.set("is_monthly_retainer", String(isMonthlyRetainer));
     formData.set("currency", currency);
+    formData.set("project_type", projectType);
+    formData.set("payment_structure", paymentStructure);
     
     if (bdId) formData.set("bd_id", bdId);
-    if (managerId) formData.set("manager_id", managerId);
     if (closingDevId) formData.set("closing_developer_id", closingDevId);
 
     try {
@@ -123,7 +123,7 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
               />
             </div>
 
-            <div className="grid gap-4 grid-cols-2">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
               <div className="space-y-1.5">
                 <Label htmlFor="client_name" className="text-xs font-semibold text-muted-foreground">Client Name</Label>
                 <Input
@@ -147,7 +147,7 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
               </div>
             </div>
 
-            <div className="grid gap-4 grid-cols-2">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
               <div className="space-y-1.5">
                 <Label htmlFor="client_email" className="text-xs font-semibold text-muted-foreground">Client Email</Label>
                 <Input
@@ -190,6 +190,22 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
             </div>
 
             <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-muted-foreground">Project Type</Label>
+              <Select value={projectType} onValueChange={(val) => setProjectType(val ?? "")}>
+                <SelectTrigger className="pm-select-trigger">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Full Time">Full Time</SelectItem>
+                  <SelectItem value="Part Time">Part Time</SelectItem>
+                  <SelectItem value="One-time">One-time</SelectItem>
+                  <SelectItem value="Contract">Contract</SelectItem>
+                  <SelectItem value="Internship">Internship</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
               <Label htmlFor="description" className="text-xs font-semibold text-muted-foreground">Project Description</Label>
               <Textarea
                 id="description"
@@ -216,10 +232,16 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid gap-4 grid-cols-2">
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
                 <div className="space-y-1.5">
                   <Label className="text-xs font-semibold text-muted-foreground">BD Representative</Label>
-                  <Select value={bdId} onValueChange={(val) => setBdId(val || "")}>
+                  <Select
+                    value={bdId}
+                    onValueChange={(val) => setBdId(val || "")}
+                    items={employees
+                      .filter((e) => e.pm_role === "bd" || e.pm_role === "admin")
+                      .map((emp) => ({ value: emp.id, label: emp.full_name }))}
+                  >
                     <SelectTrigger className="pm-select-trigger">
                       <SelectValue placeholder="Select BD" />
                     </SelectTrigger>
@@ -254,43 +276,40 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
                 </div>
               </div>
 
-              <div className="grid gap-4 grid-cols-2">
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-muted-foreground">Project Manager / PM</Label>
-                  <Select value={managerId} onValueChange={(val) => setManagerId(val || "")}>
+                  <Label className="text-xs font-semibold text-muted-foreground">Front Face</Label>
+                  <Select
+                    value={closingDevId}
+                    onValueChange={(val) => setClosingDevId(val || "")}
+                    items={employees.map((emp) => ({ value: emp.id, label: emp.full_name }))}
+                  >
                     <SelectTrigger className="pm-select-trigger">
-                      <SelectValue placeholder="Select PM" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {employees
-                        .filter((e) => e.pm_role === "coordinator" || e.pm_role === "admin")
-                        .map((emp) => (
-                          <SelectItem key={emp.id} value={emp.id}>
-                            {emp.full_name}
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-muted-foreground">Closing Developer (Optional)</Label>
-                  <Select value={closingDevId} onValueChange={(val) => setClosingDevId(val || "")}>
-                    <SelectTrigger className="pm-select-trigger">
-                      <SelectValue placeholder="Select Developer" />
+                      <SelectValue placeholder="Select Front Face" />
                     </SelectTrigger>
                     <SelectContent>
                       {employees.map((emp) => (
-                        <SelectItem key={emp.id} value={emp.id}>
-                          {emp.full_name}
-                        </SelectItem>
+                          <SelectItem key={emp.id} value={emp.id}>
+                            {emp.full_name}
+                          </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="profile_name" className="text-xs font-semibold text-muted-foreground">Profile Name</Label>
+                  <Input
+                    id="profile_name"
+                    name="profile_name"
+                    defaultValue={project?.profile_name || ""}
+                    placeholder="E.g. Fiza"
+                    className="pm-input"
+                  />
+                </div>
               </div>
 
-              <div className="grid gap-4 grid-cols-2">
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
                 <div className="space-y-1.5">
                   <Label className="text-xs font-semibold text-muted-foreground">Project Status</Label>
                   <Select value={status} onValueChange={(val) => setStatus(val as Project["status"])}>
@@ -329,7 +348,7 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
                 </div>
               </div>
 
-              <div className="grid gap-4 grid-cols-2 pt-1 border-t border-border/40">
+              <div className="pt-1 border-t border-border/40">
                 <div className="space-y-1.5">
                   <Label className="text-xs font-semibold text-muted-foreground">Project Priority</Label>
                   <Select value={priority} onValueChange={(val) => setPriority(val as Project["priority"])}>
@@ -342,25 +361,6 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
                       <SelectItem value="High">High</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label htmlFor="progress_percentage" className="text-xs font-semibold text-muted-foreground">Progress Percentage</Label>
-                  <div className="relative">
-                    <Input
-                      id="progress_percentage"
-                      name="progress_percentage"
-                      type="number"
-                      min={0}
-                      max={100}
-                      defaultValue={project?.progress_percentage || 0}
-                      placeholder="0"
-                      className="pm-input pl-3.5 pr-8 font-mono"
-                    />
-                    <div className="absolute right-3 top-3 text-muted-foreground pointer-events-none">
-                      <Percent className="h-4 w-4" />
-                    </div>
-                  </div>
                 </div>
               </div>
             </CardContent>
@@ -378,7 +378,7 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid gap-4 grid-cols-3">
+              <div className="grid gap-3 sm:gap-4 grid-cols-[repeat(auto-fit,minmax(280px,1fr))]">
                 <div className="space-y-1.5 col-span-2">
                   <Label htmlFor="value" className="text-xs font-semibold text-muted-foreground">Project Value</Label>
                   <Input
@@ -406,6 +406,45 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
                     </SelectContent>
                   </Select>
                 </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="project_rate" className="text-xs font-semibold text-muted-foreground">Project Rate</Label>
+                  <Input
+                    id="project_rate"
+                    name="project_rate"
+                    defaultValue={project?.project_rate || ""}
+                    placeholder="E.g. 1500RS/h"
+                    className="pm-input font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-muted-foreground">Payment Structure</Label>
+                  <Select value={paymentStructure} onValueChange={(val) => setPaymentStructure(val ?? "")}>
+                    <SelectTrigger className="pm-select-trigger">
+                      <SelectValue placeholder="Select structure" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Milestones">Milestones</SelectItem>
+                      <SelectItem value="Monthly">Monthly</SelectItem>
+                      <SelectItem value="Weekly">Weekly</SelectItem>
+                      <SelectItem value="Upfront">Upfront</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="expected_monthly_revenue" className="text-xs font-semibold text-muted-foreground">Expected Monthly Revenue (MRR)</Label>
+                  <Input
+                    id="expected_monthly_revenue"
+                    name="expected_monthly_revenue"
+                    type="number"
+                    step="0.01"
+                    defaultValue={project?.expected_monthly_revenue || ""}
+                    placeholder="E.g. 2000"
+                    className="pm-input font-mono"
+                  />
+                </div>
               </div>
 
               <div className="flex items-center space-x-2.5 py-1 px-2.5 rounded-lg border border-border/40 bg-muted/20 hover:bg-muted/40 transition-colors">
@@ -424,7 +463,7 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
               </div>
 
               {isMonthlyRetainer && (
-                <div className="grid gap-4 grid-cols-2 animate-fade-in">
+                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 animate-fade-in">
                   <div className="space-y-1.5">
                     <Label htmlFor="retainer_amount" className="text-xs font-semibold text-muted-foreground">Monthly Retainer Amount</Label>
                     <Input
@@ -481,7 +520,7 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
                 <p className="text-[11px] text-muted-foreground mt-0.5">Crucial dates, deadlines, and delivery milestones</p>
               </div>
             </CardHeader>
-            <CardContent className="grid gap-4 grid-cols-3">
+            <CardContent className="grid gap-3 sm:gap-4 grid-cols-[repeat(auto-fit,minmax(280px,1fr))]">
               <div className="space-y-1.5">
                 <Label htmlFor="start_date" className="text-xs font-semibold text-muted-foreground">Start Date</Label>
                 <Input
@@ -520,20 +559,20 @@ export function ProjectForm({ employees, currentEmployee, project }: ProjectForm
       </div>
 
       {/* Action buttons */}
-      <div className="flex justify-end gap-3 pt-6 border-t border-border/40">
+      <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6 border-t border-border/40">
         <Button
           type="button"
           variant="outline"
           onClick={() => router.push(isEditing ? `/projects/${project?.id}` : "/projects")}
           disabled={loading}
-          className="pm-btn-outline h-10 px-5"
+          className="pm-btn-outline h-10 px-5 w-full sm:w-auto"
         >
           Cancel
         </Button>
         <Button 
           type="submit" 
           disabled={loading} 
-          className="pm-btn-primary text-primary-foreground px-6 h-10"
+          className="pm-btn-primary text-primary-foreground px-6 h-10 w-full sm:w-auto"
         >
           {loading ? (
             "Saving..."
